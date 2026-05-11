@@ -7,6 +7,7 @@ const Home      = () => <h1>Home Page</h1>;
 export default function App() {
   return (
     <BrowserRouter>
+    
       <Routes>
         <Route path="/"          element={<Home />} />
         <Route path="/signup"    element={<Signup />} />
