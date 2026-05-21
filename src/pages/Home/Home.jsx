@@ -114,7 +114,7 @@ export default function Home() {
       </section>
 
       {/* ── CTA ── */}
-      <section className={styles.cta}>
+      <section className={styles.cta} id="therapists">
         <div className={styles.container}>
           <div className={styles.ctaBox}>
             <h2 className={styles.ctaTitle}>Take the First Step Toward Your Inner Peace Today</h2>
@@ -130,7 +130,7 @@ export default function Home() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className={styles.footer}>
+      <footer className={styles.footer}  id="resources">
         <div className={styles.container}>
           <div className={styles.footerGrid}>
 
