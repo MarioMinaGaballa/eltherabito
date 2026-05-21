@@ -8,3 +8,8 @@ html, body {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #e8eeff 100%);
 }
+button:focus,
+button:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
