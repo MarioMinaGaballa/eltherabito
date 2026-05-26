@@ -35,7 +35,9 @@ export default function Dashboard() {
 
           <div className={styles.headerActions}>
             <button className={styles.iconBtn} title="Notifications"><FaBell /></button>
-            <button className={styles.iconBtn} title="Settings"><FaCog /></button>
+            <button className={styles.iconBtn} title="Settings" onClick={() => navigate('/display-preferences')}>
+              <FaCog />
+            </button>
             <div className={styles.userAvatar}>A</div>
           </div>
 
