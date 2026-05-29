@@ -1,42 +1,49 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaCheckCircle } from 'react-icons/fa';
+import {
+  FaMapPin, FaUser, FaEnvelope, FaGlobe,
+  FaBirthdayCake, FaLock, FaEye, FaEyeSlash,
+  FaShieldAlt, FaArrowRight,
+} from 'react-icons/fa';
 import styles from './Signup.module.css';
 
-function getPasswordStrength(password) {
-  if (!password) return { width: '0%', color: '#e0e0e0', label: '' };
-  let score = 0;
-  if (password.length >= 8) score++;
-  if (/[a-z]/.test(password)) score++;
-  if (/[A-Z]/.test(password)) score++;
-  if (/[0-9]/.test(password)) score++;
-  if (/[^a-zA-Z0-9]/.test(password)) score++;
-  if (score >= 4) return { width: '100%', color: '#22c55e', label: 'Strong' };
-  if (score >= 2) return { width: '66%',  color: '#eab308', label: 'Medium' };
-  return { width: '33%', color: '#ef4444', label: 'Weak' };
-}
+const PHONE_PREFIXES = ['+20', '+1', '+44', '+91'];
 
-export default function Signup() {
+export default function Register() {
   const navigate = useNavigate();
 
-  const [role, setRole]         = useState('patient');
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail]       = useState('');
-  const [password, setPassword] = useState('');
+  const [form, setForm] = useState({
+    firstName: '', lastName: '', email: '',
+    phonePrefix: '+20', phone: '',
+    age: '', gender: '', password: '', agreed: false,
+  });
   const [showPass, setShowPass] = useState(false);
-  const [agreed, setAgreed]     = useState(false);
   const [errors, setErrors]     = useState({});
+  const [toast, setToast]       = useState(null);
 
-  const strength = getPasswordStrength(password);
+  function set(key, val) {
+    setForm(p => ({ ...p, [key]: val }));
+    setErrors(p => ({ ...p, [key]: '' }));
+  }
+
+  function showToast(msg) {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3000);
+  }
 
   function validate() {
     const e = {};
-    if (!fullName.trim())                              e.fullName = 'Name is required';
-    if (!email.trim())                                 e.email    = 'Email is required';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email  = 'Invalid email address';
-    if (!password)                                     e.password = 'Password is required';
-    else if (password.length < 8)                      e.password = 'At least 8 characters';
-    if (!agreed)                                       e.agreed   = 'You must agree to continue';
+    if (!form.firstName.trim())  e.firstName = 'Required';
+    if (!form.lastName.trim())   e.lastName  = 'Required';
+    if (!form.email.trim())      e.email     = 'Required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Invalid email';
+    if (!form.phone.trim())      e.phone     = 'Required';
+    if (!form.age)               e.age       = 'Required';
+    else if (form.age < 13 || form.age > 120) e.age = 'Must be 13–120';
+    if (!form.gender)            e.gender    = 'Please select a gender';
+    if (!form.password)          e.password  = 'Required';
+    else if (form.password.length < 8) e.password = 'At least 8 characters';
+    if (!form.agreed)            e.agreed    = 'You must agree to continue';
     return e;
   }
 
@@ -44,149 +51,222 @@ export default function Signup() {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
-
-    // TODO: replace with real API call → authService.signup(...)
-    console.log('Signup payload:', { fullName, email, password, role });
-    navigate('/dashboard');
+    showToast('✓ Creating your account...');
+    // TODO: authService.register(form)
+    console.log('Register payload:', form);
+    setTimeout(() => navigate('/dashboard'), 1500);
   }
 
   return (
     <div className={styles.page}>
-      <div className={styles.card}>
 
-        {/* ── Logo ── */}
-        <div className={styles.header}>
-          <div className={styles.logoRow}>
-            <div className={styles.logoIcon}>E</div>
-            <span className={styles.logoText}>Eltherabito</span>
-          </div>
-          <h2 className={styles.title}>Create your account</h2>
-          <p className={styles.subtitle}>Join a community dedicated to mental well-being</p>
+      {/* ── HEADER ── */}
+      <header className={styles.header}>
+        <Link to="/" className={styles.logo}>
+          <FaMapPin className={styles.logoIcon} />
+          <span>Eltherabito</span>
+        </Link>
+        <div className={styles.headerActions}>
+          <span className={styles.headerText}>Already have an account?</span>
+          <Link to="/login" className={styles.btnLoginLink}>Log in</Link>
         </div>
+      </header>
 
-        {/* ── Role tabs ── */}
-        <div className={styles.roleTabs}>
-          {['patient', 'therapist'].map((r) => (
-            <button
-              key={r}
-              type="button"
-              className={`${styles.roleBtn} ${role === r ? styles.roleBtnActive : ''}`}
-              onClick={() => setRole(r)}
-            >
-              <FaUser size={16} />
-              {r.charAt(0).toUpperCase() + r.slice(1)}
-            </button>
-          ))}
-        </div>
+      {/* ── MAIN ── */}
+      <div className={styles.container}>
+        <div className={styles.wrapper}>
+          <div className={styles.formSection}>
+            <div className={styles.formWrapper}>
 
-        {/* ── Form ── */}
-        <form onSubmit={handleSubmit} noValidate>
+              <h1 className={styles.title}>Create your account</h1>
+              <p className={styles.subtitle}>Join a community dedicated to mental well-being</p>
 
-          {/* Full Name */}
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Full Name</label>
-            <div className={styles.inputWrapper}>
-              <span className={styles.inputIcon}><FaUser size={16} /></span>
-              <input
-                type="text"
-                className={`${styles.input} ${errors.fullName ? styles.inputError : ''}`}
-                placeholder="John Doe"
-                value={fullName}
-                onChange={(e) => { setFullName(e.target.value); setErrors((prev) => ({ ...prev, fullName: '' })); }}
-              />
-            </div>
-            {errors.fullName && <p className={styles.errorMsg}>{errors.fullName}</p>}
-          </div>
-
-          {/* Email */}
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Email Address</label>
-            <div className={styles.inputWrapper}>
-              <span className={styles.inputIcon}><FaEnvelope size={16} /></span>
-              <input
-                type="email"
-                className={`${styles.input} ${errors.email ? styles.inputError : ''}`}
-                placeholder="john@example.com"
-                value={email}
-                onChange={(e) => { setEmail(e.target.value); setErrors((prev) => ({ ...prev, email: '' })); }}
-              />
-            </div>
-            {errors.email && <p className={styles.errorMsg}>{errors.email}</p>}
-          </div>
-
-          {/* Password */}
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Password</label>
-            <div className={styles.inputWrapper}>
-              <span className={styles.inputIcon}><FaLock size={16} /></span>
-              <input
-                type={showPass ? 'text' : 'password'}
-                className={`${styles.input} ${errors.password ? styles.inputError : ''}`}
-                placeholder="Create a strong password"
-                value={password}
-                onChange={(e) => { setPassword(e.target.value); setErrors((prev) => ({ ...prev, password: '' })); }}
-              />
-              <button
-                type="button"
-                className={styles.eyeBtn}
-                onClick={() => setShowPass((v) => !v)}
-                aria-label={showPass ? 'Hide password' : 'Show password'}
-              >
-                {showPass ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
-              </button>
-            </div>
-            <p className={styles.hint}>Must be at least 8 characters with letters and numbers.</p>
-
-            {password && (
-              <div className={styles.strengthBar}>
-                <div className={styles.strengthMeter}>
-                  <div
-                    className={styles.strengthFill}
-                    style={{ width: strength.width, backgroundColor: strength.color }}
-                  />
-                </div>
-                <span className={styles.strengthLabel} style={{ color: strength.color }}>
-                  {strength.label}
-                </span>
+              {/* Role indicator */}
+              <div className={styles.roleIndicator}>
+                <FaUser /> <span>Patient</span>
               </div>
-            )}
-            {errors.password && <p className={styles.errorMsg}>{errors.password}</p>}
+
+              <form onSubmit={handleSubmit} noValidate className={styles.form}>
+
+                {/* First + Last Name */}
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>First Name</label>
+                    <div className={styles.inputWrap}>
+                      <FaUser className={styles.inputIcon} />
+                      <input
+                        type="text"
+                        className={`${styles.input} ${errors.firstName ? styles.inputErr : ''}`}
+                        placeholder="John"
+                        value={form.firstName}
+                        onChange={e => set('firstName', e.target.value)}
+                      />
+                    </div>
+                    {errors.firstName && <p className={styles.err}>{errors.firstName}</p>}
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Last Name</label>
+                    <div className={styles.inputWrap}>
+                      <FaUser className={styles.inputIcon} />
+                      <input
+                        type="text"
+                        className={`${styles.input} ${errors.lastName ? styles.inputErr : ''}`}
+                        placeholder="Doe"
+                        value={form.lastName}
+                        onChange={e => set('lastName', e.target.value)}
+                      />
+                    </div>
+                    {errors.lastName && <p className={styles.err}>{errors.lastName}</p>}
+                  </div>
+                </div>
+
+                {/* Email */}
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Email Address</label>
+                  <div className={styles.inputWrap}>
+                    <FaEnvelope className={styles.inputIcon} />
+                    <input
+                      type="email"
+                      className={`${styles.input} ${errors.email ? styles.inputErr : ''}`}
+                      placeholder="john@example.com"
+                      value={form.email}
+                      onChange={e => set('email', e.target.value)}
+                    />
+                  </div>
+                  {errors.email && <p className={styles.err}>{errors.email}</p>}
+                </div>
+
+                {/* Phone */}
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Phone Number</label>
+                  <div className={`${styles.phoneWrap} ${errors.phone ? styles.inputErr : ''}`}>
+                    <div className={styles.phonePrefix}>
+                      <FaGlobe className={styles.globeIcon} />
+                      <select
+                        className={styles.prefixSelect}
+                        value={form.phonePrefix}
+                        onChange={e => set('phonePrefix', e.target.value)}
+                      >
+                        {PHONE_PREFIXES.map(p => <option key={p}>{p}</option>)}
+                      </select>
+                    </div>
+                    <input
+                      type="tel"
+                      className={styles.phoneInput}
+                      placeholder="(00) 123 4567"
+                      value={form.phone}
+                      onChange={e => set('phone', e.target.value)}
+                    />
+                  </div>
+                  {errors.phone && <p className={styles.err}>{errors.phone}</p>}
+                </div>
+
+                {/* Age */}
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Age</label>
+                  <div className={styles.inputWrap}>
+                    <FaBirthdayCake className={styles.inputIcon} />
+                    <input
+                      type="number"
+                      className={`${styles.input} ${errors.age ? styles.inputErr : ''}`}
+                      placeholder="Enter your age"
+                      min="13" max="120"
+                      value={form.age}
+                      onChange={e => set('age', e.target.value)}
+                    />
+                  </div>
+                  {errors.age && <p className={styles.err}>{errors.age}</p>}
+                </div>
+
+                {/* Gender */}
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Gender</label>
+                  <div className={styles.genderOptions}>
+                    {['male', 'female'].map(g => (
+                      <label
+                        key={g}
+                        className={`${styles.genderOption} ${form.gender === g ? styles.genderSelected : ''}`}
+                      >
+                        <input
+                          type="radio"
+                          name="gender"
+                          value={g}
+                          checked={form.gender === g}
+                          onChange={() => set('gender', g)}
+                          className={styles.radioInput}
+                        />
+                        <span>{g.charAt(0).toUpperCase() + g.slice(1)}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {errors.gender && <p className={styles.err}>{errors.gender}</p>}
+                </div>
+
+                {/* Password */}
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Password</label>
+                  <div className={styles.inputWrap}>
+                    <FaLock className={styles.inputIcon} />
+                    <input
+                      type={showPass ? 'text' : 'password'}
+                      className={`${styles.input} ${errors.password ? styles.inputErr : ''}`}
+                      placeholder="Create a strong password"
+                      value={form.password}
+                      onChange={e => set('password', e.target.value)}
+                    />
+                    <button type="button" className={styles.eyeBtn} onClick={() => setShowPass(v => !v)}>
+                      {showPass ? <FaEyeSlash /> : <FaEye />}
+                    </button>
+                  </div>
+                  <p className={styles.hint}>Must be at least 8 characters with letters and numbers</p>
+                  {errors.password && <p className={styles.err}>{errors.password}</p>}
+                </div>
+
+                {/* Terms */}
+                <div className={styles.checkRow}>
+                  <input
+                    type="checkbox"
+                    id="terms"
+                    className={styles.checkbox}
+                    checked={form.agreed}
+                    onChange={e => set('agreed', e.target.checked)}
+                  />
+                  <label htmlFor="terms" className={styles.checkLabel}>
+                    I agree to the <Link to="/terms">Terms of Service</Link> and <Link to="/privacy">Privacy Policy</Link>
+                  </label>
+                </div>
+                {errors.agreed && <p className={styles.err}>{errors.agreed}</p>}
+
+                {/* Security badges */}
+                <div className={styles.badges}>
+                  <div className={styles.badge}><FaShieldAlt /> HIPAA COMPLIANT</div>
+                  <div className={styles.badge}><FaLock /> END-TO-END ENCRYPTED</div>
+                </div>
+
+                <button type="submit" className={styles.btnRegister}>
+                  Create Account <FaArrowRight />
+                </button>
+
+              </form>
+
+              <p className={styles.loginBottom}>
+                Already have an account? <Link to="/login">Log in here</Link>
+              </p>
+
+            </div>
           </div>
-
-          {/* Terms */}
-          <div className={styles.checkRow}>
-            <input
-              type="checkbox"
-              id="terms"
-              className={styles.checkbox}
-              checked={agreed}
-              onChange={(e) => { setAgreed(e.target.checked); setErrors((prev) => ({ ...prev, agreed: '' })); }}
-            />
-            <label htmlFor="terms" className={styles.checkLabel}>
-              I agree to the{' '}
-              <Link to="/terms">Terms of Service</Link> and{' '}
-              <Link to="/privacy">Privacy Policy</Link>
-            </label>
-          </div>
-          {errors.agreed && <p className={styles.errorMsg}>{errors.agreed}</p>}
-
-          <button type="submit" className={styles.submitBtn}>
-            Create Account <span>→</span>
-          </button>
-        </form>
-
-        {/* ── Security badges ── */}
-        <div className={styles.security}>
-          <div className={styles.badge}><FaCheckCircle size={14} color="#22c55e" /> HIPAA COMPLIANT</div>
-          <div className={styles.badge}><FaCheckCircle size={14} color="#22c55e" /> END-TO-END ENCRYPTED</div>
         </div>
-
-        {/* ── Footer ── */}
-        <p className={styles.footer}>
-          Already have an account? <Link to="/login">Log In</Link>
-        </p>
-        <p className={styles.copyright}>© 2026 Eltherabito Mental Health. All rights reserved.</p>
       </div>
+
+      {/* ── FOOTER ── */}
+      <footer className={styles.footer}>
+        <p>© 2026 Eltherabito Mental Health. All rights reserved.</p>
+      </footer>
+
+      {/* Toast */}
+      {toast && <div className={styles.toast}>{toast}</div>}
+
     </div>
   );
 }

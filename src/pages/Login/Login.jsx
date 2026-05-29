@@ -1,23 +1,29 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaEye, FaEyeSlash, FaFacebook } from 'react-icons/fa';
-import { FcGoogle } from "react-icons/fc";
+import { FaMapPin, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaGoogle, FaFacebookF } from 'react-icons/fa';
 import styles from './Login.module.css';
 
 export default function Login() {
   const navigate = useNavigate();
 
-  const [email, setEmail]         = useState('');
-  const [password, setPassword]   = useState('');
-  const [showPass, setShowPass]   = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [errors, setErrors]       = useState({});
+  const [email, setEmail]       = useState('');
+  const [password, setPassword] = useState('');
+  const [showPass, setShowPass] = useState(false);
+  const [remember, setRemember] = useState(false);
+  const [errors, setErrors]     = useState({});
+  const [toast, setToast]       = useState(null);
+
+  function showToast(msg) {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3000);
+  }
 
   function validate() {
     const e = {};
-    if (!email.trim())                                   e.email    = 'Email is required';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email    = 'Invalid email address';
-    if (!password)                                       e.password = 'Password is required';
+    if (!email.trim())                                     e.email    = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))   e.email    = 'Invalid email address';
+    if (!password)                                         e.password = 'Password is required';
+    else if (password.length < 6)                          e.password = 'At least 6 characters';
     return e;
   }
 
@@ -26,132 +32,140 @@ export default function Login() {
     const errs = validate();
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
 
-    // TODO: replace with real API call → authService.login(...)
-    console.log('Login payload:', { email, password, rememberMe });
-    navigate('/dashboard');
-  }
-
-  function handleSocialLogin(provider) {
-    console.log('Social login:', provider);
+    showToast('✓ Logging in...');
+    // TODO: authService.login({ email, password, remember })
+    setTimeout(() => {
+      showToast('✓ Welcome back!');
+      setTimeout(() => navigate('/dashboard'), 1000);
+    }, 1500);
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.page}>
 
-      <div className={styles.imageSection}>
-        <img
-          src="https://d2xsxph8kpxj0f.cloudfront.net/310519663531265658/gtqrRfypCCTCgjq5vWs5H8/sunset-landscape-cMkeb9xnJeoTHVmqZAZxzo.webp"
-          alt="Sunset landscape"
-        />
-        <div className={styles.imageOverlay} />
-        <div className={styles.imageText}>
-          <h2>Reconnect with yourself.</h2>
-          <p>Your journey to mental clarity and emotional balance continues here.</p>
-        </div>
-      </div>
+      {/* ── HEADER ── */}
+      <header className={styles.header}>
+        <Link to="/" className={styles.logo}>
+          <FaMapPin className={styles.logoIcon} />
+          <span>Eltherabito</span>
+        </Link>
+      </header>
 
-      {/* ── Right form panel ── */}
-      <div className={styles.formSection}>
+      {/* ── MAIN ── */}
+      <div className={styles.container}>
+        <div className={styles.wrapper}>
 
-        {/* Mobile logo */}
-        <div className={styles.mobileLogo}>
-          <div className={styles.mobileLogoIcon}>E</div>
-          <span className={styles.mobileLogoText}>Eltherabito</span>
-        </div>
-
-        <div className={styles.formWrapper}>
-
-          {/* Header */}
-          <div className={styles.header}>
-            <div className={styles.logoRow}>
-              <div className={styles.logoIcon}>E</div>
-              <span className={styles.logoText}>Eltherabito</span>
+          {/* Left image */}
+          <div className={styles.imageSection}>
+            <img
+              src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&fit=crop"
+              alt="Peaceful nature"
+              className={styles.image}
+            />
+            <div className={styles.imageOverlay}>
+              <h2 className={styles.overlayTitle}>Reconnect with yourself.</h2>
+              <p className={styles.overlaySubtitle}>
+                Your journey to mental clarity and emotional balance continues here.
+              </p>
             </div>
-            <h2 className={styles.title}>Welcome Back</h2>
-            <p className={styles.subtitle}>Log in to continue your mindfulness journey</p>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} noValidate>
+          {/* Right form */}
+          <div className={styles.formSection}>
+            <div className={styles.formWrapper}>
+              <h1 className={styles.title}>Welcome Back</h1>
+              <p className={styles.subtitle}>Log in to continue your mindfulness journey</p>
 
-            {/* Email */}
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Email Address</label>
-              <input
-                type="email"
-                className={`${styles.input} ${errors.email ? styles.inputError : ''}`}
-                placeholder="name@example.com"
-                value={email}
-                onChange={(e) => { setEmail(e.target.value); setErrors((p) => ({ ...p, email: '' })); }}
-              />
-              {errors.email && <p className={styles.errorMsg}>{errors.email}</p>}
-            </div>
+              <form onSubmit={handleSubmit} noValidate className={styles.form}>
 
-            {/* Password */}
-            <div className={styles.formGroup}>
-              <div className={styles.labelRow}>
-                <label className={styles.label}>Password</label>
-                <Link to="/forgot-password" className={styles.forgotLink}>Forgot password?</Link>
-              </div>
-              <div className={styles.passWrapper}>
-                <input
-                  type={showPass ? 'text' : 'password'}
-                  className={`${styles.input} ${errors.password ? styles.inputError : ''}`}
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => { setPassword(e.target.value); setErrors((p) => ({ ...p, password: '' })); }}
-                />
-                <button
-                  type="button"
-                  className={styles.eyeBtn}
-                  onClick={() => setShowPass((v) => !v)}
-                  aria-label={showPass ? 'Hide password' : 'Show password'}
-                >
-                  {showPass ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+                {/* Email */}
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Email Address</label>
+                  <div className={styles.inputWrap}>
+                    <FaEnvelope className={styles.inputIcon} />
+                    <input
+                      type="email"
+                      className={`${styles.input} ${errors.email ? styles.inputErr : ''}`}
+                      placeholder="name@example.com"
+                      value={email}
+                      onChange={e => { setEmail(e.target.value); setErrors(p => ({ ...p, email: '' })); }}
+                    />
+                  </div>
+                  {errors.email && <p className={styles.err}>{errors.email}</p>}
+                </div>
+
+                {/* Password */}
+                <div className={styles.formGroup}>
+                  <div className={styles.passHeader}>
+                    <label className={styles.label}>Password</label>
+                    <button type="button" className={styles.forgotLink} onClick={() => showToast('📧 Password reset link sent!')}>
+                      Forgot password?
+                    </button>
+                  </div>
+                  <div className={styles.inputWrap}>
+                    <FaLock className={styles.inputIcon} />
+                    <input
+                      type={showPass ? 'text' : 'password'}
+                      className={`${styles.input} ${errors.password ? styles.inputErr : ''}`}
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={e => { setPassword(e.target.value); setErrors(p => ({ ...p, password: '' })); }}
+                    />
+                    <button type="button" className={styles.eyeBtn} onClick={() => setShowPass(v => !v)}>
+                      {showPass ? <FaEyeSlash /> : <FaEye />}
+                    </button>
+                  </div>
+                  {errors.password && <p className={styles.err}>{errors.password}</p>}
+                </div>
+
+                {/* Remember me */}
+                <div className={styles.checkRow}>
+                  <input
+                    type="checkbox"
+                    id="remember"
+                    className={styles.checkbox}
+                    checked={remember}
+                    onChange={e => setRemember(e.target.checked)}
+                  />
+                  <label htmlFor="remember" className={styles.checkLabel}>Stay logged in for 30 days</label>
+                </div>
+
+                <button type="submit" className={styles.btnLogin}>Log in</button>
+              </form>
+
+              <p className={styles.signupText}>
+                New to Eltherabito? <Link to="/signup" className={styles.signupLink}>Create an account</Link>
+              </p>
+
+              <div className={styles.divider}><span>Or continue with</span></div>
+
+              <div className={styles.socialRow}>
+                <button className={styles.socialBtn} onClick={() => showToast('🔗 Connecting with Google...')}>
+                  <FaGoogle /> <span>Google</span>
+                </button>
+                <button className={styles.socialBtn} onClick={() => showToast('🔗 Connecting with Facebook...')}>
+                  <FaFacebookF /> <span>Facebook</span>
                 </button>
               </div>
-              {errors.password && <p className={styles.errorMsg}>{errors.password}</p>}
+
             </div>
+          </div>
 
-            {/* Remember me */}
-            <div className={styles.formGroup}>
-              <label className={styles.checkRow}>
-                <input
-                  type="checkbox"
-                  className={styles.checkbox}
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                />
-                <span className={styles.checkLabel}>Stay logged in for 30 days</span>
-              </label>
-            </div>
-
-            <button type="submit" className={styles.loginBtn}>Log In</button>
-
-            {/* Divider */}
-            <div className={styles.divider}>
-              <div className={styles.dividerLine} />
-              <span className={styles.dividerText}>Or continue with</span>
-              <div className={styles.dividerLine} />
-            </div>
-
-            
-            <div className={styles.socialButtons}>
-              <button type="button" className={styles.socialBtn} onClick={() => handleSocialLogin('google')}>
-                <FcGoogle size={18}  /> <span>Google</span>
-              </button>
-              <button type="button" className={styles.socialBtn} onClick={() => handleSocialLogin('facebook')}>
-                <FaFacebook size={18} color="#1877F2" /> <span>Facebook</span>
-              </button>
-            </div>
-          </form>
-
-          <p className={styles.signupSection}>
-            New to Eltherabito?{' '}
-            <Link to="/signup" className={styles.signupLink}>Create an account</Link>
-          </p>
         </div>
       </div>
+
+      {/* ── FOOTER ── */}
+      <footer className={styles.footer}>
+        <p className={styles.footerText}>© 2026 Eltherabito. All rights reserved.</p>
+        <div className={styles.footerLinks}>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+        </div>
+      </footer>
+
+      {/* Toast */}
+      {toast && <div className={styles.toast}>{toast}</div>}
+
     </div>
   );
 }
