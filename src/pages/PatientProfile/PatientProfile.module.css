@@ -1,124 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
 
-.page {
-  --primary-blue: #3B82F6;
-  --primary-blue-dark: #2563EB;
-  --text-dark: #1F2937;
-  --text-gray: #6B7280;
+.content {
+  width: 100%;
+}
+
+/* Page shell handled by AppLayout */
+
+:root {
+  --primary-blue: #1558D6;
+  --primary-blue-dark: #1248b8;
+  --text-dark: #1D2939;
+  --text-gray: #667085;
   --text-light-gray: #9CA3AF;
   --bg-white: #FFFFFF;
   --bg-light-gray: #F9FAFB;
   --bg-light: #F3F4F6;
-  --border-color: #E5E7EB;
+  --border-color: #EAECF0;
   --success-color: #10B981;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background-color: var(--bg-light-gray);
-  color: var(--text-dark);
-  line-height: 1.6;
-  font-size: 16px;
-}
-
-/* ── HEADER ── */
-
-.header {
-  background-color: var(--bg-white);
-  border-bottom: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.headerInner {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 1.5rem;
-}
-
-.logoSection {
-  cursor: pointer;
-  transition: opacity 0.3s ease;
-  background: none;
-  border: none;
-  padding: 0;
-}
-
-.logoSection:hover {
-  opacity: 0.8;
-}
-
-.logoText {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--primary-blue);
-}
-
-.headerActions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.iconBtn {
-  background: none;
-  border: none;
-  font-size: 1.25rem;
-  color: var(--text-gray);
-  cursor: pointer;
-  padding: 0.5rem;
-  transition: color 0.3s ease;
-}
-
-.iconBtn:hover {
-  color: var(--primary-blue);
-}
-
-.iconBtn:active {
-  transform: scale(0.97);
-}
-
-.profileBtn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  border-radius: 50%;
-  transition: transform 0.3s ease;
-}
-
-.profileBtn:hover {
-  transform: scale(1.1);
-}
-
-.profileBtn:active {
-  transform: scale(0.97);
-}
-
-.profileImg {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
-}
-
-/* ── MAIN ── */
-
-.mainContainer {
-  flex: 1;
-  padding: 2rem 0;
-}
-
-.container {
-  padding: 0 1.5rem;
 }
 
 .breadcrumbSection {
@@ -493,10 +394,6 @@
 }
 
 @media (max-width: 576px) {
-  .headerInner {
-    gap: 0.5rem;
-  }
-
   .patientCard {
     grid-template-columns: 80px 1fr;
     gap: 1rem;

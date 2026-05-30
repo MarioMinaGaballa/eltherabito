@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import AppLayout from '../../components/layout/AppLayout';
 import styles from './DisplayPreferences.module.css';
 
 const THEMES = [
@@ -37,26 +37,7 @@ export default function DisplayPreferences() {
   }
 
   return (
-    <div className={styles.page}>
-
-      {/* ── NAV ── */}
-      <nav className={styles.nav}>
-        <Link to="/" className={styles.navLogo}>
-          <div className={styles.navIcon}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-            </svg>
-          </div>
-          Eltherabito
-        </Link>
-        <div className={styles.navLinks}>
-          <a href="#">Settings</a>
-          <a href="#">Support</a>
-          <div className={styles.navAvatar}>A</div>
-        </div>
-      </nav>
-
-      {/* ── CONTENT ── */}
+    <AppLayout variant="patient" showSidebar showSearch>
       <div className={styles.content}>
         <h1 className={styles.pageTitle}>Display Preferences</h1>
         <p className={styles.pageDesc}>
@@ -152,10 +133,9 @@ export default function DisplayPreferences() {
 
       {/* ── FOOTER BUTTONS ── */}
       <div className={styles.footerBtns}>
-        <button className={styles.btnReset} onClick={handleReset}>Reset to Default</button>
-        <button className={styles.btnSave}  onClick={handleSave}>Save Changes</button>
+        <button type="button" className={styles.btnReset} onClick={handleReset}>Reset to Default</button>
+        <button type="button" className={styles.btnSave} onClick={handleSave}>Save Changes</button>
       </div>
-
-    </div>
+    </AppLayout>
   );
 }

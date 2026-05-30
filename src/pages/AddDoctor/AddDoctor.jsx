@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
-  FaBell, FaQuestionCircle, FaCog, FaUserMd,
-  FaMars, FaVenus, FaEye, FaEyeSlash, FaSave,
+  FaUserMd, FaMars, FaVenus, FaEye, FaEyeSlash, FaSave,
 } from 'react-icons/fa';
+import AppLayout from '../../components/layout/AppLayout';
+import { BRAND } from '../../components/layout/navConfig';
 import styles from './AddDoctor.module.css';
 
 const SPECIALTIES = [
@@ -65,27 +66,11 @@ export default function AddDoctor() {
   }
 
   return (
-    <div className={styles.page}>
-
-      {/* ── HEADER ── */}
-      <header className={styles.header}>
-        <Link to="/admin" className={styles.logo}>Eltherabito</Link>
-        <div className={styles.headerActions}>
-          <button className={styles.iconBtn} title="Notifications"><FaBell /></button>
-          <button className={styles.iconBtn} title="Help"><FaQuestionCircle /></button>
-          <button className={styles.iconBtn} title="Settings"><FaCog /></button>
-          <div className={styles.adminBtn}>
-            <img
-              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop"
-              alt="Admin"
-              className={styles.adminImg}
-            />
-            <span>Admin</span>
-          </div>
-        </div>
-      </header>
-
-      {/* ── MAIN ── */}
+    <AppLayout
+      variant="admin"
+      showSidebar={false}
+      headerProps={{ subtitle: BRAND.adminTagline, logoHref: '/admin' }}
+    >
       <main className={styles.main}>
 
         {/* Form header */}
@@ -286,6 +271,6 @@ export default function AddDoctor() {
         </div>
       )}
 
-    </div>
+    </AppLayout>
   );
 }

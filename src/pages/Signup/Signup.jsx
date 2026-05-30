@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  FaMapPin, FaUser, FaEnvelope, FaGlobe,
+  FaUser, FaEnvelope, FaGlobe,
   FaBirthdayCake, FaLock, FaEye, FaEyeSlash,
   FaShieldAlt, FaArrowRight,
 } from 'react-icons/fa';
+import AppHeader from '../../components/layout/AppHeader';
 import styles from './Signup.module.css';
 
 const PHONE_PREFIXES = ['+20', '+1', '+44', '+91'];
@@ -60,17 +61,10 @@ export default function Register() {
   return (
     <div className={styles.page}>
 
-      {/* ── HEADER ── */}
-      <header className={styles.header}>
-        <Link to="/" className={styles.logo}>
-          <FaMapPin className={styles.logoIcon} />
-          <span>Eltherabito</span>
-        </Link>
-        <div className={styles.headerActions}>
-          <span className={styles.headerText}>Already have an account?</span>
-          <Link to="/login" className={styles.btnLoginLink}>Log in</Link>
-        </div>
-      </header>
+      <AppHeader variant="auth">
+        <span className={styles.headerText}>Already have an account?</span>
+        <Link to="/login" className={styles.btnLoginLink}>Log in</Link>
+      </AppHeader>
 
       {/* ── MAIN ── */}
       <div className={styles.container}>

@@ -10,8 +10,9 @@ import AdminDashboard      from './pages/AdminDashboard/AdminDashboard';
 import SignUp            from './pages/Signup/Signup';
 import AddDoctor from './pages/AddDoctor/AddDoctor';
 import PatientProfile from './pages/PatientProfile/PatientProfile';
+import EditProfile from './pages/EditProfile/EditProfile';
 
-const NO_NAVBAR = ['/chat', '/dashboard', '/agenda', '/display-preferences', '/admin', '/login', '/signup', '/admin/add-doctor', '/patient-profile'];
+const NO_NAVBAR = ['/chat', '/dashboard', '/agenda', '/display-preferences', '/admin', '/login', '/signup', '/admin/add-doctor', '/patient-profile', '/edit-profile'];
 
 function Layout() {
   const location = useLocation();
@@ -27,11 +28,12 @@ function Layout() {
         <Route path="/chat"                element={<Chat />} />
         <Route path="/dashboard"           element={<Dashboard />} />
         <Route path="/display-preferences" element={<DisplayPreferences />} />
+        <Route path="/patient-profile"     element={<PatientProfile />} />
+        <Route path="/edit-profile"        element={<EditProfile />} />
 
         {/* Therapist only */}
         <Route path="/agenda"              element={<DailyAgenda />} />
-        <Route path="/patient-profile"     element={<PatientProfile />} />
-
+        
         {/* Admin only */}
         <Route path="/admin"               element={<AdminDashboard />} />
         <Route path="/admin/add-doctor"    element={<AddDoctor />} />
