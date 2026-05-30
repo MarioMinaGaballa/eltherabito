@@ -8,8 +8,9 @@ import DailyAgenda         from './pages/DailyAgenda/DailyAgenda';
 import DisplayPreferences  from './pages/DisplayPreferences/DisplayPreferences';
 import AdminDashboard      from './pages/AdminDashboard/AdminDashboard';
 import SignUp            from './pages/Signup/Signup';
+import AddDoctor from './pages/AddDoctor/AddDoctor';
 
-const NO_NAVBAR = ['/chat', '/dashboard', '/agenda', '/display-preferences', '/admin' ,'/login', '/signup'];
+const NO_NAVBAR = ['/chat', '/dashboard', '/agenda', '/display-preferences', '/admin' ,'/login', '/signup', '/admin/add-doctor'];
 
 function Layout() {
   const location = useLocation();
@@ -31,6 +32,7 @@ function Layout() {
 
         {/* Admin only */}
         <Route path="/admin"               element={<AdminDashboard />} />
+        <Route path="/admin/add-doctor"    element={<AddDoctor />} />
       </Routes>
     </>
   );

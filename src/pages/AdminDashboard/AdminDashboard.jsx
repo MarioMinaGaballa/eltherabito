@@ -1,12 +1,14 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect,  } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import {
   FaUsers, FaUserMd, FaCalendarCheck,
   FaBell, FaCog, FaPlus, FaChevronRight,
 } from 'react-icons/fa';
-import styles from './AdminDashboard.module.css';
 
+import styles from './AdminDashboard.module.css';
 /* ── Data ── */
+
 const STATS = [
   { id: 'users',    icon: <FaUsers />,         color: 'blue',   label: 'Total Users',    value: 14802 },
   { id: 'doctors',  icon: <FaUserMd />,         color: 'indigo', label: 'Num Doctor',     value: 342   },
@@ -21,6 +23,7 @@ const DOCTORS = [
 
 /* ── Counter hook ── */
 function useCounter(target, duration = 1200) {
+
   const [val, setVal] = useState(0);
   useEffect(() => {
     let start; let frame;
@@ -62,6 +65,8 @@ function StatCard({ icon, color, label, value }) {
 
 /* ── Main Component ── */
 export default function AdminDashboard() {
+  const navigate = useNavigate();
+
   const { toasts, show } = useToast();
 
   return (
@@ -116,7 +121,7 @@ export default function AdminDashboard() {
         <section className={styles.section}>
           <div className={styles.doctorHeader}>
             <h2 className={styles.sectionTitle}>Doctor Management</h2>
-            <button className={styles.btnAddDoctor} onClick={() => show('Add New Doctor form coming soon!', 'success')}>
+            <button className={styles.btnAddDoctor} onClick={() => navigate('/admin/add-doctor')}>
               <FaPlus /> Add New Doctor
             </button>
           </div>
