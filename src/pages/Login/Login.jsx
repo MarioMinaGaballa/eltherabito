@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaMapPin, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaGoogle, FaFacebookF } from 'react-icons/fa';
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaGoogle, FaFacebookF } from 'react-icons/fa';
+import AppHeader from '../../components/layout/AppHeader';
 import styles from './Login.module.css';
 
 export default function Login() {
@@ -43,13 +44,7 @@ export default function Login() {
   return (
     <div className={styles.page}>
 
-      {/* ── HEADER ── */}
-      <header className={styles.header}>
-        <Link to="/" className={styles.logo}>
-          <FaMapPin className={styles.logoIcon} />
-          <span>Eltherabito</span>
-        </Link>
-      </header>
+      <AppHeader variant="auth" />
 
       {/* ── MAIN ── */}
       <div className={styles.container}>

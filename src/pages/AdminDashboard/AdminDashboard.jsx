@@ -1,11 +1,11 @@
-import { useState, useEffect,  } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
 import {
   FaUsers, FaUserMd, FaCalendarCheck,
-  FaBell, FaCog, FaPlus, FaChevronRight,
+  FaPlus, FaChevronRight,
 } from 'react-icons/fa';
-
+import AppLayout from '../../components/layout/AppLayout';
+import { BRAND } from '../../components/layout/navConfig';
 import styles from './AdminDashboard.module.css';
 /* ── Data ── */
 
@@ -70,28 +70,15 @@ export default function AdminDashboard() {
   const { toasts, show } = useToast();
 
   return (
-    <div className={styles.page}>
-
-      {/* ── NAVBAR ── */}
-      <nav className={styles.navbar}>
-        <Link to="/" className={styles.brand}>Eltherabito</Link>
-        <div className={styles.navIcons}>
-          <button className={styles.navIconBtn} aria-label="Notifications" onClick={() => show('No new notifications.', 'info')}>
-            <FaBell />
-            <span className={styles.notifDot} />
-          </button>
-          <button className={styles.navIconBtn} aria-label="Settings">
-            <FaCog />
-          </button>
-          <img
-            className={styles.navAvatar}
-            src="https://randomuser.me/api/portraits/men/41.jpg"
-            alt="Admin"
-          />
-        </div>
-      </nav>
-
-      {/* ── PAGE ── */}
+    <AppLayout
+      variant="admin"
+      showSidebar={false}
+      headerProps={{
+        subtitle: BRAND.adminTagline,
+        onNotify: () => show('No new notifications.', 'info'),
+        userImage: 'https://randomuser.me/api/portraits/men/41.jpg',
+      }}
+    >
       <main className={styles.container}>
 
         {/* Platform Reports */}
@@ -171,7 +158,6 @@ export default function AdminDashboard() {
           </div>
         ))}
       </div>
-
-    </div>
+    </AppLayout>
   );
 }

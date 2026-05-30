@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import {
-  FaBrain, FaCalendarAlt, FaUtensils, FaMoon, FaPlus,
+  FaCalendarAlt, FaUtensils, FaMoon, FaPlus,
   FaCircle, FaTimes, FaCheck, FaUser,
 } from 'react-icons/fa';
+import AppLayout from '../../components/layout/AppLayout';
 import styles from './DailyAgenda.module.css';
 
 /* ── Data ── */
@@ -60,34 +60,27 @@ export default function DailyAgenda() {
   const afterLunch  = sessions.filter(s => !['09:00','10:30','12:00'].includes(s.time));
   const totalActive = sessions.filter(s => s.status !== 'cancelled').length;
 
-  return (
-    <div className={styles.page}>
-
-      {/* ── NAVBAR ── */}
-      <nav className={styles.navbar}>
-        <Link to="/" className={styles.brand}>
-          <div className={styles.brandIcon}><FaBrain /></div>
-          <span className={styles.brandName}>ELTHERABITO</span>
-        </Link>
-        <div className={styles.navRight}>
-          <div className={styles.liveBadge}>
-            <span className={styles.liveDot} /> LIVE
-          </div>
-          <div className={styles.therapistPill}>
-            <div className={styles.therapistInfo}>
-              <div className={styles.therapistName}>Dr. Alex Carter</div>
-              <div className={styles.therapistRole}>Therapist</div>
-            </div>
-            <img
-              className={styles.therapistAvatar}
-              src="https://randomuser.me/api/portraits/men/41.jpg"
-              alt="Dr. Alex Carter"
-            />
-          </div>
+  const therapistHeader = (
+    <div className={styles.navRight}>
+      <div className={styles.liveBadge}>
+        <span className={styles.liveDot} /> LIVE
+      </div>
+      <div className={styles.therapistPill}>
+        <div className={styles.therapistInfo}>
+          <div className={styles.therapistName}>Dr. Alex Carter</div>
+          <div className={styles.therapistRole}>Therapist</div>
         </div>
-      </nav>
+        <img
+          className={styles.therapistAvatar}
+          src="https://randomuser.me/api/portraits/men/41.jpg"
+          alt="Dr. Alex Carter"
+        />
+      </div>
+    </div>
+  );
 
-      {/* ── CONTENT ── */}
+  return (
+    <AppLayout variant="therapist" showSidebar={false} headerSlot={therapistHeader}>
       <div className={styles.wrapper}>
 
         {/* Page header */}
@@ -163,8 +156,7 @@ export default function DailyAgenda() {
           </div>
         ))}
       </div>
-
-    </div>
+    </AppLayout>
   );
 }
 

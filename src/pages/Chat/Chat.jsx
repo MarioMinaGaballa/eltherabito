@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
-  FaSnowflake, FaPlus, FaCommentAlt, FaHistory,
+  FaPlus, FaCommentAlt, FaHistory,
   FaFileAlt, FaSquare, FaCog, FaRobot, FaSignOutAlt,
-  FaInfoCircle, FaSmile, FaMicrophone, FaPaperclip, FaPaperPlane
+  FaInfoCircle, FaSmile, FaMicrophone, FaPaperclip, FaPaperPlane,
 } from 'react-icons/fa';
+import AppHeader from '../../components/layout/AppHeader';
+import { BRAND } from '../../components/layout/navConfig';
 import styles from './Chat.module.css';
 
 const INITIAL_MESSAGES = [
@@ -39,6 +41,7 @@ function getTime() {
 }
 
 export default function Chat() {
+  const navigate = useNavigate();
   const [messages, setMessages]   = useState(INITIAL_MESSAGES);
   const [input, setInput]         = useState('');
   const [isTyping, setIsTyping]   = useState(false);
@@ -91,15 +94,19 @@ export default function Chat() {
 
   return (
     <div className={styles.layout}>
+      <AppHeader
+        variant="patient"
+        onAvatarClick={() => navigate('/patient-profile')}
+      />
 
-      {/* ── SIDEBAR ── */}
-      <aside className={styles.sidebar}>
+      <div className={styles.layoutBody}>
+        <aside className={styles.sidebar}>
         <div className={styles.logo}>
-          <FaSnowflake className={styles.logoIcon} />
-          <span>Eltherabito</span>
+          <FaRobot className={styles.logoIcon} />
+          <span>{BRAND.name}</span>
         </div>
 
-        <button className={styles.newSessionBtn}>
+        <button type="button" className={styles.newSessionBtn}>
           <FaPlus /> New Session
         </button>
 
@@ -150,7 +157,7 @@ export default function Chat() {
               Always available
             </div>
           </div>
-          <Link to="/" className={styles.endSessionBtn}>
+          <Link to="/dashboard" className={styles.endSessionBtn}>
             <FaSignOutAlt /> End Session
           </Link>
         </header>
@@ -235,6 +242,7 @@ export default function Chat() {
         </div>
 
       </main>
+      </div>
     </div>
   );
 }

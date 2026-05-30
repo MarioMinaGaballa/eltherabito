@@ -1,0 +1,48 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Manrope', sans-serif;
+  background: #F8F9FB;
+  color: #1D2939;
+}
+
+.body {
+  flex: 1;
+  display: flex;
+  padding: 1.5rem;
+  gap: 1.5rem;
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
+  align-items: flex-start;
+}
+
+.bodyNoSidebar {
+  flex: 1;
+  padding: 1.5rem;
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+}
+
+.mainFull {
+  flex: 1;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .body {
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .bodyNoSidebar {
+    padding: 1rem;
+  }
+}

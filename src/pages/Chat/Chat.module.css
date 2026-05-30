@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  --primary:     #0055D4;
+  --primary:     #1558D6;
   --sidebar-bg:  #F9FAFB;
   --text-dark:   #1D2939;
   --text-gray:   #667085;
@@ -13,11 +13,19 @@
 
 .layout {
   display: flex;
+  flex-direction: column;
   height: 100vh;
   overflow: hidden;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Manrope', 'Inter', sans-serif;
   color: var(--text-dark);
   background: var(--white);
+}
+
+.layoutBody {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* ── SIDEBAR ── */
