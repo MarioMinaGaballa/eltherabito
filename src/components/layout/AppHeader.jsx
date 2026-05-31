@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { FaSearch, FaBell, FaCog, FaCircleNotch } from 'react-icons/fa';
 import { BRAND, THERAPIST_BRAND } from './navConfig';
+import { ROUTES } from '../../routes/paths';
 import styles from './AppHeader.module.css';
 
 /**
@@ -22,7 +23,13 @@ export default function AppHeader({
 }) {
   const navigate = useNavigate();
 
-  const href = logoHref ?? (variant === 'admin' ? '/admin' : variant === 'therapist' ? '/agenda' : '/dashboard');
+  const href = logoHref ?? (
+    variant === 'admin'
+      ? ROUTES.admin.home
+      : variant === 'therapist'
+        ? ROUTES.therapist.agenda
+        : ROUTES.patient.dashboard
+  );
   const tagline = subtitle ?? (variant === 'admin' ? 'Admin Portal' : BRAND.tagline);
 
   function handleSettings() {
@@ -30,7 +37,7 @@ export default function AppHeader({
       onSettings();
       return;
     }
-    if (variant === 'patient') navigate('/display-preferences');
+    if (variant === 'patient') navigate(ROUTES.patient.settings);
   }
 
   function handleAvatar() {
@@ -39,7 +46,7 @@ export default function AppHeader({
       return;
     }
     if (variant === 'patient' || variant === 'admin') {
-      navigate(variant === 'admin' ? '/admin' : '/patient-profile');
+      navigate(variant === 'admin' ? ROUTES.admin.home : ROUTES.patient.profile);
     }
   }
 

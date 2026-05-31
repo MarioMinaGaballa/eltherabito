@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loadSavedContact } from '../../utils/profileStorage';
 import { FaHistory, FaCalendar, FaCheckCircle } from 'react-icons/fa';
+import { ROUTES } from '../../routes/paths';
 import AppLayout from '../../components/layout/AppLayout';
 import styles from './PatientProfile.module.css';
 
@@ -62,8 +63,8 @@ export default function PatientProfile() {
       variant="patient"
       showSidebar
       headerProps={{
-        onSettings: () => navigate('/edit-profile'),
-        onAvatarClick: () => navigate('/edit-profile'),
+        onSettings: () => navigate(ROUTES.patient.editProfile),
+        onAvatarClick: () => navigate(ROUTES.patient.editProfile),
         onNotify: () => show('🔔 No new notifications'),
         userImage: PROFILE_IMG,
       }}
@@ -71,9 +72,9 @@ export default function PatientProfile() {
       <div className={styles.content}>
 
         <div className={styles.breadcrumbSection}>
-          <span>Patients</span>
+          <span>My Account</span>
           <span className={styles.breadcrumbSeparator}>•</span>
-          <span className={styles.breadcrumbCurrent}>{PATIENT.name}</span>
+          <span className={styles.breadcrumbCurrent}>Profile</span>
         </div>
 
         <div className={styles.profileSection}>
@@ -134,7 +135,9 @@ export default function PatientProfile() {
                   </button>
                 ))}
               </div>
+
             </div>
+
           </div>
 
           <aside className={styles.nextSessionSidebar}>

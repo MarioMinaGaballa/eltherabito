@@ -5,6 +5,7 @@ import {
   FaCircle, FaEdit, FaPen, FaShieldAlt, FaLock, FaArrowRight,
   FaSearch, FaCalendar,
 } from 'react-icons/fa';
+import { ROUTES } from '../../routes/paths';
 import AppLayout from '../../components/layout/AppLayout';
 import styles from './Dashboard.module.css';
 
@@ -36,7 +37,7 @@ export default function Dashboard() {
             <p className={styles.aiDesc}>
               Need a safe space to talk? Your AI companion is ready to listen and help you ground yourself.
             </p>
-            <Link to="/chat" className={styles.btnPrimary}>
+            <Link to={ROUTES.patient.chat} className={styles.btnPrimary}>
               <span>Start Chat</span> <FaCommentDots />
             </Link>
           </div>
@@ -66,7 +67,7 @@ export default function Dashboard() {
             <span className={styles.avatar}>👩</span>
             <span className={styles.avatarCount}>+12</span>
           </div>
-          <button type="button" className={styles.btnOutline} onClick={() => navigate('/book-appointment')}>
+          <button type="button" className={styles.btnOutline} onClick={() => navigate(ROUTES.patient.booking)}>
             <FaSearch /> Find Doctor
           </button>
         </div>
@@ -80,7 +81,7 @@ export default function Dashboard() {
             <p className={styles.doctorName}>Dr. Sarah</p>
             <p className={styles.doctorRole}>Johnson</p>
           </div>
-          <button type="button" className={styles.btnPrimary} onClick={() => navigate('/my-booking')}><FaEdit /> Manage</button>
+          <button type="button" className={styles.btnPrimary} onClick={() => navigate(ROUTES.patient.bookings)}><FaEdit /> Manage</button>
         </div>
 
       </div>

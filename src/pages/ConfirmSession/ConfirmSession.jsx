@@ -8,6 +8,7 @@ import {
   getBooking,
   saveBookingConfirmation,
 } from '../../utils/bookingStorage';
+import { ROUTES } from '../../routes/paths';
 import { loadSavedContact } from '../../utils/profileStorage';
 import styles from './ConfirmSession.module.css';
 
@@ -41,7 +42,7 @@ export default function ConfirmSession() {
 
   useEffect(() => {
     if (!booking) {
-      navigate('/book-appointment', { replace: true });
+      navigate(ROUTES.patient.booking, { replace: true });
       return;
     }
     if (formInitialized.current) return;
@@ -55,7 +56,7 @@ export default function ConfirmSession() {
   useEffect(() => {
     function onKeyDown(e) {
       if (e.key === 'Escape') {
-        navigate('/book-appointment');
+        navigate(ROUTES.patient.booking);
       }
     }
     document.addEventListener('keydown', onKeyDown);
@@ -72,7 +73,7 @@ export default function ConfirmSession() {
   const timeDisplay = booking.timeRange || `${booking.time || booking.dateTime} - 60 Mins`;
 
   function handleClose() {
-    navigate('/book-appointment');
+    navigate(ROUTES.patient.booking);
   }
 
   function handleSubmit(e) {
@@ -110,7 +111,7 @@ export default function ConfirmSession() {
     setTimeout(() => {
       show('✓ Booking confirmed successfully!');
       setTimeout(() => {
-        navigate('/my-booking');
+        navigate(ROUTES.patient.bookings);
         setSubmitting(false);
       }, 1000);
     }, 1500);
@@ -121,7 +122,7 @@ export default function ConfirmSession() {
       <div className={styles.dialog}>
 
         <div className={styles.header}>
-          <button type="button" className={styles.logoBtn} onClick={() => navigate('/dashboard')}>
+          <button type="button" className={styles.logoBtn} onClick={() => navigate(ROUTES.patient.dashboard)}>
             <FaMapPin className={styles.logoIcon} aria-hidden="true" />
             <span className={styles.logoText}>Eltherabito</span>
           </button>
@@ -276,7 +277,7 @@ export default function ConfirmSession() {
                 <button
                   type="button"
                   className={styles.changeSelection}
-                  onClick={() => navigate('/book-appointment')}
+                  onClick={() => navigate(ROUTES.patient.booking)}
                 >
                   <FaEdit aria-hidden="true" />
                   Change selection

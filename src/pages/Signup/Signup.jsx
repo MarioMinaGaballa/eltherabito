@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { ROUTES } from '../../routes/paths';
 import {
   FaUser, FaEnvelope, FaGlobe,
   FaBirthdayCake, FaLock, FaEye, FaEyeSlash,
@@ -55,7 +56,7 @@ export default function Register() {
     showToast('✓ Creating your account...');
     // TODO: authService.register(form)
     console.log('Register payload:', form);
-    setTimeout(() => navigate('/dashboard'), 1500);
+    setTimeout(() => navigate(ROUTES.patient.dashboard), 1500);
   }
 
   return (

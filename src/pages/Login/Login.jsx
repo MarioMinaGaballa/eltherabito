@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaGoogle, FaFacebookF } from 'react-icons/fa';
+import { ROUTES } from '../../routes/paths';
 import AppHeader from '../../components/layout/AppHeader';
 import styles from './Login.module.css';
 
@@ -37,7 +38,7 @@ export default function Login() {
     // TODO: authService.login({ email, password, remember })
     setTimeout(() => {
       showToast('✓ Welcome back!');
-      setTimeout(() => navigate('/dashboard'), 1000);
+      setTimeout(() => navigate(ROUTES.patient.dashboard), 1000);
     }, 1500);
   }
 

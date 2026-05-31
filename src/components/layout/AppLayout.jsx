@@ -1,5 +1,6 @@
 import AppHeader from './AppHeader';
 import AppSidebar from './AppSidebar';
+import { ROUTES } from '../../routes/paths';
 import styles from './AppLayout.module.css';
 
 export default function AppLayout({
@@ -22,7 +23,7 @@ export default function AppLayout({
         variant={variant}
         showSearch={showSearch}
         {...headerProps}
-        logoHref={headerProps.logoHref ?? (variant === 'patient' ? '/dashboard' : undefined)}
+        logoHref={headerProps.logoHref ?? (variant === 'patient' ? ROUTES.patient.dashboard : undefined)}
       >
         {headerSlot}
       </AppHeader>

@@ -5,6 +5,7 @@ import {
   FaCalendarCheck, FaPlus, FaUserMd,
   FaCalendar, FaPhone, FaTimes,
 } from 'react-icons/fa';
+import { ROUTES } from '../../routes/paths';
 import styles from './MyBooking.module.css';
 
 /* ── Data ── */
@@ -52,17 +53,17 @@ export default function MyBookings() {
       {/* ── HEADER ── */}
       <header className={styles.header}>
         <div className={styles.headerInner}>
-          <Link to="/dashboard" className={styles.logo}>
+          <Link to={ROUTES.patient.dashboard} className={styles.logo}>
             <FaMapPin className={styles.logoIcon} />
             <span>Eltherabito</span>
           </Link>
 
           <nav className={styles.navMenu}>
-            <Link to="/dashboard" className={styles.navLink}>Home</Link>
-            <Link to="/my-booking" className={`${styles.navLink} ${styles.navLinkActive}`}>Bookings</Link>
+            <Link to={ROUTES.patient.dashboard} className={styles.navLink}>Home</Link>
+            <Link to={ROUTES.patient.bookings} className={`${styles.navLink} ${styles.navLinkActive}`}>Bookings</Link>
           </nav>
 
-          <button type="button" className={styles.profileBtn} onClick={() => navigate('/patient-profile')}>
+          <button type="button" className={styles.profileBtn} onClick={() => navigate(ROUTES.patient.profile)}>
             <img
               src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop"
               alt="Profile"
@@ -151,7 +152,7 @@ export default function MyBookings() {
           <button
             type="button"
             className={styles.bookAnotherLink}
-            onClick={() => navigate('/book-appointment')}
+            onClick={() => navigate(ROUTES.patient.booking)}
           >
             <FaPlus /> Book another session
           </button>
