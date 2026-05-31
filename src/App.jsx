@@ -12,6 +12,8 @@ import AddDoctor from "./pages/AddDoctor/AddDoctor";
 import PatientProfile from "./pages/PatientProfile/PatientProfile";
 import EditProfile from "./pages/EditProfile/EditProfile";
 import MyBookings from "./pages/MyBooking/MyBooking";
+import BookAppointment from "./pages/BookAppointment/BookAppointment";
+import ConfirmSession from "./pages/ConfirmSession/ConfirmSession";
 
 const NO_NAVBAR = [
   "/chat",
@@ -25,6 +27,8 @@ const NO_NAVBAR = [
   "/patient-profile",
   "/edit-profile",
   "/my-booking",
+  "/book-appointment",
+  "/confirm-session",
 ];
 
 function Layout() {
@@ -43,6 +47,8 @@ function Layout() {
         <Route path="/display-preferences" element={<DisplayPreferences />} />
         <Route path="/edit-profile" element={<EditProfile />} />
         <Route path="/my-booking" element={<MyBookings />} />
+        <Route path="/book-appointment" element={<BookAppointment />} />
+        <Route path="/confirm-session" element={<ConfirmSession />} />
 
         {/* Therapist only */}
         <Route path="/agenda" element={<DailyAgenda />} />

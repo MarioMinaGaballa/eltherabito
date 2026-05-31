@@ -66,7 +66,9 @@ export default function Dashboard() {
             <span className={styles.avatar}>👩</span>
             <span className={styles.avatarCount}>+12</span>
           </div>
-          <button type="button" className={styles.btnOutline}><FaSearch /> Find Doctor</button>
+          <button type="button" className={styles.btnOutline} onClick={() => navigate('/book-appointment')}>
+            <FaSearch /> Find Doctor
+          </button>
         </div>
 
         <div className={styles.card}>

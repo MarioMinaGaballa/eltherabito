@@ -87,13 +87,7 @@ export default function AppHeader({
     <header className={styles.header}>
       <div className={styles.inner}>
 
-        {variant === 'admin' ? (
-          <Link to={href} className={styles.logoBtn}>{logoContent}</Link>
-        ) : (
-          <button type="button" className={styles.logoBtn} onClick={() => navigate(href)}>
-            {logoContent}
-          </button>
-        )}
+        <Link to={href} className={styles.logoBtn}>{logoContent}</Link>
 
         {showSearch && variant === 'patient' && (
           <div className={styles.searchBar}>

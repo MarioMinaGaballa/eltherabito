@@ -47,6 +47,16 @@
   font-weight: 700;
   color: var(--text-dark);
   margin-bottom: 32px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  text-align: left;
+}
+
+.logo:hover {
+  color: var(--primary);
 }
 .logoIcon { color: var(--primary); font-size: 24px; }
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   FaMapPin, FaClock, FaVideo, FaEllipsisH,
   FaCalendarCheck, FaPlus, FaUserMd,
@@ -24,7 +24,7 @@ const HISTORY = [
 const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 
 export default function MyBookings() {
-  
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast]       = useState(null);
 
@@ -52,17 +52,17 @@ export default function MyBookings() {
       {/* ── HEADER ── */}
       <header className={styles.header}>
         <div className={styles.headerInner}>
-          <Link to="/" className={styles.logo}>
+          <Link to="/dashboard" className={styles.logo}>
             <FaMapPin className={styles.logoIcon} />
             <span>Eltherabito</span>
           </Link>
 
           <nav className={styles.navMenu}>
-            <Link to="/"            className={styles.navLink}>Home</Link>
-            <Link to="/my-bookings" className={`${styles.navLink} ${styles.navLinkActive}`}>Bookings</Link>
+            <Link to="/dashboard" className={styles.navLink}>Home</Link>
+            <Link to="/my-booking" className={`${styles.navLink} ${styles.navLinkActive}`}>Bookings</Link>
           </nav>
 
-          <button className={styles.profileBtn} onClick={() => showToast('👤 Profile coming soon')}>
+          <button type="button" className={styles.profileBtn} onClick={() => navigate('/patient-profile')}>
             <img
               src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop"
               alt="Profile"
@@ -148,7 +148,11 @@ export default function MyBookings() {
           </div>
 
           {/* Book another */}
-          <button className={styles.bookAnotherLink} onClick={() => showToast('📅 Redirecting to booking...')}>
+          <button
+            type="button"
+            className={styles.bookAnotherLink}
+            onClick={() => navigate('/book-appointment')}
+          >
             <FaPlus /> Book another session
           </button>
         </section>
