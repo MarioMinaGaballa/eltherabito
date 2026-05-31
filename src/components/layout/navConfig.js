@@ -10,11 +10,14 @@ export const BRAND = {
 export const PATIENT_NAV = [
   { id: 'dashboard', label: 'Home', Icon: FaHome, path: '/dashboard' },
   { id: 'chat', label: 'AI Support', Icon: FaRobot, path: '/chat' },
-  { id: 'booking', label: 'Booking', Icon: FaCalendar, path: '/dashboard' },
+  { id: 'booking', label: 'Booking', Icon: FaCalendar, path: '/book-appointment' },
 ];
 
 export function getPatientActiveNav(pathname) {
   if (pathname === '/chat') return 'chat';
+  if (pathname === '/book-appointment' || pathname === '/confirm-session' || pathname === '/my-booking') {
+    return 'booking';
+  }
   if (pathname === '/display-preferences') return 'settings';
   if (pathname.startsWith('/patient-profile') || pathname.startsWith('/edit-profile')) {
     return 'profile';

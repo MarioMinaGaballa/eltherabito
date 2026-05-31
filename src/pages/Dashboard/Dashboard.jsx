@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   FaStar, FaCommentDots, FaBriefcaseMedical, FaCalendarCheck,
   FaCircle, FaEdit, FaPen, FaShieldAlt, FaLock, FaArrowRight,
@@ -9,6 +9,7 @@ import AppLayout from '../../components/layout/AppLayout';
 import styles from './Dashboard.module.css';
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [journal, setJournal] = useState('');
 
   const today = new Date().toLocaleDateString('en-US', {
@@ -65,7 +66,9 @@ export default function Dashboard() {
             <span className={styles.avatar}>👩</span>
             <span className={styles.avatarCount}>+12</span>
           </div>
-          <button type="button" className={styles.btnOutline}><FaSearch /> Find Doctor</button>
+          <button type="button" className={styles.btnOutline} onClick={() => navigate('/book-appointment')}>
+            <FaSearch /> Find Doctor
+          </button>
         </div>
 
         <div className={styles.card}>
@@ -77,7 +80,7 @@ export default function Dashboard() {
             <p className={styles.doctorName}>Dr. Sarah</p>
             <p className={styles.doctorRole}>Johnson</p>
           </div>
-          <button type="button" className={styles.btnPrimary}><FaEdit /> Manage</button>
+          <button type="button" className={styles.btnPrimary} onClick={() => navigate('/my-booking')}><FaEdit /> Manage</button>
         </div>
 
       </div>

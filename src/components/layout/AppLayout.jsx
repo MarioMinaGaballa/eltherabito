@@ -21,8 +21,8 @@ export default function AppLayout({
       <AppHeader
         variant={variant}
         showSearch={showSearch}
-        subtitle={headerProps.subtitle}
         {...headerProps}
+        logoHref={headerProps.logoHref ?? (variant === 'patient' ? '/dashboard' : undefined)}
       >
         {headerSlot}
       </AppHeader>

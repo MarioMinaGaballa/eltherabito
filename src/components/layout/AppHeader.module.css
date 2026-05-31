@@ -29,6 +29,7 @@
   color: inherit;
   white-space: nowrap;
   flex-shrink: 0;
+  font-family: inherit;
 }
 
 .logoTitle {

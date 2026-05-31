@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   FaCalendarAlt, FaUtensils, FaMoon, FaPlus,
   FaCircle, FaTimes, FaCheck, FaUser,
@@ -17,7 +18,6 @@ const SESSIONS = [
   { id: 6, time: '05:30', ampm: 'PM', duration: '60 min', name: 'Anna West',       img: 'https://randomuser.me/api/portraits/women/12.jpg', status: null },
 ];
 
-const today = new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
 const dateChip = new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
 
 /* ── Toast ── */
@@ -32,6 +32,7 @@ function useToast() {
 }
 
 export default function DailyAgenda() {
+  const navigate = useNavigate();
   const [sessions, setSessions] = useState(SESSIONS);
   const { toasts, show } = useToast();
 
@@ -52,8 +53,8 @@ export default function DailyAgenda() {
     updateSession(s.id, { status: 'done' });
     show(`Session with ${s.name} marked as done! ✓`, 'success');
   }
-  function handleProfile(s) {
-    show(`Opening ${s.name}'s profile…`, 'info');
+  function handleProfile() {
+    navigate('/patient-profile');
   }
 
   const beforeLunch = sessions.filter(s => ['09:00','10:30','12:00'].includes(s.time));
@@ -104,7 +105,7 @@ export default function DailyAgenda() {
               onCancel={() => handleCancel(s)}
               onMissed={() => handleMissed(s)}
               onDone={() => handleDone(s)}
-              onProfile={() => handleProfile(s)}
+              onProfile={handleProfile}
             />
           ))}
 
@@ -120,7 +121,7 @@ export default function DailyAgenda() {
               onCancel={() => handleCancel(s)}
               onMissed={() => handleMissed(s)}
               onDone={() => handleDone(s)}
-              onProfile={() => handleProfile(s)}
+              onProfile={handleProfile}
             />
           ))}
 

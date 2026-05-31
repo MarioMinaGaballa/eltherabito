@@ -101,10 +101,10 @@ export default function Chat() {
 
       <div className={styles.layoutBody}>
         <aside className={styles.sidebar}>
-        <div className={styles.logo}>
+        <button type="button" className={styles.logo} onClick={() => navigate('/dashboard')}>
           <FaRobot className={styles.logoIcon} />
           <span>{BRAND.name}</span>
-        </div>
+        </button>
 
         <button type="button" className={styles.newSessionBtn}>
           <FaPlus /> New Session
