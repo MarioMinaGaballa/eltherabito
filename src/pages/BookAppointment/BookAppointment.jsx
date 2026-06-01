@@ -4,6 +4,7 @@ import {
   FaSearch, FaStar, FaChevronLeft, FaChevronRight,
   FaCalendarCheck, FaShieldAlt,
 } from 'react-icons/fa';
+import { ROUTES } from '../../routes/paths';
 import AppLayout from '../../components/layout/AppLayout';
 import {
   saveSelectedTherapist,
@@ -117,12 +118,6 @@ export default function BookAppointment() {
   }, [currentMonth, selectedDay, selectedTime]);
 
   useEffect(() => {
-    if (search.trim() && filteredTherapists.length === 0) {
-      show('❌ No therapists found');
-    }
-  }, [search, filteredTherapists.length, show]);
-
-  useEffect(() => {
     function onKeyDown(e) {
       if (e.ctrlKey && e.key === 'b') {
         e.preventDefault();
@@ -188,7 +183,7 @@ export default function BookAppointment() {
       bookedAt: new Date().toISOString(),
     });
 
-    navigate('/confirm-session');
+    navigate(ROUTES.patient.bookingConfirm);
     setBooking(false);
   }
 
@@ -197,14 +192,14 @@ export default function BookAppointment() {
       variant="patient"
       showSidebar
       headerProps={{
-        onAvatarClick: () => navigate('/patient-profile'),
+        onAvatarClick: () => navigate(ROUTES.patient.profile),
       }}
     >
       <div className={styles.content}>
 
         <nav className={styles.pageNav} aria-label="Booking navigation">
           <NavLink
-            to="/book-appointment"
+            to={ROUTES.patient.booking}
             className={({ isActive }) =>
               `${styles.pageNavLink} ${isActive ? styles.pageNavLinkActive : ''}`
             }
@@ -212,7 +207,7 @@ export default function BookAppointment() {
             Find Therapist
           </NavLink>
           <NavLink
-            to="/my-booking"
+            to={ROUTES.patient.bookings}
             className={({ isActive }) =>
               `${styles.pageNavLink} ${isActive ? styles.pageNavLinkActive : ''}`
             }
@@ -244,6 +239,9 @@ export default function BookAppointment() {
             </div>
 
             <div className={styles.therapistsList}>
+              {search.trim() && filteredTherapists.length === 0 && (
+                <p className={styles.sectionSubtitle}>No therapists found for your search.</p>
+              )}
               {filteredTherapists.map((t, index) => (
                 <article
                   key={t.id}

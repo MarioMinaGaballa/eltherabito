@@ -1,24 +1,13 @@
 import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, Navigate } from 'react-router-dom';
 import {
-  FaEdit, FaCamera, FaPhone, FaVenusMars, FaEnvelope,
+  FaArrowLeft, FaEdit, FaPhone, FaVenusMars, FaEnvelope,
   FaFileAlt, FaHistory,
 } from 'react-icons/fa';
 import { ROUTES } from '../../routes/paths';
-import { loadSavedContact } from '../../utils/profileStorage';
-import { loadPatientNotes, addPatientNote } from '../../utils/patientNotesStorage';
-import AppLayout from '../../components/layout/AppLayout';
-import styles from './PatientProfile.module.css';
-
-const PATIENT = {
-  name: 'Ahmed Ali',
-  gender: 'Male',
-  photo:
-    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=100&h=100',
-};
-
-const HEADER_AVATAR =
-  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=40&h=40';
+import { getPatientFromState } from '../../utils/patientRecords';
+import { loadClinicalNotes, addClinicalNote } from '../../utils/clinicalNotesStorage';
+import styles from './TherapistPatientView.module.css';
 
 function useNotification() {
   const [toast, setToast] = useState(null);
@@ -29,11 +18,21 @@ function useNotification() {
   return { toast, show };
 }
 
-export default function PatientProfile() {
+export default function TherapistPatientView() {
+  const location = useLocation();
+  const patient = getPatientFromState(location.state);
+
+  if (!patient) {
+    return <Navigate to={ROUTES.therapist.agenda} replace />;
+  }
+
+  return <TherapistPatientViewContent key={patient.notesKey} patient={patient} />;
+}
+
+function TherapistPatientViewContent({ patient }) {
   const navigate = useNavigate();
   const { toast, show } = useNotification();
-  const contact = loadSavedContact();
-  const [notes, setNotes] = useState(() => loadPatientNotes());
+  const [notes, setNotes] = useState(() => loadClinicalNotes(patient.notesKey));
   const [draftNote, setDraftNote] = useState('');
 
   const latestNote = notes.find((n) => n.latest) ?? notes[0];
@@ -44,7 +43,7 @@ export default function PatientProfile() {
       show('Please enter a note', 'warning');
       return;
     }
-    setNotes(addPatientNote(text));
+    setNotes(addClinicalNote(patient.notesKey, text));
     setDraftNote('');
     show('Note saved successfully!', 'success');
   }
@@ -57,23 +56,29 @@ export default function PatientProfile() {
         : styles.notificationInfo;
 
   return (
-    <AppLayout
-      variant="patient"
-      showSidebar
-      headerProps={{
-        onSettings: () => navigate(ROUTES.patient.editProfile),
-        onAvatarClick: () => navigate(ROUTES.patient.profile),
-        onNotify: () => show('No new notifications', 'info'),
-        userImage: HEADER_AVATAR,
-      }}
-    >
-      <div className={styles.content}>
+    <div className={styles.page}>
+      <header className={styles.header}>
+        <button
+          type="button"
+          className={styles.backBtn}
+          onClick={() => navigate(ROUTES.therapist.agenda)}
+          aria-label="Back to agenda"
+        >
+          <FaArrowLeft aria-hidden="true" />
+        </button>
+        <div className={styles.headerText}>
+          <h1>Patient Profile</h1>
+          <p>Clinical view — {patient.name}</p>
+        </div>
+      </header>
+
+      <main className={styles.main}>
         <div className={styles.pageHeader}>
-          <h1 className={styles.pageTitle}>Patient Profile</h1>
+          <h2 className={styles.pageTitle}>Patient Profile</h2>
           <button
             type="button"
             className={styles.updateBtn}
-            onClick={() => navigate(ROUTES.patient.editProfile)}
+            onClick={() => show('Update patient data — coming soon', 'info')}
           >
             <FaEdit aria-hidden="true" />
             Update Data
@@ -83,33 +88,21 @@ export default function PatientProfile() {
         <div className={styles.card}>
           <div className={styles.cardBody}>
             <div className={styles.profileRow}>
-              <div className={styles.avatarWrap}>
-                <img src={PATIENT.photo} alt={PATIENT.name} className={styles.avatar} />
-                <button
-                  type="button"
-                  className={styles.cameraBadge}
-                  onClick={() => navigate(ROUTES.patient.editProfile)}
-                  title="Change photo"
-                  aria-label="Change profile photo"
-                >
-                  <FaCamera aria-hidden="true" />
-                </button>
-              </div>
-
+              <img src={patient.photo} alt={patient.name} className={styles.avatar} />
               <div>
-                <h2 className={styles.patientName}>{PATIENT.name}</h2>
+                <h3 className={styles.patientName}>{patient.name}</h3>
                 <div className={styles.badgesGrid}>
                   <div className={styles.infoBadge}>
                     <FaPhone className={styles.infoBadgeIcon} aria-hidden="true" />
-                    <span>{contact.mobile}</span>
+                    <span>{patient.phone}</span>
                   </div>
                   <div className={styles.infoBadge}>
                     <FaVenusMars className={styles.infoBadgeIcon} aria-hidden="true" />
-                    <span>{PATIENT.gender}</span>
+                    <span>{patient.gender}</span>
                   </div>
                   <div className={`${styles.infoBadge} ${styles.infoBadgeFull}`}>
                     <FaEnvelope className={styles.infoBadgeIcon} aria-hidden="true" />
-                    <span>{contact.email}</span>
+                    <span>{patient.email}</span>
                   </div>
                 </div>
               </div>
@@ -118,9 +111,9 @@ export default function PatientProfile() {
         </div>
 
         <div className={styles.card}>
-          <div className={styles.notesCardHeader}>
+          <div className={styles.notesHeader}>
             <h3 className={styles.notesTitle}>
-              <FaFileAlt className={styles.notesTitleIcon} aria-hidden="true" />
+              <FaFileAlt aria-hidden="true" />
               Personal Notes
             </h3>
             <button
@@ -143,11 +136,11 @@ export default function PatientProfile() {
               </div>
             )}
 
-            <label className={styles.formLabel} htmlFor="patient-note">
+            <label className={styles.formLabel} htmlFor="clinical-note">
               Add New Note
             </label>
             <textarea
-              id="patient-note"
+              id="clinical-note"
               className={styles.textarea}
               rows={4}
               placeholder="Type a new personal note here..."
@@ -169,13 +162,13 @@ export default function PatientProfile() {
             </div>
           </div>
         </div>
-      </div>
+      </main>
 
       {toast && (
         <div className={`${styles.notification} ${toastClass}`} role="alert" aria-live="polite">
           {toast.message}
         </div>
       )}
-    </AppLayout>
+    </div>
   );
 }

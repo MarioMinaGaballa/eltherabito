@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate, Navigate } from 'react-router-dom';
 import {
   FaMapPin, FaTimes, FaUser, FaPhone, FaEnvelope,
   FaCalendar, FaClock, FaEdit,
@@ -8,6 +8,7 @@ import {
   getBooking,
   saveBookingConfirmation,
 } from '../../utils/bookingStorage';
+import { ROUTES } from '../../routes/paths';
 import { loadSavedContact } from '../../utils/profileStorage';
 import styles from './ConfirmSession.module.css';
 
@@ -28,43 +29,33 @@ function useNotification() {
 }
 
 export default function ConfirmSession() {
+  const booking = getBooking();
+  if (!booking) {
+    return <Navigate to={ROUTES.patient.booking} replace />;
+  }
+  return <ConfirmSessionForm booking={booking} />;
+}
+
+function ConfirmSessionForm({ booking }) {
   const navigate = useNavigate();
   const { message, show } = useNotification();
-  const [booking] = useState(() => getBooking());
-  const formInitialized = useRef(false);
+  const contact = loadSavedContact();
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState(() => contact.mobile);
+  const [email, setEmail] = useState(() => contact.email);
   const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (!booking) {
-      navigate('/book-appointment', { replace: true });
-      return;
-    }
-    if (formInitialized.current) return;
-    formInitialized.current = true;
-
-    const contact = loadSavedContact();
-    setEmail(contact.email);
-    setPhone(contact.mobile);
-  }, [booking, navigate]);
 
   useEffect(() => {
     function onKeyDown(e) {
       if (e.key === 'Escape') {
-        navigate('/book-appointment');
+        navigate(ROUTES.patient.booking);
       }
     }
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [navigate]);
-
-  if (!booking) {
-    return null;
-  }
 
   const doctorName = booking.therapist;
   const priceDisplay = `$${Number(booking.price).toFixed(2)}`;
@@ -72,7 +63,7 @@ export default function ConfirmSession() {
   const timeDisplay = booking.timeRange || `${booking.time || booking.dateTime} - 60 Mins`;
 
   function handleClose() {
-    navigate('/book-appointment');
+    navigate(ROUTES.patient.booking);
   }
 
   function handleSubmit(e) {
@@ -110,7 +101,7 @@ export default function ConfirmSession() {
     setTimeout(() => {
       show('✓ Booking confirmed successfully!');
       setTimeout(() => {
-        navigate('/my-booking');
+        navigate(ROUTES.patient.bookings);
         setSubmitting(false);
       }, 1000);
     }, 1500);
@@ -121,7 +112,7 @@ export default function ConfirmSession() {
       <div className={styles.dialog}>
 
         <div className={styles.header}>
-          <button type="button" className={styles.logoBtn} onClick={() => navigate('/dashboard')}>
+          <button type="button" className={styles.logoBtn} onClick={() => navigate(ROUTES.patient.dashboard)}>
             <FaMapPin className={styles.logoIcon} aria-hidden="true" />
             <span className={styles.logoText}>Eltherabito</span>
           </button>
@@ -276,7 +267,7 @@ export default function ConfirmSession() {
                 <button
                   type="button"
                   className={styles.changeSelection}
-                  onClick={() => navigate('/book-appointment')}
+                  onClick={() => navigate(ROUTES.patient.booking)}
                 >
                   <FaEdit aria-hidden="true" />
                   Change selection

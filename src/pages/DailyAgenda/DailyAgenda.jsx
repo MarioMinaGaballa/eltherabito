@@ -4,6 +4,7 @@ import {
   FaCalendarAlt, FaUtensils, FaMoon, FaPlus,
   FaCircle, FaTimes, FaCheck, FaUser,
 } from 'react-icons/fa';
+import { ROUTES } from '../../routes/paths';
 import AppLayout from '../../components/layout/AppLayout';
 import styles from './DailyAgenda.module.css';
 
@@ -53,8 +54,14 @@ export default function DailyAgenda() {
     updateSession(s.id, { status: 'done' });
     show(`Session with ${s.name} marked as done! ✓`, 'success');
   }
-  function handleProfile() {
-    navigate('/patient-profile');
+  function handleProfile(session) {
+    navigate(ROUTES.therapist.viewPatient, {
+      state: {
+        sessionId: session.id,
+        name: session.name,
+        photo: session.img,
+      },
+    });
   }
 
   const beforeLunch = sessions.filter(s => ['09:00','10:30','12:00'].includes(s.time));
@@ -66,7 +73,12 @@ export default function DailyAgenda() {
       <div className={styles.liveBadge}>
         <span className={styles.liveDot} /> LIVE
       </div>
-      <div className={styles.therapistPill}>
+      <button
+        type="button"
+        className={styles.therapistPill}
+        onClick={() => navigate(ROUTES.therapist.profile)}
+        aria-label="Open therapist profile"
+      >
         <div className={styles.therapistInfo}>
           <div className={styles.therapistName}>Dr. Alex Carter</div>
           <div className={styles.therapistRole}>Therapist</div>
@@ -76,7 +88,7 @@ export default function DailyAgenda() {
           src="https://randomuser.me/api/portraits/men/41.jpg"
           alt="Dr. Alex Carter"
         />
-      </div>
+      </button>
     </div>
   );
 
@@ -105,7 +117,7 @@ export default function DailyAgenda() {
               onCancel={() => handleCancel(s)}
               onMissed={() => handleMissed(s)}
               onDone={() => handleDone(s)}
-              onProfile={handleProfile}
+              onProfile={() => handleProfile(s)}
             />
           ))}
 
@@ -121,7 +133,7 @@ export default function DailyAgenda() {
               onCancel={() => handleCancel(s)}
               onMissed={() => handleMissed(s)}
               onDone={() => handleDone(s)}
-              onProfile={handleProfile}
+              onProfile={() => handleProfile(s)}
             />
           ))}
 

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
@@ -14,49 +14,50 @@ import EditProfile from "./pages/EditProfile/EditProfile";
 import MyBookings from "./pages/MyBooking/MyBooking";
 import BookAppointment from "./pages/BookAppointment/BookAppointment";
 import ConfirmSession from "./pages/ConfirmSession/ConfirmSession";
-
-const NO_NAVBAR = [
-  "/chat",
-  "/dashboard",
-  "/agenda",
-  "/display-preferences",
-  "/admin",
-  "/login",
-  "/signup",
-  "/admin/add-doctor",
-  "/patient-profile",
-  "/edit-profile",
-  "/my-booking",
-  "/book-appointment",
-  "/confirm-session",
-];
+import TherapistProfile from "./pages/TherapistProfile/TherapistProfile";
+import EditSchedule from "./pages/EditSchedule/EditSchedule";
+import TherapistUpdateProfile from "./pages/TherapistUpdateProfile/TherapistUpdateProfile";
+import TherapistPatientView from "./pages/TherapistPatientView/TherapistPatientView";
+import { ROUTES, LEGACY_REDIRECTS, shouldHideNavbar } from "./routes/paths";
 
 function Layout() {
   const location = useLocation();
-  const showNavbar = !NO_NAVBAR.includes(location.pathname);
+  const showNavbar = !shouldHideNavbar(location.pathname);
+
   return (
     <>
       {showNavbar && <Navbar />}
       <Routes>
-        {/* All users */}
-        <Route path="/" element={<Home />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/chat" element={<Chat />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/display-preferences" element={<DisplayPreferences />} />
-        <Route path="/edit-profile" element={<EditProfile />} />
-        <Route path="/my-booking" element={<MyBookings />} />
-        <Route path="/book-appointment" element={<BookAppointment />} />
-        <Route path="/confirm-session" element={<ConfirmSession />} />
+        {/* Public */}
+        <Route path={ROUTES.home} element={<Home />} />
+        <Route path={ROUTES.signup} element={<SignUp />} />
+        <Route path={ROUTES.login} element={<Login />} />
 
-        {/* Therapist only */}
-        <Route path="/agenda" element={<DailyAgenda />} />
-        <Route path="/patient-profile" element={<PatientProfile />} />
+        {/* Patient */}
+        <Route path={ROUTES.patient.dashboard} element={<Dashboard />} />
+        <Route path={ROUTES.patient.chat} element={<Chat />} />
+        <Route path={ROUTES.patient.profile} element={<PatientProfile />} />
+        <Route path={ROUTES.patient.editProfile} element={<EditProfile />} />
+        <Route path={ROUTES.patient.booking} element={<BookAppointment />} />
+        <Route path={ROUTES.patient.bookingConfirm} element={<ConfirmSession />} />
+        <Route path={ROUTES.patient.bookings} element={<MyBookings />} />
+        <Route path={ROUTES.patient.settings} element={<DisplayPreferences />} />
 
-        {/* Admin only */}
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/add-doctor" element={<AddDoctor />} />
+        {/* Therapist */}
+        <Route path={ROUTES.therapist.agenda} element={<DailyAgenda />} />
+        <Route path={ROUTES.therapist.profile} element={<TherapistProfile />} />
+        <Route path={ROUTES.therapist.editProfile} element={<TherapistUpdateProfile />} />
+        <Route path={ROUTES.therapist.editSchedule} element={<EditSchedule />} />
+        <Route path={ROUTES.therapist.viewPatient} element={<TherapistPatientView />} />
+
+        {/* Admin */}
+        <Route path={ROUTES.admin.home} element={<AdminDashboard />} />
+        <Route path={ROUTES.admin.addDoctor} element={<AddDoctor />} />
+
+        {/* Legacy redirects */}
+        {Object.entries(LEGACY_REDIRECTS).map(([from, to]) => (
+          <Route key={from} path={from} element={<Navigate to={to} replace />} />
+        ))}
       </Routes>
     </>
   );

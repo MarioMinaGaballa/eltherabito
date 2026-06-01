@@ -7,6 +7,7 @@ import {
 } from 'react-icons/fa';
 import AppHeader from '../../components/layout/AppHeader';
 import { BRAND } from '../../components/layout/navConfig';
+import { ROUTES } from '../../routes/paths';
 import styles from './Chat.module.css';
 
 const INITIAL_MESSAGES = [
@@ -96,12 +97,12 @@ export default function Chat() {
     <div className={styles.layout}>
       <AppHeader
         variant="patient"
-        onAvatarClick={() => navigate('/patient-profile')}
+        onAvatarClick={() => navigate(ROUTES.patient.profile)}
       />
 
       <div className={styles.layoutBody}>
         <aside className={styles.sidebar}>
-        <button type="button" className={styles.logo} onClick={() => navigate('/dashboard')}>
+        <button type="button" className={styles.logo} onClick={() => navigate(ROUTES.patient.dashboard)}>
           <FaRobot className={styles.logoIcon} />
           <span>{BRAND.name}</span>
         </button>
@@ -157,7 +158,7 @@ export default function Chat() {
               Always available
             </div>
           </div>
-          <Link to="/dashboard" className={styles.endSessionBtn}>
+          <Link to={ROUTES.patient.dashboard} className={styles.endSessionBtn}>
             <FaSignOutAlt /> End Session
           </Link>
         </header>

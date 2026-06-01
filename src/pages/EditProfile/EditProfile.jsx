@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   FaCheck, FaEnvelope, FaPhone, FaShieldAlt, FaSave,
 } from 'react-icons/fa';
+import { ROUTES } from '../../routes/paths';
 import AppLayout from '../../components/layout/AppLayout';
 import { BRAND } from '../../components/layout/navConfig';
 import styles from './EditProfile.module.css';
@@ -73,7 +74,7 @@ export default function EditProfile() {
 
     show('✓ Profile updated successfully!');
     setTimeout(() => {
-      navigate('/patient-profile');
+      navigate(ROUTES.patient.profile);
       setSaving(false);
     }, 1500);
   }, [email, phone, navigate, show]);
@@ -128,7 +129,7 @@ export default function EditProfile() {
         onNotify: () => show('🔔 No new notifications'),
         onSettings: () => show('⚙️ Settings'),
         userImage: avatar,
-        onAvatarClick: () => navigate('/patient-profile'),
+        onAvatarClick: () => navigate(ROUTES.patient.profile),
       }}
     >
       <div className={styles.content}>
@@ -137,7 +138,7 @@ export default function EditProfile() {
           <button
             type="button"
             className={styles.breadcrumbLink}
-            onClick={() => navigate('/patient-profile')}
+            onClick={() => navigate(ROUTES.patient.profile)}
           >
             Profile
           </button>
