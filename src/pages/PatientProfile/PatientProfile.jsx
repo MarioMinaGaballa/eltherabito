@@ -1,62 +1,60 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loadSavedContact } from '../../utils/profileStorage';
-import { FaHistory, FaCalendar, FaCheckCircle } from 'react-icons/fa';
+import {
+  FaEdit, FaCamera, FaPhone, FaVenusMars, FaEnvelope,
+  FaFileAlt, FaHistory,
+} from 'react-icons/fa';
 import { ROUTES } from '../../routes/paths';
+import { loadSavedContact } from '../../utils/profileStorage';
+import { loadPatientNotes, addPatientNote } from '../../utils/patientNotesStorage';
 import AppLayout from '../../components/layout/AppLayout';
 import styles from './PatientProfile.module.css';
 
 const PATIENT = {
   name: 'Ahmed Ali',
-  photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop',
-  previousSessions: 4,
+  gender: 'Male',
+  photo:
+    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=100&h=100',
 };
 
-const BOOKING_HISTORY = [
-  { id: 1, date: 'Oct 17, 2023', time: '10:00 AM • Completed' },
-  { id: 2, date: 'Oct 10, 2023', time: '2:00 PM • Completed' },
-  { id: 3, date: 'Oct 3, 2023', time: '11:30 AM • Completed' },
-  { id: 4, date: 'Sep 28, 2023', time: '2:00 PM • Completed' },
-];
-
-const NEXT_SESSION = {
-  day: '24',
-  month: 'Oct',
-  time: 'Thursday, 4:00 PM',
-  type: 'Video Consultation',
-};
-
-const PROFILE_IMG =
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop';
+const HEADER_AVATAR =
+  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=40&h=40';
 
 function useNotification() {
-  const [message, setMessage] = useState(null);
-  const show = useCallback((msg, duration = 3000) => {
-    setMessage(msg);
-    setTimeout(() => setMessage(null), duration);
+  const [toast, setToast] = useState(null);
+  const show = useCallback((message, type = 'info') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
   }, []);
-  return { message, show };
+  return { toast, show };
 }
 
 export default function PatientProfile() {
   const navigate = useNavigate();
-  const { message, show } = useNotification();
+  const { toast, show } = useNotification();
   const contact = loadSavedContact();
+  const [notes, setNotes] = useState(() => loadPatientNotes());
+  const [draftNote, setDraftNote] = useState('');
 
-  useEffect(() => {
-    function onKeyDown(e) {
-      if (e.ctrlKey && e.key === 'p') {
-        e.preventDefault();
-        show('👤 Profile page');
-      }
-      if (e.ctrlKey && e.key === 'h') {
-        e.preventDefault();
-        show('📅 Booking history');
-      }
+  const latestNote = notes.find((n) => n.latest) ?? notes[0];
+
+  function handleSaveNote() {
+    const text = draftNote.trim();
+    if (!text) {
+      show('Please enter a note', 'warning');
+      return;
     }
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [show]);
+    setNotes(addPatientNote(text));
+    setDraftNote('');
+    show('Note saved successfully!', 'success');
+  }
+
+  const toastClass =
+    toast?.type === 'success'
+      ? styles.notificationSuccess
+      : toast?.type === 'warning'
+        ? styles.notificationWarning
+        : styles.notificationInfo;
 
   return (
     <AppLayout
@@ -64,100 +62,118 @@ export default function PatientProfile() {
       showSidebar
       headerProps={{
         onSettings: () => navigate(ROUTES.patient.editProfile),
-        onAvatarClick: () => navigate(ROUTES.patient.editProfile),
-        onNotify: () => show('🔔 No new notifications'),
-        userImage: PROFILE_IMG,
+        onAvatarClick: () => navigate(ROUTES.patient.profile),
+        onNotify: () => show('No new notifications', 'info'),
+        userImage: HEADER_AVATAR,
       }}
     >
       <div className={styles.content}>
-
-        <div className={styles.breadcrumbSection}>
-          <span>My Account</span>
-          <span className={styles.breadcrumbSeparator}>•</span>
-          <span className={styles.breadcrumbCurrent}>Profile</span>
+        <div className={styles.pageHeader}>
+          <h1 className={styles.pageTitle}>Patient Profile</h1>
+          <button
+            type="button"
+            className={styles.updateBtn}
+            onClick={() => navigate(ROUTES.patient.editProfile)}
+          >
+            <FaEdit aria-hidden="true" />
+            Update Data
+          </button>
         </div>
 
-        <div className={styles.profileSection}>
-
-          <div className={styles.patientInfo}>
-
-            <div className={styles.patientCard}>
-              <div className={styles.patientImage}>
-                <img src={PATIENT.photo} alt={PATIENT.name} className={styles.patientPhoto} />
-                <div className={styles.onlineIndicator} aria-hidden="true" />
+        <div className={styles.card}>
+          <div className={styles.cardBody}>
+            <div className={styles.profileRow}>
+              <div className={styles.avatarWrap}>
+                <img src={PATIENT.photo} alt={PATIENT.name} className={styles.avatar} />
+                <button
+                  type="button"
+                  className={styles.cameraBadge}
+                  onClick={() => navigate(ROUTES.patient.editProfile)}
+                  title="Change photo"
+                  aria-label="Change profile photo"
+                >
+                  <FaCamera aria-hidden="true" />
+                </button>
               </div>
 
-              <div className={styles.patientDetails}>
-                <h1 className={styles.patientName}>{PATIENT.name}</h1>
-                <p className={styles.previousSessions}>
-                  <FaHistory className={styles.sessionIcon} aria-hidden="true" />
-                  <span>PREVIOUS SESSIONS: {PATIENT.previousSessions}</span>
-                </p>
-
-                <div className={styles.contactInfo}>
-                  <div className={styles.contactItem}>
-                    <p className={styles.contactLabel}>MOBILE NUMBER</p>
-                    <p className={styles.contactValue}>{contact.mobile}</p>
+              <div>
+                <h2 className={styles.patientName}>{PATIENT.name}</h2>
+                <div className={styles.badgesGrid}>
+                  <div className={styles.infoBadge}>
+                    <FaPhone className={styles.infoBadgeIcon} aria-hidden="true" />
+                    <span>{contact.mobile}</span>
                   </div>
-                  <div className={styles.contactItem}>
-                    <p className={styles.contactLabel}>EMAIL ADDRESS</p>
-                    <p className={styles.contactValue}>{contact.email}</p>
+                  <div className={styles.infoBadge}>
+                    <FaVenusMars className={styles.infoBadgeIcon} aria-hidden="true" />
+                    <span>{PATIENT.gender}</span>
+                  </div>
+                  <div className={`${styles.infoBadge} ${styles.infoBadgeFull}`}>
+                    <FaEnvelope className={styles.infoBadgeIcon} aria-hidden="true" />
+                    <span>{contact.email}</span>
                   </div>
                 </div>
               </div>
             </div>
-
-            <div className={styles.bookingHistorySection}>
-              <div className={styles.sectionHeader}>
-                <FaCalendar className={styles.sectionIcon} aria-hidden="true" />
-                <h2>Previous Booking History</h2>
-                <button
-                  type="button"
-                  className={styles.viewAllLink}
-                  onClick={() => show('📅 Loading all booking history...')}
-                >
-                  View All
-                </button>
-              </div>
-
-              <div className={styles.historyGrid}>
-                {BOOKING_HISTORY.map((item, index) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className={styles.historyCard}
-                    style={{ animationDelay: `${index * 0.1}s` }}
-                    onClick={() => show(`📋 Session on ${item.date} - ${item.time}`)}
-                  >
-                    <FaCheckCircle className={styles.historyIcon} aria-hidden="true" />
-                    <p className={styles.historyDate}>{item.date}</p>
-                    <p className={styles.historyTime}>{item.time}</p>
-                  </button>
-                ))}
-              </div>
-
-            </div>
-
           </div>
+        </div>
 
-          <aside className={styles.nextSessionSidebar}>
-            <div className={styles.nextSessionCard}>
-              <p className={styles.sessionLabel}>NEXT SESSION</p>
-              <div className={styles.sessionDate}>
-                <span className={styles.dateDay}>{NEXT_SESSION.day}</span>
-                <span className={styles.dateMonth}>{NEXT_SESSION.month}</span>
+        <div className={styles.card}>
+          <div className={styles.notesCardHeader}>
+            <h3 className={styles.notesTitle}>
+              <FaFileAlt className={styles.notesTitleIcon} aria-hidden="true" />
+              Personal Notes
+            </h3>
+            <button
+              type="button"
+              className={styles.historyLink}
+              onClick={() => show('Loading note history...', 'info')}
+            >
+              <FaHistory aria-hidden="true" />
+              View History
+            </button>
+          </div>
+          <div className={styles.cardBody}>
+            {latestNote && (
+              <div className={styles.noteItem}>
+                <div className={styles.noteMeta}>
+                  <span>{latestNote.date} • {latestNote.author}</span>
+                  {latestNote.latest && <span className={styles.latestBadge}>Latest</span>}
+                </div>
+                <p className={styles.noteText}>{latestNote.text}</p>
               </div>
-              <p className={styles.sessionTime}>{NEXT_SESSION.time}</p>
-              <p className={styles.sessionType}>{NEXT_SESSION.type}</p>
-            </div>
-          </aside>
+            )}
 
+            <label className={styles.formLabel} htmlFor="patient-note">
+              Add New Note
+            </label>
+            <textarea
+              id="patient-note"
+              className={styles.textarea}
+              rows={4}
+              placeholder="Type a new personal note here..."
+              value={draftNote}
+              onChange={(e) => setDraftNote(e.target.value)}
+            />
+            <div className={styles.formActions}>
+              <button type="button" className={styles.btnLight} onClick={() => setDraftNote('')}>
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={styles.btnPrimary}
+                onClick={handleSaveNote}
+                disabled={!draftNote.trim()}
+              >
+                Save Note
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {message && (
-        <div className={styles.notification} role="alert" aria-live="polite">
-          {message}
+      {toast && (
+        <div className={`${styles.notification} ${toastClass}`} role="alert" aria-live="polite">
+          {toast.message}
         </div>
       )}
     </AppLayout>

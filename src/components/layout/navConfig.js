@@ -26,11 +26,10 @@ export function getPatientActiveNav(pathname) {
     return 'booking';
   }
   if (pathname === ROUTES.patient.settings || pathname === '/display-preferences') return 'settings';
-  if (
-    pathname.startsWith('/patient/profile')
-    || pathname === '/patient-profile'
-    || pathname === '/edit-profile'
-  ) {
+  if (pathname === ROUTES.patient.profile || pathname === '/patient-profile') {
+    return 'dashboard';
+  }
+  if (pathname.startsWith('/patient/profile/edit') || pathname === '/edit-profile') {
     return 'dashboard';
   }
   return 'dashboard';
