@@ -1,7 +1,7 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useCallback } from 'react';
+import { useNavigate, useLocation, Navigate } from 'react-router-dom';
 import {
-  FaArrowLeft, FaPencil, FaPhone, FaVenusMars, FaEnvelope,
+  FaArrowLeft, FaEdit, FaPhone, FaVenusMars, FaEnvelope,
   FaFileAlt, FaHistory,
 } from 'react-icons/fa';
 import { ROUTES } from '../../routes/paths';
@@ -9,57 +9,33 @@ import { getPatientFromState } from '../../utils/patientRecords';
 import { loadClinicalNotes, addClinicalNote } from '../../utils/clinicalNotesStorage';
 import styles from './TherapistPatientView.module.css';
 
-// 1. Improved Hook: Handles race conditions and memory leaks
 function useNotification() {
   const [toast, setToast] = useState(null);
-  const timeoutRef = useRef(null);
-
   const show = useCallback((message, type = 'info') => {
     setToast({ message, type });
-    
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    
-    timeoutRef.current = setTimeout(() => setToast(null), 3000);
+    setTimeout(() => setToast(null), 3000);
   }, []);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, []);
-
   return { toast, show };
 }
 
 export default function TherapistPatientView() {
-  const navigate = useNavigate();
   const location = useLocation();
-  const { toast, show } = useNotification();
-
   const patient = getPatientFromState(location.state);
 
-  const [notes, setNotes] = useState([]);
+  if (!patient) {
+    return <Navigate to={ROUTES.therapist.agenda} replace />;
+  }
+
+  return <TherapistPatientViewContent key={patient.notesKey} patient={patient} />;
+}
+
+function TherapistPatientViewContent({ patient }) {
+  const navigate = useNavigate();
+  const { toast, show } = useNotification();
+  const [notes, setNotes] = useState(() => loadClinicalNotes(patient.notesKey));
   const [draftNote, setDraftNote] = useState('');
 
-  // 2. Extracted derived state for cleaner logic
   const latestNote = notes.find((n) => n.latest) ?? notes[0];
-
-  useEffect(() => {
-    if (!patient) {
-      navigate(ROUTES.therapist.agenda, { replace: true });
-    }
-  }, [patient, navigate]);
-
-  useEffect(() => {
-    if (patient?.notesKey) {
-      setNotes(loadClinicalNotes(patient.notesKey));
-    }
-  }, [patient?.notesKey]);
-
-  if (!patient) return null;
 
   function handleSaveNote() {
     const text = draftNote.trim();
@@ -72,14 +48,12 @@ export default function TherapistPatientView() {
     show('Note saved successfully!', 'success');
   }
 
-  // 3. Simplified Toast Class logic
-  const getToastClass = (type) => {
-    switch (type) {
-      case 'success': return styles.notificationSuccess;
-      case 'warning': return styles.notificationWarning;
-      default: return styles.notificationInfo;
-    }
-  };
+  const toastClass =
+    toast?.type === 'success'
+      ? styles.notificationSuccess
+      : toast?.type === 'warning'
+        ? styles.notificationWarning
+        : styles.notificationInfo;
 
   return (
     <div className={styles.page}>
@@ -106,7 +80,7 @@ export default function TherapistPatientView() {
             className={styles.updateBtn}
             onClick={() => show('Update patient data — coming soon', 'info')}
           >
-            <FaPencil aria-hidden="true" />
+            <FaEdit aria-hidden="true" />
             Update Data
           </button>
         </div>
@@ -191,7 +165,7 @@ export default function TherapistPatientView() {
       </main>
 
       {toast && (
-        <div className={`${styles.notification} ${getToastClass(toast.type)}`} role="alert" aria-live="polite">
+        <div className={`${styles.notification} ${toastClass}`} role="alert" aria-live="polite">
           {toast.message}
         </div>
       )}

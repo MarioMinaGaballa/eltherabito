@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate, Navigate } from 'react-router-dom';
 import {
   FaMapPin, FaTimes, FaUser, FaPhone, FaEnvelope,
   FaCalendar, FaClock, FaEdit,
@@ -29,29 +29,23 @@ function useNotification() {
 }
 
 export default function ConfirmSession() {
+  const booking = getBooking();
+  if (!booking) {
+    return <Navigate to={ROUTES.patient.booking} replace />;
+  }
+  return <ConfirmSessionForm booking={booking} />;
+}
+
+function ConfirmSessionForm({ booking }) {
   const navigate = useNavigate();
   const { message, show } = useNotification();
-  const [booking] = useState(() => getBooking());
-  const formInitialized = useRef(false);
+  const contact = loadSavedContact();
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState(() => contact.mobile);
+  const [email, setEmail] = useState(() => contact.email);
   const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (!booking) {
-      navigate(ROUTES.patient.booking, { replace: true });
-      return;
-    }
-    if (formInitialized.current) return;
-    formInitialized.current = true;
-
-    const contact = loadSavedContact();
-    setEmail(contact.email);
-    setPhone(contact.mobile);
-  }, [booking, navigate]);
 
   useEffect(() => {
     function onKeyDown(e) {
@@ -62,10 +56,6 @@ export default function ConfirmSession() {
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [navigate]);
-
-  if (!booking) {
-    return null;
-  }
 
   const doctorName = booking.therapist;
   const priceDisplay = `$${Number(booking.price).toFixed(2)}`;

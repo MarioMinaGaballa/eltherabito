@@ -118,12 +118,6 @@ export default function BookAppointment() {
   }, [currentMonth, selectedDay, selectedTime]);
 
   useEffect(() => {
-    if (search.trim() && filteredTherapists.length === 0) {
-      show('❌ No therapists found');
-    }
-  }, [search, filteredTherapists.length, show]);
-
-  useEffect(() => {
     function onKeyDown(e) {
       if (e.ctrlKey && e.key === 'b') {
         e.preventDefault();
@@ -245,6 +239,9 @@ export default function BookAppointment() {
             </div>
 
             <div className={styles.therapistsList}>
+              {search.trim() && filteredTherapists.length === 0 && (
+                <p className={styles.sectionSubtitle}>No therapists found for your search.</p>
+              )}
               {filteredTherapists.map((t, index) => (
                 <article
                   key={t.id}
