@@ -7,6 +7,7 @@ export default function AppLayout({
   children,
   variant = 'patient',
   showSidebar = true,
+  showHeader = true,
   showSearch = false,
   sidebarSubtitle,
   headerProps = {},
@@ -19,21 +20,26 @@ export default function AppLayout({
   const bodyClass = useSidebarLayout
     ? `${styles.body} ${isPatientShell ? styles.bodyPatient : ''}`
     : styles.bodyNoSidebar;
+  const bodyStyle = useSidebarLayout && isPatientShell
+    ? { '--app-header-offset': showHeader ? '58px' : '0px' }
+    : undefined;
 
   return (
     <div className={`${styles.page} ${className}`}>
-      <AppHeader
-        variant={variant}
-        showSearch={showSearch}
-        {...headerProps}
-        logoHref={headerProps.logoHref ?? (variant === 'patient' ? ROUTES.patient.dashboard : undefined)}
-      >
-        {headerSlot}
-      </AppHeader>
+      {showHeader && (
+        <AppHeader
+          variant={variant}
+          showSearch={showSearch}
+          {...headerProps}
+          logoHref={headerProps.logoHref ?? (variant === 'patient' ? ROUTES.patient.dashboard : undefined)}
+        >
+          {headerSlot}
+        </AppHeader>
+      )}
 
       {useSidebarLayout ? (
-        <div className={bodyClass}>
-          <AppSidebar subtitle={sidebarSubtitle} />
+        <div className={bodyClass} style={bodyStyle}>
+          <AppSidebar subtitle={sidebarSubtitle} hasHeader={showHeader} />
           <div className={styles.main}>{children}</div>
         </div>
       ) : (

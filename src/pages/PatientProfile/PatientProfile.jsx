@@ -17,9 +17,6 @@ const PATIENT = {
     'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=100&h=100',
 };
 
-const HEADER_AVATAR =
-  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=40&h=40';
-
 function useNotification() {
   const [toast, setToast] = useState(null);
   const show = useCallback((message, type = 'info') => {
@@ -60,12 +57,7 @@ export default function PatientProfile() {
     <AppLayout
       variant="patient"
       showSidebar
-      headerProps={{
-        onSettings: () => navigate(ROUTES.patient.editProfile),
-        onAvatarClick: () => navigate(ROUTES.patient.profile),
-        onNotify: () => show('No new notifications', 'info'),
-        userImage: HEADER_AVATAR,
-      }}
+      showHeader={false}
     >
       <div className={styles.content}>
         <div className={styles.pageHeader}>

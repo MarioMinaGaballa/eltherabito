@@ -1,16 +1,16 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate, NavLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
-  FaSearch, FaStar, FaChevronLeft, FaChevronRight,
-  FaCalendarCheck, FaShieldAlt,
+  FaCube,
+  FaSearch,
+  FaStar,
+  FaChevronLeft,
+  FaChevronRight,
+  FaCalendarCheck,
+  FaShieldAlt,
 } from 'react-icons/fa';
 import { ROUTES } from '../../routes/paths';
-import AppLayout from '../../components/layout/AppLayout';
-import {
-  saveSelectedTherapist,
-  getSelectedTherapist,
-  saveBooking,
-} from '../../utils/bookingStorage';
+import { saveSelectedTherapist, getSelectedTherapist, saveBooking } from '../../utils/bookingStorage';
 import styles from './BookAppointment.module.css';
 
 const THERAPISTS = [
@@ -188,48 +188,48 @@ export default function BookAppointment() {
   }
 
   return (
-    <AppLayout
-      variant="patient"
-      showSidebar
-      headerProps={{
-        onAvatarClick: () => navigate(ROUTES.patient.profile),
-      }}
-    >
-      <div className={styles.content}>
+    <div className={styles.page}>
+      <header className={styles.header}>
+        <div className={styles.headerContent}>
+          <button type="button" className={styles.logoSection} onClick={() => navigate(ROUTES.patient.dashboard)}>
+            <FaCube />
+            <span className={styles.logoText}>Eltherabito</span>
+          </button>
 
-        <nav className={styles.pageNav} aria-label="Booking navigation">
-          <NavLink
-            to={ROUTES.patient.booking}
-            className={({ isActive }) =>
-              `${styles.pageNavLink} ${isActive ? styles.pageNavLinkActive : ''}`
-            }
-          >
-            Find Therapist
-          </NavLink>
-          <NavLink
-            to={ROUTES.patient.bookings}
-            className={({ isActive }) =>
-              `${styles.pageNavLink} ${isActive ? styles.pageNavLinkActive : ''}`
-            }
-          >
-            My Bookings
-          </NavLink>
-        </nav>
+          <nav className={styles.headerNav}>
+            <button type="button" className={styles.navLink} onClick={() => navigate(ROUTES.patient.booking)}>
+              Find Therapist
+            </button>
+            <button type="button" className={styles.navLink} onClick={() => navigate(ROUTES.patient.bookings)}>
+              My Bookings
+            </button>
+          </nav>
 
-        <div className={styles.searchBar}>
-          <FaSearch className={styles.searchIcon} aria-hidden="true" />
-          <input
-            type="search"
-            className={styles.searchInput}
-            placeholder="Search by name or specialist"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            aria-label="Search therapists"
-          />
+          <div className={styles.headerActions}>
+            <div className={styles.searchContainer}>
+              <FaSearch />
+              <input
+                type="search"
+                className={styles.searchInput}
+                placeholder="Search by name or specialist"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                aria-label="Search therapists"
+              />
+            </div>
+            <button type="button" className={styles.profileBtn} onClick={() => navigate(ROUTES.patient.profile)}>
+              <img
+                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop"
+                alt="Profile"
+                className={styles.profileImg}
+              />
+            </button>
+          </div>
         </div>
+      </header>
 
+      <main className={styles.mainContent}>
         <div className={styles.contentWrapper}>
-
           <section className={styles.therapistsSection}>
             <div className={styles.sectionHeader}>
               <h1 className={styles.sectionTitle}>Book an Appointment</h1>
@@ -250,7 +250,9 @@ export default function BookAppointment() {
                   }`}
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <img src={t.img} alt={t.name} className={styles.therapistImage} />
+                  <div className={styles.therapistCardLeft}>
+                    <img src={t.img} alt={t.name} className={styles.therapistImage} />
+                  </div>
                   <div className={styles.therapistCardContent}>
                     <h3 className={styles.therapistName}>{t.name}</h3>
                     <p className={styles.therapistSpecialty}>{t.specialty}</p>
@@ -306,7 +308,7 @@ export default function BookAppointment() {
                 </div>
               </div>
 
-              <div>
+              <div className={styles.calendarContainer}>
                 <h3 className={styles.calendarMonth}>{monthLabel}</h3>
                 <div className={styles.calendarHeader}>
                   {DAY_LABELS.map((label, i) => (
@@ -330,7 +332,7 @@ export default function BookAppointment() {
                 </div>
               </div>
 
-              <div>
+              <div className={styles.timeSlotsSection}>
                 <h3 className={styles.timeSlotsTitle}>AVAILABLE TIME SLOTS</h3>
                 <div className={styles.timeSlotsGrid}>
                   {TIME_SLOTS.map((slot) => (
@@ -371,22 +373,23 @@ export default function BookAppointment() {
 
               <div className={styles.securityNotice}>
                 <FaShieldAlt className={styles.securityIcon} aria-hidden="true" />
-                <span className={styles.securityTitle}>Secure &amp; Confidential</span>
-                <p className={styles.securityText}>
-                  All sessions are HIPAA-compliant and end-to-end encrypted.
-                </p>
+                <div>
+                  <span className={styles.securityTitle}>Secure &amp; Confidential</span>
+                  <p className={styles.securityText}>
+                    All sessions are HIPAA-compliant and end-to-end encrypted.
+                  </p>
+                </div>
               </div>
             </div>
           </aside>
-
         </div>
-      </div>
+      </main>
 
       {message && (
         <div className={styles.notification} role="alert" aria-live="polite">
           {message}
         </div>
       )}
-    </AppLayout>
+    </div>
   );
 }
