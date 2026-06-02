@@ -2,6 +2,12 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { BRAND, PATIENT_NAV, getPatientActiveNav } from './navConfig';
 import styles from './AppSidebar.module.css';
 
+const SIDEBAR_USER = {
+  name: 'Alex Johnson',
+  avatar:
+    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=100&h=100',
+};
+
 export default function AppSidebar({
   embedded = false,
   subtitle = BRAND.tagline,
@@ -30,6 +36,11 @@ export default function AppSidebar({
           </button>
         ))}
       </nav>
+
+      <div className={styles.user}>
+        <img className={styles.userAvatar} src={SIDEBAR_USER.avatar} alt={SIDEBAR_USER.name} />
+        <span className={styles.userName}>{SIDEBAR_USER.name}</span>
+      </div>
     </aside>
   );
 }

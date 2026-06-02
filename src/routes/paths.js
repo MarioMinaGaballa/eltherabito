@@ -9,6 +9,8 @@ export const ROUTES = {
   patient: {
     dashboard: '/patient/dashboard',
     chat: '/patient/chat',
+    assessment: '/patient/assessment',
+    assessmentResult: '/patient/assessment/result',
     profile: '/patient/profile',
     editProfile: '/patient/profile/edit',
     booking: '/patient/booking',
@@ -38,6 +40,8 @@ export const LEGACY_REDIRECTS = {
   '/chat': ROUTES.patient.chat,
   '/patient-profile': ROUTES.patient.profile,
   '/edit-profile': ROUTES.patient.editProfile,
+  '/assessment': ROUTES.patient.assessment,
+  '/assessment/result': ROUTES.patient.assessmentResult,
   '/book-appointment': ROUTES.patient.booking,
   '/confirm-session': ROUTES.patient.bookingConfirm,
   '/my-booking': ROUTES.patient.bookings,

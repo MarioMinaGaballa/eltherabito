@@ -1,4 +1,4 @@
-import { FaHome, FaRobot, FaCalendar, FaBrain } from 'react-icons/fa';
+import { FaHome, FaComments, FaBrain, FaBriefcaseMedical, FaCalendarCheck } from 'react-icons/fa';
 import { ROUTES } from '../../routes/paths';
 
 export const BRAND = {
@@ -10,21 +10,23 @@ export const BRAND = {
 
 export const PATIENT_NAV = [
   { id: 'dashboard', label: 'Home', Icon: FaHome, path: ROUTES.patient.dashboard },
-  { id: 'chat', label: 'AI Support', Icon: FaRobot, path: ROUTES.patient.chat },
-  { id: 'booking', label: 'Booking', Icon: FaCalendar, path: ROUTES.patient.booking },
+  { id: 'chat', label: 'AI Support', Icon: FaComments, path: ROUTES.patient.chat },
+  { id: 'assessment', label: 'Assessment', Icon: FaBrain, path: ROUTES.patient.assessment },
+  { id: 'findDoctor', label: 'Find Doctor', Icon: FaBriefcaseMedical, path: ROUTES.patient.booking },
+  { id: 'myBooking', label: 'My Booking', Icon: FaCalendarCheck, path: ROUTES.patient.bookings },
 ];
 
 export function getPatientActiveNav(pathname) {
   if (pathname === ROUTES.patient.chat || pathname === '/chat') return 'chat';
+  if (pathname.startsWith('/patient/assessment') || pathname === '/assessment') return 'assessment';
   if (
     pathname.startsWith('/patient/booking')
     || pathname === '/book-appointment'
     || pathname === '/confirm-session'
-    || pathname.startsWith('/patient/bookings')
-    || pathname === '/my-booking'
   ) {
-    return 'booking';
+    return 'findDoctor';
   }
+  if (pathname.startsWith('/patient/bookings') || pathname === '/my-booking') return 'myBooking';
   if (pathname === ROUTES.patient.settings || pathname === '/display-preferences') return 'settings';
   if (pathname === ROUTES.patient.profile || pathname === '/patient-profile') {
     return 'dashboard';
