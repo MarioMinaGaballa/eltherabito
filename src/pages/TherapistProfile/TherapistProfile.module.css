@@ -1,17 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
 
 .page {
-  --primary-blue: #0066cc;
-  --light-blue: #cce5ff;
-  --dark-text: #000000;
-  --gray-text: #666666;
-  --light-gray: #f5f5f5;
-  --border-gray: #dddddd;
-  --white: #ffffff;
+  --primary-blue: var(--pref-accent, #0066cc);
+  --light-blue: var(--pref-bg, #cce5ff);
+  --dark-text: var(--pref-text, #000000);
+  --gray-text: var(--pref-text, #666666);
+  --light-gray: var(--pref-bg, #f5f5f5);
+  --border-gray: var(--pref-text, #dddddd);
+  --white: var(--pref-surface, #ffffff);
 
   min-height: 100vh;
-  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background-color: #f0f0f0;
+  font-family: var(--pref-font-family, 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  background-color: var(--pref-bg, #f0f0f0);
   color: var(--dark-text);
   line-height: 1.5;
   padding: 40px 20px;

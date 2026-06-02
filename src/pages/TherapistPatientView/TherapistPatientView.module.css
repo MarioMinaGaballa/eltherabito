@@ -1,16 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 .page {
-  --primary-color: #0d6efd;
-  --bg-light: #f8f9fa;
-  --white: #ffffff;
-  --border-color: #e9ecef;
-  --text-dark: #1a1a1a;
+  --primary-color: var(--pref-accent, #0d6efd);
+  --bg-light: var(--pref-bg, #f8f9fa);
+  --white: var(--pref-surface, #ffffff);
+  --border-color: var(--pref-text, #e9ecef);
+  --text-dark: var(--pref-text, #1a1a1a);
 
   min-height: 100vh;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--pref-font-family, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
   background: var(--bg-light);
-  color: #333;
+  color: var(--pref-text, #333);
 }
 
 .header {
@@ -31,7 +31,7 @@
   border: none;
   font-size: 1.1rem;
   cursor: pointer;
-  color: #333;
+  color: var(--pref-text, #333);
   padding: 0.5rem;
   display: flex;
   align-items: center;
@@ -51,7 +51,7 @@
 
 .headerText p {
   font-size: 0.8rem;
-  color: #999;
+  color: var(--pref-text, #999);
   margin: 0.15rem 0 0;
 }
 
@@ -157,7 +157,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: #fcfcfc;
+  background: var(--pref-surface, #fcfcfc);
   border: 1px solid var(--border-color);
   border-radius: 0.75rem;
   font-size: 0.875rem;
@@ -200,7 +200,7 @@
 
 .noteItem {
   padding: 0.75rem 1rem;
-  background: #fcfcfc;
+  background: var(--pref-surface, #fcfcfc);
   border: 1px solid var(--border-color);
   border-radius: 0.75rem;
   margin-bottom: 1.5rem;
@@ -211,7 +211,7 @@
   justify-content: space-between;
   margin-bottom: 0.5rem;
   font-size: 0.75rem;
-  color: #999;
+  color: var(--pref-text, #999);
 }
 
 .latestBadge {
@@ -224,7 +224,7 @@
 
 .noteText {
   font-size: 0.875rem;
-  color: #6c757d;
+  color: var(--pref-text, #6c757d);
   margin: 0;
   line-height: 1.5;
 }

@@ -1,20 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Sora:wght@600;700&display=swap');
 
 :root {
-  --primary:      #2563eb;
-  --primary-light:#dbeafe;
-  --primary-dark: #1d4ed8;
+  --primary:      var(--pref-accent, #2563eb);
+  --primary-light: var(--pref-bg, #dbeafe);
+  --primary-dark: var(--pref-accent, #1d4ed8);
   --accent-green: #16a34a;
-  --text-dark:    #0f172a;
-  --text-mid:     #64748b;
-  --border:       #e2e8f0;
-  --bg:           #f8fafc;
-  --card-bg:      #ffffff;
+  --text-dark:    var(--pref-text, #0f172a);
+  --text-mid:     var(--pref-text, #64748b);
+  --border:       var(--pref-text, #e2e8f0);
+  --bg:           var(--pref-bg, #f8fafc);
+  --card-bg:      var(--pref-surface, #ffffff);
   --radius:       12px;
 }
 
 .page {
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--pref-font-family, 'DM Sans', sans-serif);
   background: var(--bg);
   color: var(--text-dark);
   min-height: 100vh;
