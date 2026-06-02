@@ -18,6 +18,15 @@
   align-items: flex-start;
 }
 
+.bodyPatient {
+  padding: 0;
+  gap: 0;
+  max-width: none;
+  margin: 0;
+  width: 100%;
+  align-items: stretch;
+}
+
 .bodyNoSidebar {
   flex: 1;
   padding: 1.5rem;

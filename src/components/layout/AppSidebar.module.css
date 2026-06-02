@@ -1,14 +1,15 @@
 .sidebar {
-  width: 220px;
+  width: 200px;
   flex-shrink: 0;
   background: #fff;
-  border-radius: 16px;
+  border-right: 1px solid #e9ecef;
   padding: 1.5rem 1rem;
-  border: 1px solid #EAECF0;
-  height: fit-content;
+  height: 100%;
   position: sticky;
-  top: 80px;
-  font-family: 'Manrope', sans-serif;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .sidebarEmbedded {
@@ -24,38 +25,38 @@
 }
 
 .header {
-  margin-bottom: 1.5rem;
-  padding: 0 0.5rem;
+  margin-bottom: 2rem;
 }
 
 .title {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  margin: 0;
-  color: #1D2939;
+  margin: 0 0 0.25rem 0;
+  color: #0d6efd;
 }
 
 .subtitle {
-  font-size: 0.7rem;
-  color: #667085;
+  font-size: 0.8rem;
+  color: #6c757d;
   margin: 0;
 }
 
 .nav {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0.5rem;
+  flex-grow: 1;
 }
 
 .navItem {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  font-size: 14px;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
   font-weight: 500;
-  color: #667085;
+  color: #6c757d;
   background: none;
   border: none;
   cursor: pointer;
@@ -63,24 +64,51 @@
   width: 100%;
   text-align: left;
   text-decoration: none;
-  transition: background 0.2s, color 0.2s;
+  transition: all 0.3s ease;
 }
 
 .navItem:hover {
-  background: #F9FAFB;
-  color: #1558D6;
+  background-color: rgba(13, 110, 253, 0.05);
+  color: #0d6efd;
 }
 
 .navItemActive {
-  background: #EFF4FF;
-  color: #1558D6;
-  font-weight: 600;
+  background-color: rgba(13, 110, 253, 0.1);
+  color: #0d6efd;
 }
 
 .navIcon {
-  font-size: 1rem;
-  width: 18px;
+  font-size: 1.1rem;
+  width: 20px;
   flex-shrink: 0;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.5rem;
+  background-color: #f8f9fa;
+  border-radius: 0.75rem;
+  margin-top: auto;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.userAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.userName {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @media (max-width: 768px) {

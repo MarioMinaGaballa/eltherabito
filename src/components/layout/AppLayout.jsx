@@ -16,6 +16,9 @@ export default function AppLayout({
 }) {
   const isPatientShell = variant === 'patient';
   const useSidebarLayout = isPatientShell && showSidebar;
+  const bodyClass = useSidebarLayout
+    ? `${styles.body} ${isPatientShell ? styles.bodyPatient : ''}`
+    : styles.bodyNoSidebar;
 
   return (
     <div className={`${styles.page} ${className}`}>
@@ -29,12 +32,12 @@ export default function AppLayout({
       </AppHeader>
 
       {useSidebarLayout ? (
-        <div className={styles.body}>
+        <div className={bodyClass}>
           <AppSidebar subtitle={sidebarSubtitle} />
           <div className={styles.main}>{children}</div>
         </div>
       ) : (
-        <div className={styles.bodyNoSidebar}>
+        <div className={bodyClass}>
           <div className={styles.mainFull}>{children}</div>
         </div>
       )}

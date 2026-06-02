@@ -14,6 +14,8 @@ import EditProfile from "./pages/EditProfile/EditProfile";
 import MyBookings from "./pages/MyBooking/MyBooking";
 import BookAppointment from "./pages/BookAppointment/BookAppointment";
 import ConfirmSession from "./pages/ConfirmSession/ConfirmSession";
+import Assessment from "./pages/Assessment/Assessment";
+import AssessmentResult from "./pages/AssessmentResult/AssessmentResult";
 import TherapistProfile from "./pages/TherapistProfile/TherapistProfile";
 import EditSchedule from "./pages/EditSchedule/EditSchedule";
 import TherapistUpdateProfile from "./pages/TherapistUpdateProfile/TherapistUpdateProfile";
@@ -36,6 +38,8 @@ function Layout() {
         {/* Patient */}
         <Route path={ROUTES.patient.dashboard} element={<Dashboard />} />
         <Route path={ROUTES.patient.chat} element={<Chat />} />
+        <Route path={ROUTES.patient.assessment} element={<Assessment />} />
+        <Route path={ROUTES.patient.assessmentResult} element={<AssessmentResult />} />
         <Route path={ROUTES.patient.profile} element={<PatientProfile />} />
         <Route path={ROUTES.patient.editProfile} element={<EditProfile />} />
         <Route path={ROUTES.patient.booking} element={<BookAppointment />} />
