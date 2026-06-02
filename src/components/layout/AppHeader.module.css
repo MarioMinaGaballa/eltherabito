@@ -1,12 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
 
 .header {
-  background: #fff;
-  border-bottom: 1px solid #EAECF0;
+  background: var(--pref-surface, #fff);
+  border-bottom: 1px solid var(--pref-text, #EAECF0);
   position: sticky;
   top: 0;
   z-index: 100;
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--pref-font-family, 'Manrope', sans-serif);
 }
 
 .inner {
@@ -37,19 +37,19 @@
   font-weight: 700;
   margin: 0;
   line-height: 1.2;
-  color: #1D2939;
+  color: var(--pref-text, #1D2939);
 }
 
 .logoSubtitle {
   font-size: 0.7rem;
-  color: #667085;
+  color: var(--pref-text, #667085);
   margin: 0;
 }
 
 .logoTextOnly {
   font-size: 1rem;
   font-weight: 700;
-  color: #1558D6;
+  color: var(--pref-accent, #1558D6);
 }
 
 .brandRow {
@@ -64,7 +64,7 @@
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #1558D6, #3B82F6);
+  background: linear-gradient(135deg, var(--pref-accent, #1558D6), #3B82F6);
   color: #fff;
   display: flex;
   align-items: center;
@@ -76,7 +76,7 @@
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.02em;
-  color: #1D2939;
+  color: var(--pref-text, #1D2939);
 }
 
 .searchBar {
@@ -90,7 +90,7 @@
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #667085;
+  color: var(--pref-text, #667085);
   font-size: 14px;
   pointer-events: none;
 }
@@ -98,18 +98,18 @@
 .searchInput {
   width: 100%;
   padding: 8px 12px 8px 36px;
-  border: 1px solid #EAECF0;
+  border: 1px solid var(--pref-text, #EAECF0);
   border-radius: 8px;
   font-size: 14px;
   font-family: inherit;
-  background: #F9FAFB;
+  background: var(--pref-bg, #F9FAFB);
   outline: none;
   transition: border 0.2s, background 0.2s;
 }
 
 .searchInput:focus {
-  border-color: #1558D6;
-  background: #fff;
+  border-color: var(--pref-accent, #1558D6);
+  background: var(--pref-surface, #fff);
 }
 
 .actions {
@@ -123,28 +123,28 @@
 .iconBtn {
   width: 36px;
   height: 36px;
-  border: 1px solid #EAECF0;
+  border: 1px solid var(--pref-text, #EAECF0);
   border-radius: 8px;
-  background: #fff;
+  background: var(--pref-surface, #fff);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #667085;
+  color: var(--pref-text, #667085);
   transition: background 0.2s, color 0.2s;
   font-size: 1rem;
 }
 
 .iconBtn:hover {
-  background: #F9FAFB;
-  color: #1558D6;
+  background: var(--pref-bg, #F9FAFB);
+  color: var(--pref-accent, #1558D6);
 }
 
 .userAvatar {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #1558D6;
+  background: var(--pref-accent, #1558D6);
   color: #fff;
   display: flex;
   align-items: center;
@@ -174,12 +174,12 @@
   align-items: center;
   gap: 8px;
   padding: 4px 12px 4px 4px;
-  border: 1px solid #EAECF0;
+  border: 1px solid var(--pref-text, #EAECF0);
   border-radius: 999px;
-  background: #F9FAFB;
+  background: var(--pref-bg, #F9FAFB);
   font-size: 0.8rem;
   font-weight: 600;
-  color: #344054;
+  color: var(--pref-text, #344054);
 }
 
 .adminPill img {

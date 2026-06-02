@@ -2,9 +2,9 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  font-family: 'Manrope', sans-serif;
-  background: #F8F9FB;
-  color: #1D2939;
+  font-family: var(--pref-font-family, 'Manrope', sans-serif);
+  background: var(--pref-bg, #F8F9FB);
+  color: var(--pref-text, #1D2939);
 }
 
 .body {
@@ -16,6 +16,7 @@
   width: 100%;
   margin: 0 auto;
   align-items: flex-start;
+  background: var(--pref-bg, transparent);
 }
 
 .bodyPatient {
@@ -25,6 +26,7 @@
   margin: 0;
   width: 100%;
   align-items: stretch;
+  background: var(--pref-bg, transparent);
 }
 
 .bodyNoSidebar {
@@ -33,16 +35,21 @@
   max-width: 1600px;
   width: 100%;
   margin: 0 auto;
+  background: var(--pref-bg, transparent);
 }
 
 .main {
   flex: 1;
   min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--pref-bg, transparent);
 }
 
 .mainFull {
   flex: 1;
   width: 100%;
+  background: var(--pref-bg, transparent);
 }
 
 @media (max-width: 768px) {

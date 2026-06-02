@@ -21,6 +21,9 @@ import EditSchedule from "./pages/EditSchedule/EditSchedule";
 import TherapistUpdateProfile from "./pages/TherapistUpdateProfile/TherapistUpdateProfile";
 import TherapistPatientView from "./pages/TherapistPatientView/TherapistPatientView";
 import { ROUTES, LEGACY_REDIRECTS, shouldHideNavbar } from "./routes/paths";
+import { initDisplayPreferences } from "./utils/displayPreferencesStorage";
+
+initDisplayPreferences();
 
 function Layout() {
   const location = useLocation();

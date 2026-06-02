@@ -1,16 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  --primary:      #1e5dd8;
-  --primary-dark: #1a4fa8;
-  --primary-light:#e8f1ff;
-  --text:         #1a1a1a;
-  --muted:        #6b7280;
-  --border:       #e5e7eb;
-  --bg:           #f9fafb;
+  --primary:      var(--pref-accent, #1e5dd8);
+  --primary-dark: var(--pref-accent, #1a4fa8);
+  --primary-light: var(--pref-bg, #e8f1ff);
+  --text:         var(--pref-text, #1a1a1a);
+  --muted:        var(--pref-text, #6b7280);
+  --border:       var(--pref-text, #e5e7eb);
+  --bg:           var(--pref-bg, #f9fafb);
 }
 
-.page { font-family: 'Inter', sans-serif; color: var(--text); }
+.page { font-family: var(--pref-font-family, 'Inter', sans-serif); color: var(--pref-text, #1a1a1a); }
 
 .container {
   max-width: 1280px;
@@ -54,16 +54,16 @@
 .btnLight {
   display: inline-block;
   padding: 0.875rem 2.5rem;
-  background: white;
+  background: var(--pref-surface, white);
   color: var(--primary);
-  border: 2px solid white;
+  border: 2px solid var(--pref-surface, white);
   border-radius: 10px;
   font-size: 1rem;
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--pref-font-family, 'Poppins', sans-serif);
 }
 .btnLight:hover { background: var(--bg); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
 
@@ -78,13 +78,13 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--pref-font-family, 'Poppins', sans-serif);
 }
 .btnOutlineLight:hover { background: rgba(255,255,255,0.15); }
 
 /* ── HERO ── */
 .hero {
-  background: linear-gradient(135deg, rgba(232,241,255,0.6) 0%, rgba(255,255,255,0.9) 100%);
+  background: linear-gradient(135deg, rgba(232,241,255,0.6) 0%, var(--pref-surface, rgba(255,255,255,0.9)) 100%);
   padding: 5rem 0;
   min-height: 90vh;
   display: flex;
@@ -138,7 +138,7 @@
 .avatar {
   width: 40px; height: 40px;
   border-radius: 50%;
-  border: 3px solid white;
+  border: 3px solid var(--pref-surface, white);
   margin-left: -12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
@@ -167,7 +167,7 @@
 .aiBadge {
   position: absolute;
   bottom: 20px; right: 20px;
-  background: white;
+  background: var(--pref-surface, white);
   padding: 1rem 1.25rem;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.12);
@@ -181,7 +181,7 @@
 .aiCheck        { color: #22c55e; font-size: 1.4rem; flex-shrink: 0; }
 
 /* ── FEATURES ── */
-.features { padding: 5rem 0; background: white; }
+.features { padding: 5rem 0; background: var(--pref-surface, white); }
 
 .sectionHeader { text-align: center; margin-bottom: 4rem; }
 
@@ -201,8 +201,8 @@
 }
 
 .featureCard {
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background: var(--pref-surface, var(--bg));
+  border: 1px solid var(--pref-text, var(--border));
   border-radius: 16px;
   padding: 2rem;
   position: relative;
@@ -276,7 +276,7 @@
 .ctaBtns { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; }
 
 /* ── FOOTER ── */
-.footer { background: var(--bg); border-top: 1px solid var(--border); padding: 4rem 0 2rem; }
+.footer { background: var(--pref-surface, var(--bg)); border-top: 1px solid var(--pref-text, var(--border)); padding: 4rem 0 2rem; }
 
 .footerGrid {
   display: grid;

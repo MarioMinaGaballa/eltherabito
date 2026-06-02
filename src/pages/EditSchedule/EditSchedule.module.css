@@ -1,17 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 
 .page {
-  --primary-color: #2b7cee;
-  --primary-dark: #1e5dd8;
-  --primary-light: #e8f1ff;
-  --primary-ultra-light: #f0f5ff;
-  --text-dark: #1e293b;
-  --text-muted: #64748b;
-  --text-light: #94a3b8;
-  --border-color: #e2e8f0;
-  --bg-light: #f6f7f8;
-  --bg-white: #ffffff;
-  --bg-slate-50: #f8fafc;
+  --primary-color: var(--pref-accent, #2b7cee);
+  --primary-dark: var(--pref-accent, #1e5dd8);
+  --primary-light: var(--pref-bg, #e8f1ff);
+  --primary-ultra-light: var(--pref-bg, #f0f5ff);
+  --text-dark: var(--pref-text, #1e293b);
+  --text-muted: var(--pref-text, #64748b);
+  --text-light: var(--pref-text, #94a3b8);
+  --border-color: var(--pref-text, #e2e8f0);
+  --bg-light: var(--pref-bg, #f6f7f8);
+  --bg-white: var(--pref-surface, #ffffff);
+  --bg-slate-50: var(--pref-bg, #f8fafc);
   --danger-color: #ef4444;
   --danger-light: #fee2e2;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -21,7 +21,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--pref-font-family, 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
   background: var(--bg-light);
   color: var(--text-dark);
 }

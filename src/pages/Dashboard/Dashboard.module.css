@@ -1,18 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 .page {
-  --primary-color: #0d6efd;
-  --primary-dark: #004dc2;
+  --primary-color: var(--pref-accent, #0d6efd);
+  --primary-dark: var(--pref-accent, #004dc2);
   --secondary-color: #6c757d;
-  --bg-light: #f8f9fa;
-  --bg-lighter: #fafbfc;
-  --white: #ffffff;
-  --border-color: #e9ecef;
-  --text-dark: #1a1a1a;
-  --text-muted: #6c757d;
+  --bg-light: var(--pref-bg, #f8f9fa);
+  --bg-lighter: var(--pref-bg, #fafbfc);
+  --white: var(--pref-surface, #ffffff);
+  --border-color: var(--pref-text, #e9ecef);
+  --text-dark: var(--pref-text, #1a1a1a);
+  --text-muted: var(--pref-text, #6c757d);
 
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  color: #333;
+  font-family: var(--pref-font-family, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  color: var(--pref-text, #333);
 }
 
 .topHeader {

@@ -7,11 +7,11 @@
   justify-content: center;
   padding: 1rem;
   z-index: 1000;
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--pref-font-family, 'Manrope', sans-serif);
 }
 
 .dialog {
-  background: #fff;
+  background: var(--pref-surface, #fff);
   border-radius: 1rem;
   overflow: hidden;
   box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
@@ -27,7 +27,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1px solid var(--pref-text, #E5E7EB);
 }
 
 .logoBtn {
@@ -43,27 +43,27 @@
 
 .logoIcon {
   font-size: 1.5rem;
-  color: #1558D6;
+  color: var(--pref-accent, #1558D6);
 }
 
 .logoText {
   font-size: 1rem;
   font-weight: 700;
-  color: #1D2939;
+  color: var(--pref-text, #1D2939);
 }
 
 .closeBtn {
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #9CA3AF;
+  color: var(--pref-text, #9CA3AF);
   cursor: pointer;
   padding: 0;
   line-height: 1;
 }
 
 .closeBtn:hover {
-  color: #1D2939;
+  color: var(--pref-text, #1D2939);
 }
 
 .content {
@@ -79,19 +79,19 @@
 .title {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #1D2939;
+  color: var(--pref-text, #1D2939);
   margin: 0 0 0.5rem 0;
 }
 
 .subtitle {
   font-size: 0.875rem;
-  color: #667085;
+  color: var(--pref-text, #667085);
   margin: 0 0 1.5rem 0;
   line-height: 1.5;
 }
 
 .infoSection {
-  background: #F9FAFB;
+  background: var(--pref-bg, #F9FAFB);
   border-radius: 0.75rem;
   padding: 1.5rem;
 }
@@ -105,13 +105,13 @@
 
 .sectionHeaderIcon {
   font-size: 1.25rem;
-  color: #1558D6;
+  color: var(--pref-accent, #1558D6);
 }
 
 .sectionHeader h3 {
   font-size: 1rem;
   font-weight: 700;
-  color: #1D2939;
+  color: var(--pref-text, #1D2939);
   margin: 0;
 }
 
@@ -136,7 +136,7 @@
 .formLabel {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #1D2939;
+  color: var(--pref-text, #1D2939);
   margin: 0;
 }
 
@@ -149,7 +149,7 @@
 .inputIcon {
   position: absolute;
   left: 1rem;
-  color: #9CA3AF;
+  color: var(--pref-text, #9CA3AF);
   font-size: 1rem;
   pointer-events: none;
 }
@@ -157,11 +157,11 @@
 .formControl {
   width: 100%;
   padding: 0.75rem 1rem 0.75rem 2.75rem;
-  border: 1px solid #E5E7EB;
+  border: 1px solid var(--pref-text, #E5E7EB);
   border-radius: 0.5rem;
   font-size: 0.875rem;
-  background: #fff;
-  color: #1D2939;
+  background: var(--pref-surface, #fff);
+  color: var(--pref-text, #1D2939);
   font-family: inherit;
   outline: none;
   transition: border 0.2s, box-shadow 0.2s;
@@ -170,7 +170,7 @@
 }
 
 .formControl:focus {
-  border-color: #1558D6;
+  border-color: var(--pref-accent, #1558D6);
   box-shadow: 0 0 0 3px rgba(21, 88, 214, 0.1);
 }
 
@@ -183,7 +183,7 @@
 .btnConfirm {
   flex: 1;
   padding: 0.75rem 1.5rem;
-  background: #1558D6;
+  background: var(--pref-accent, #1558D6);
   color: #fff;
   border: none;
   border-radius: 0.5rem;
@@ -209,8 +209,8 @@
 .btnCancel {
   padding: 0.75rem 1.5rem;
   background: transparent;
-  color: #667085;
-  border: 1px solid #E5E7EB;
+  color: var(--pref-text, #667085);
+  border: 1px solid var(--pref-text, #E5E7EB);
   border-radius: 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
@@ -220,18 +220,18 @@
 }
 
 .btnCancel:hover {
-  background: #F9FAFB;
+  background: var(--pref-bg, #F9FAFB);
 }
 
 .termsText {
   font-size: 0.75rem;
-  color: #9CA3AF;
+  color: var(--pref-text, #9CA3AF);
   text-align: center;
   margin: 1rem 0 0 0;
 }
 
 .termsText a {
-  color: #1558D6;
+  color: var(--pref-accent, #1558D6);
   text-decoration: none;
 }
 
@@ -249,7 +249,7 @@
   width: 100%;
   border-radius: 0.75rem;
   overflow: hidden;
-  background: #F9FAFB;
+  background: var(--pref-bg, #F9FAFB);
 }
 
 .doctorPhoto {
@@ -260,7 +260,7 @@
 }
 
 .appointmentDetails {
-  background: #F9FAFB;
+  background: var(--pref-bg, #F9FAFB);
   border-radius: 0.75rem;
   padding: 1.5rem;
 }
@@ -268,7 +268,7 @@
 .appointmentLabel {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #9CA3AF;
+  color: var(--pref-text, #9CA3AF);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin: 0 0 0.5rem 0;
@@ -277,13 +277,13 @@
 .doctorName {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1D2939;
+  color: var(--pref-text, #1D2939);
   margin: 0 0 0.25rem 0;
 }
 
 .doctorSpecialty {
   font-size: 0.875rem;
-  color: #667085;
+  color: var(--pref-text, #667085);
   margin: 0 0 1.5rem 0;
   text-transform: capitalize;
 }
@@ -293,12 +293,12 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1px solid var(--pref-text, #E5E7EB);
 }
 
 .detailIcon {
   font-size: 1.25rem;
-  color: #1558D6;
+  color: var(--pref-accent, #1558D6);
   flex-shrink: 0;
   margin-top: 0.15rem;
 }
@@ -306,7 +306,7 @@
 .detailLabel {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #9CA3AF;
+  color: var(--pref-text, #9CA3AF);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin: 0 0 0.25rem 0;
@@ -315,13 +315,13 @@
 .detailValue {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #1D2939;
+  color: var(--pref-text, #1D2939);
   margin: 0;
 }
 
 .priceSection {
-  background: #fff;
-  border: 1px solid #E5E7EB;
+  background: var(--pref-surface, #fff);
+  border: 1px solid var(--pref-text, #E5E7EB);
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -332,7 +332,7 @@
   justify-content: space-between;
   font-size: 0.875rem;
   margin-bottom: 0.75rem;
-  color: #667085;
+  color: var(--pref-text, #667085);
 }
 
 .priceRow:last-child {
@@ -341,14 +341,14 @@
 
 .priceValue {
   font-weight: 600;
-  color: #1D2939;
+  color: var(--pref-text, #1D2939);
 }
 
 .changeSelection {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: #1558D6;
+  color: var(--pref-accent, #1558D6);
   font-size: 0.875rem;
   font-weight: 600;
   background: none;
@@ -364,14 +364,14 @@
 
 .footer {
   padding: 1.5rem;
-  border-top: 1px solid #E5E7EB;
-  background: #F9FAFB;
+  border-top: 1px solid var(--pref-text, #E5E7EB);
+  background: var(--pref-bg, #F9FAFB);
   text-align: center;
 }
 
 .footerText {
   font-size: 0.75rem;
-  color: #9CA3AF;
+  color: var(--pref-text, #9CA3AF);
   margin: 0;
 }
 
@@ -379,7 +379,7 @@
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background: #1558D6;
+  background: var(--pref-accent, #1558D6);
   color: #fff;
   padding: 1rem 1.5rem;
   border-radius: 0.5rem;

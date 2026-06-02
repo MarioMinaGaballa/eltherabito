@@ -14,16 +14,16 @@
 }
 
 .page {
-  --primary-blue: #3B82F6;
-  --primary-blue-dark: #2563EB;
-  --primary-blue-light: #EFF6FF;
-  --text-dark: #1F2937;
-  --text-gray: #6B7280;
-  --text-light-gray: #9CA3AF;
-  --bg-white: #FFFFFF;
-  --bg-light-gray: #F9FAFB;
-  --bg-light: #F3F4F6;
-  --border-color: #E5E7EB;
+  --primary-blue: var(--pref-accent, #3B82F6);
+  --primary-blue-dark: var(--pref-accent, #2563EB);
+  --primary-blue-light: var(--pref-bg, #EFF6FF);
+  --text-dark: var(--pref-text, #1F2937);
+  --text-gray: var(--pref-text, #6B7280);
+  --text-light-gray: var(--pref-text, #9CA3AF);
+  --bg-white: var(--pref-surface, #FFFFFF);
+  --bg-light-gray: var(--pref-bg, #F9FAFB);
+  --bg-light: var(--pref-bg, #F3F4F6);
+  --border-color: var(--pref-text, #E5E7EB);
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
@@ -31,7 +31,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--pref-font-family, 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
   background-color: var(--bg-light-gray);
   color: var(--text-dark);
   line-height: 1.6;
