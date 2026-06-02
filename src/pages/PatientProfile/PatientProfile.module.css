@@ -10,6 +10,8 @@
 
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   animation: fadeInUp 0.5s ease;
+  padding: 1.5rem;
+  width: 100%;
 }
 
 @keyframes fadeInUp {
@@ -353,6 +355,10 @@
 }
 
 @media (max-width: 768px) {
+  .content {
+    padding: 1rem;
+  }
+
   .profileRow {
     flex-direction: column;
     text-align: center;

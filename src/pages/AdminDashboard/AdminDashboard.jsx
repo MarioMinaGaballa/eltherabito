@@ -6,6 +6,7 @@ import {
 } from 'react-icons/fa';
 import AppLayout from '../../components/layout/AppLayout';
 import { BRAND } from '../../components/layout/navConfig';
+import { ROUTES } from '../../routes/paths';
 import styles from './AdminDashboard.module.css';
 /* ── Data ── */
 
@@ -124,7 +125,7 @@ export default function AdminDashboard() {
                     <span className={styles.doctorExp}>{d.exp}</span>
                     <button
                       className={styles.btnProfile}
-                      onClick={() => show(`Opening profile: ${d.name}`, 'info')}
+                      onClick={() => navigate(ROUTES.therapist.profile)}
                     >
                       Profile
                     </button>

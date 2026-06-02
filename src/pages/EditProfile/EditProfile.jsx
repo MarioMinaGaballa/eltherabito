@@ -124,12 +124,10 @@ export default function EditProfile() {
     <AppLayout
       variant="patient"
       showSidebar
+      showHeader={false}
       sidebarSubtitle={BRAND.portalTagline}
       headerProps={{
-        onNotify: () => show('🔔 No new notifications'),
-        onSettings: () => show('⚙️ Settings'),
         userImage: avatar,
-        onAvatarClick: () => navigate(ROUTES.patient.profile),
       }}
     >
       <div className={styles.content}>

@@ -37,7 +37,7 @@ export default function DisplayPreferences() {
   }
 
   return (
-    <AppLayout variant="patient" showSidebar showSearch>
+    <AppLayout variant="patient" showSidebar showHeader={false}>
       <div className={styles.content}>
         <h1 className={styles.pageTitle}>Display Preferences</h1>
         <p className={styles.pageDesc}>

@@ -64,7 +64,7 @@ export default function Dashboard() {
   }, [toast]);
 
   return (
-    <AppLayout variant="patient" showSidebar>
+    <AppLayout variant="patient" showSidebar showHeader={false}>
       <div className={styles.page}>
         <header className={styles.topHeader}>
           <div className={styles.searchBar}>

@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { BRAND, PATIENT_NAV, getPatientActiveNav } from './navConfig';
+import { ROUTES } from '../../routes/paths';
 import styles from './AppSidebar.module.css';
 
 const SIDEBAR_USER = {
@@ -11,13 +12,16 @@ const SIDEBAR_USER = {
 export default function AppSidebar({
   embedded = false,
   subtitle = BRAND.tagline,
+  hasHeader = true,
 }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const activeId = getPatientActiveNav(pathname);
 
   return (
-    <aside className={`${styles.sidebar} ${embedded ? styles.sidebarEmbedded : ''}`}>
+    <aside
+      className={`${styles.sidebar} ${embedded ? styles.sidebarEmbedded : ''} ${hasHeader ? styles.sidebarWithHeader : ''}`}
+    >
       <div className={styles.header}>
         <h2 className={styles.title}>{BRAND.name}</h2>
         <p className={styles.subtitle}>{subtitle}</p>
@@ -38,8 +42,21 @@ export default function AppSidebar({
       </nav>
 
       <div className={styles.user}>
-        <img className={styles.userAvatar} src={SIDEBAR_USER.avatar} alt={SIDEBAR_USER.name} />
-        <span className={styles.userName}>{SIDEBAR_USER.name}</span>
+        <button
+          type="button"
+          className={styles.userAvatarBtn}
+          onClick={() => navigate(ROUTES.patient.profile)}
+          aria-label="Open patient profile"
+        >
+          <img className={styles.userAvatar} src={SIDEBAR_USER.avatar} alt={SIDEBAR_USER.name} />
+        </button>
+        <button
+          type="button"
+          className={styles.userNameBtn}
+          onClick={() => navigate(ROUTES.patient.profile)}
+        >
+          {SIDEBAR_USER.name}
+        </button>
       </div>
     </aside>
   );
