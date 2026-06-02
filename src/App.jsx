@@ -9,6 +9,7 @@ import DisplayPreferences from "./pages/DisplayPreferences/DisplayPreferences";
 import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
 import SignUp from "./pages/Signup/Signup";
 import AddDoctor from "./pages/AddDoctor/AddDoctor";
+import AdminViewUsers from "./pages/AdminViewUsers/AdminViewUsers";
 import PatientProfile from "./pages/PatientProfile/PatientProfile";
 import EditProfile from "./pages/EditProfile/EditProfile";
 import MyBookings from "./pages/MyBooking/MyBooking";
@@ -20,6 +21,7 @@ import TherapistProfile from "./pages/TherapistProfile/TherapistProfile";
 import EditSchedule from "./pages/EditSchedule/EditSchedule";
 import TherapistUpdateProfile from "./pages/TherapistUpdateProfile/TherapistUpdateProfile";
 import TherapistPatientView from "./pages/TherapistPatientView/TherapistPatientView";
+import TherapistPatientProfile from "./pages/TherapistPatientProfile/TherapistPatientProfile";
 import { ROUTES, LEGACY_REDIRECTS, shouldHideNavbar } from "./routes/paths";
 import { initDisplayPreferences } from "./utils/displayPreferencesStorage";
 
@@ -55,11 +57,12 @@ function Layout() {
         <Route path={ROUTES.therapist.profile} element={<TherapistProfile />} />
         <Route path={ROUTES.therapist.editProfile} element={<TherapistUpdateProfile />} />
         <Route path={ROUTES.therapist.editSchedule} element={<EditSchedule />} />
-        <Route path={ROUTES.therapist.viewPatient} element={<TherapistPatientView />} />
+        <Route path={ROUTES.therapist.viewPatient} element={<TherapistPatientProfile />} />
 
         {/* Admin */}
         <Route path={ROUTES.admin.home} element={<AdminDashboard />} />
         <Route path={ROUTES.admin.addDoctor} element={<AddDoctor />} />
+        <Route path={ROUTES.admin.viewUsers} element={<AdminViewUsers />} />
 
         {/* Legacy redirects */}
         {Object.entries(LEGACY_REDIRECTS).map(([from, to]) => (

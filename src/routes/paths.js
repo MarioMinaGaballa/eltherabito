@@ -25,12 +25,13 @@ export const ROUTES = {
     editProfile: '/therapist/profile/edit',
     editSchedule: '/therapist/schedule/edit',
     /** Patient clinical view — pass patient via location.state (no id in URL until API) */
-    viewPatient: '/therapist/patient',
+    viewPatient: '/therapist/patientprofile',
   },
 
   admin: {
     home: '/admin',
     addDoctor: '/admin/add-doctor',
+    viewUsers: '/admin/users',
   },
 };
 
