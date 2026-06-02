@@ -54,7 +54,7 @@ export const LEGACY_REDIRECTS = {
 
 export function shouldHideNavbar(pathname) {
   if (pathname === ROUTES.home) return false;
-  if (pathname === ROUTES.login || pathname === ROUTES.signup) return false;
+  if (pathname === ROUTES.login || pathname === ROUTES.signup) return true;
   if (pathname.startsWith('/patient/')) return true;
   if (pathname.startsWith('/therapist/')) return true;
   if (pathname.startsWith('/admin')) return true;
