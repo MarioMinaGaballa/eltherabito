@@ -99,7 +99,7 @@ export default function AdminDashboard() {
             </span>
           </div>
           <div className={styles.dirCard}>
-            <button className={styles.btnViewAll} onClick={() => show('Loading user directory…', 'info')}>
+            <button className={styles.btnViewAll} onClick={() => navigate('/admin/users')}>
               View All Users
             </button>
           </div>

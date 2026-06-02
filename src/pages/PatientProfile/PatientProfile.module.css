@@ -137,10 +137,11 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: #fcfcfc;
+  background: var(--pref-bg, #fcfcfc);
   border: 1px solid var(--pref-text, #e9ecef);
   border-radius: 0.75rem;
   font-size: 0.875rem;
+  color: var(--pref-text, #333);
   transition: all 0.2s ease;
 }
 
@@ -199,7 +200,7 @@
 
 .noteItem {
   padding: 0.75rem 1rem;
-  background: #fcfcfc;
+  background: var(--pref-bg, #fcfcfc);
   border: 1px solid var(--pref-text, #e9ecef);
   border-radius: 0.75rem;
   margin-bottom: 1.5rem;
@@ -218,7 +219,7 @@
   margin-bottom: 0.5rem;
   gap: 0.5rem;
   font-size: 0.75rem;
-  color: #999;
+  color: var(--pref-text, #999);
 }
 
 .latestBadge {
@@ -227,12 +228,12 @@
   background: var(--pref-surface, #ffffff);
   border: 1px solid var(--pref-text, #e9ecef);
   border-radius: 0.375rem;
-  color: #333;
+  color: var(--pref-text, #333);
 }
 
 .noteText {
   font-size: 0.875rem;
-  color: #6c757d;
+  color: var(--pref-text, #6c757d);
   margin: 0;
   line-height: 1.5;
 }
@@ -242,7 +243,7 @@
   font-size: 0.875rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-  color: #333;
+  color: var(--pref-text, #333);
 }
 
 .textarea {
@@ -266,7 +267,7 @@
 }
 
 .textarea::placeholder {
-  color: #999;
+  color: var(--pref-text, #999);
 }
 
 .formActions {
@@ -280,7 +281,7 @@
   background: var(--pref-surface, #ffffff);
   border: 1px solid var(--pref-text, #e9ecef);
   border-radius: 0.75rem;
-  color: #333;
+  color: var(--pref-text, #333);
   font-size: 0.875rem;
   font-weight: 500;
   font-family: inherit;
@@ -289,7 +290,7 @@
 }
 
 .btnLight:hover {
-  background: #f5f5f5;
+  background: var(--pref-bg, #f5f5f5);
 }
 
 .btnPrimary {
