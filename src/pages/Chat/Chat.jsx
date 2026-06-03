@@ -142,7 +142,7 @@ export default function Chat() {
         </div>
 
         <div className={styles.sidebarFooter}>
-          <button className={styles.menuItem}><FaCog /> Settings</button>
+          <button className={styles.menuItem} onClick={() => navigate(ROUTES.patient.settings)}><FaCog /> Settings</button>
           <div className={styles.userProfile}>
             <div className={styles.avatar}>
               <img src="https://i.pravatar.cc/150?u=alex" alt="User" />
