@@ -20,6 +20,9 @@ const DOCTORS = [
   { id: 1, name: 'Dr. Aris Thorne',     specialty: 'Clinical Psychologist', exp: '12 Years Experience', img: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=440&fit=crop&crop=face' },
   { id: 2, name: 'Dr. Marcus Vane',     specialty: 'Cognitive Therapist',   exp: '8 Years Experience',  img: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=440&fit=crop&crop=face' },
   { id: 3, name: 'Dr. Elena Rodriguez', specialty: 'Child & Adolescent',    exp: '15 Years Experience', img: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400&h=440&fit=crop&crop=face' },
+  { id: 4, name: 'Dr. James Wilson',    specialty: 'Psychiatrist',          exp: '20 Years Experience', img: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400&h=440&fit=crop&crop=face' },
+  { id: 5, name: 'Dr. Sarah Chen',      specialty: 'Family Therapist',      exp: '10 Years Experience', img: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=400&h=440&fit=crop&crop=face' },
+  { id: 6, name: 'Dr. Michael Brown',   specialty: 'Addiction Specialist',  exp: '14 Years Experience', img: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&h=440&fit=crop&crop=face' },
 ];
 
 /* ── Counter hook ── */
@@ -67,6 +70,7 @@ function StatCard({ icon, color, label, value }) {
 /* ── Main Component ── */
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const [showAllDoctors, setShowAllDoctors] = useState(false);
 
   const { toasts, show } = useToast();
 
@@ -115,7 +119,7 @@ export default function AdminDashboard() {
           </div>
 
           <div className={styles.doctorsGrid}>
-            {DOCTORS.map(d => (
+            {DOCTORS.slice(0, showAllDoctors ? DOCTORS.length : 3).map(d => (
               <div key={d.id} className={styles.doctorCard}>
                 <img className={styles.doctorPhoto} src={d.img} alt={d.name} />
                 <div className={styles.doctorBody}>
@@ -139,12 +143,12 @@ export default function AdminDashboard() {
               className={styles.viewMoreTile}
               role="button"
               tabIndex={0}
-              onClick={() => show('Loading full doctor roster…', 'info')}
-              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') show('Loading full doctor roster…', 'info'); }}
+              onClick={() => setShowAllDoctors(!showAllDoctors)}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setShowAllDoctors(!showAllDoctors); }}
             >
               <div className={styles.viewMoreArrow}><FaChevronRight /></div>
-              <div className={styles.viewMoreTitle}>View More Doctors</div>
-              <div className={styles.viewMoreSub}>Access the full roster of healthcare professionals</div>
+              <div className={styles.viewMoreTitle}>{showAllDoctors ? 'Show Less Doctors' : 'View More Doctors'}</div>
+              <div className={styles.viewMoreSub}>{showAllDoctors ? 'Collapse the doctor roster' : 'Access the full roster of healthcare professionals'}</div>
             </div>
           </div>
         </section>

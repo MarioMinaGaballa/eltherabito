@@ -85,6 +85,14 @@ export default function Chat() {
     setInput(text.replace(/"/g, ''));
   }
 
+  function handleMenuClick(item) {
+    if (item.id === 'resources') {
+      window.open('https://healthunlocked.com/', '_blank');
+    } else {
+      setActiveMenu(item.id);
+    }
+  }
+
   const menuItems = [
     { id: 'chat',     icon: <FaCommentAlt />, label: 'Current Chat' },
     { id: 'history',  icon: <FaHistory />,    label: 'Chat History' },
@@ -117,7 +125,7 @@ export default function Chat() {
             <button
               key={item.id}
               className={`${styles.menuItem} ${activeMenu === item.id ? styles.menuItemActive : ''}`}
-              onClick={() => setActiveMenu(item.id)}
+              onClick={() => handleMenuClick(item)}
             >
               {item.icon} {item.label}
             </button>
