@@ -10,26 +10,7 @@ import { BRAND } from '../../components/layout/navConfig';
 import { ROUTES } from '../../routes/paths';
 import styles from './Chat.module.css';
 
-const INITIAL_MESSAGES = [
-  {
-    id: 1,
-    sender: 'ai',
-    text: "I'm here to listen and support you. How are you feeling today? Sometimes sharing what's on your mind can help ease the weight of the day.",
-    time: '2:45 PM',
-  },
-  {
-    id: 2,
-    sender: 'user',
-    text: "I've been feeling a bit overwhelmed with work lately. There just doesn't seem to be enough hours in the day to catch up.",
-    time: '2:46 PM',
-  },
-  {
-    id: 3,
-    sender: 'ai',
-    text: "That sounds really challenging. When work piles up, it's natural to feel that pressure. Have you had a chance to take even a five-minute break for yourself today? Sometimes a small reset can help clarify your next step.",
-    time: 'Just now',
-  },
-];
+const INITIAL_MESSAGES = [];
 
 const SUGGESTIONS = [
   "I haven't taken a break yet",

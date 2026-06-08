@@ -127,12 +127,7 @@ export default function AdminDashboard() {
                   <div className={styles.doctorSpecialty}>{d.specialty}</div>
                   <div className={styles.doctorFooter}>
                     <span className={styles.doctorExp}>{d.exp}</span>
-                    <button
-                      className={styles.btnProfile}
-                      onClick={() => navigate(ROUTES.therapist.profile)}
-                    >
-                      Profile
-                    </button>
+                  
                   </div>
                 </div>
               </div>
