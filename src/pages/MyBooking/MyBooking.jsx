@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   FaMapPin, FaClock, FaVideo, FaEllipsisH,
@@ -6,6 +6,7 @@ import {
   FaCalendar, FaPhone, FaTimes,
 } from 'react-icons/fa';
 import { ROUTES } from '../../routes/paths';
+import { getBooking } from '../../utils/bookingStorage';
 import styles from './MyBooking.module.css';
 
 /* ── Data ── */
@@ -28,6 +29,14 @@ export default function MyBookings() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast]       = useState(null);
+  const [booking, setBooking]   = useState(null);
+
+  useEffect(() => {
+    const savedBooking = getBooking();
+    if (savedBooking) {
+      setBooking(savedBooking);
+    }
+  }, []);
 
   function showToast(msg) {
     setToast(msg);
@@ -80,26 +89,29 @@ export default function MyBookings() {
         <div className={styles.pageHeader}>
           <div>
             <h1 className={styles.pageTitle}>{today}</h1>
-            <p className={styles.pageSubtitle}>1 session scheduled for today</p>
+            <p className={styles.pageSubtitle}>
+              {booking ? '1 session scheduled' : 'No sessions scheduled'}
+            </p>
           </div>
         </div>
 
         {/* ── UPCOMING SESSION ── */}
-        <section className={styles.upcomingSection}>
-          <div className={styles.sessionCard}>
+        {booking ? (
+          <section className={styles.upcomingSection}>
+            <div className={styles.sessionCard}>
 
-            {/* Doctor image */}
-            <div className={styles.sessionImage}>
-              <img src={UPCOMING.img} alt={UPCOMING.name} className={styles.doctorImg} />
-            </div>
+              {/* Doctor image */}
+              <div className={styles.sessionImage}>
+                <img src={booking.img} alt={booking.therapist} className={styles.doctorImg} />
+              </div>
 
-            {/* Session details */}
-            <div className={styles.sessionDetails}>
-              <div className={styles.sessionHeader}>
-                <div>
-                  <p className={styles.sessionLabel}>{UPCOMING.label}</p>
-                  <h2 className={styles.doctorName}>{UPCOMING.name}</h2>
-                </div>
+              {/* Session details */}
+              <div className={styles.sessionDetails}>
+                <div className={styles.sessionHeader}>
+                  <div>
+                    <p className={styles.sessionLabel}>{booking.specialty}</p>
+                    <h2 className={styles.doctorName}>{booking.therapist}</h2>
+                  </div>
 
                 {/* Menu button */}
                 <div className={styles.menuWrap}>
@@ -127,14 +139,14 @@ export default function MyBookings() {
                   <FaClock className={styles.infoIcon} />
                   <div>
                     <p className={styles.infoLabel}>SESSION TIME</p>
-                    <p className={styles.infoValue}>{UPCOMING.time}</p>
+                    <p className={styles.infoValue}>{booking.dateTime}</p>
                   </div>
                 </div>
                 <div className={styles.infoItem}>
                   <FaVideo className={styles.infoIcon} />
                   <div>
                     <p className={styles.infoLabel}>CLINIC LOCATION</p>
-                    <p className={styles.infoValue}>{UPCOMING.location}</p>
+                    <p className={styles.infoValue}>Online Video Call</p>
                   </div>
                 </div>
               </div>
@@ -157,6 +169,21 @@ export default function MyBookings() {
             <FaPlus /> Book another session
           </button>
         </section>
+        ) : (
+          <section className={styles.upcomingSection}>
+            <div className={styles.noAppointments}>
+              <FaCalendarCheck className={styles.noAppIcon} />
+              <p>No upcoming sessions scheduled.</p>
+            </div>
+            <button
+              type="button"
+              className={styles.bookAnotherLink}
+              onClick={() => navigate(ROUTES.patient.booking)}
+            >
+              <FaPlus /> Book a session
+            </button>
+          </section>
+        )}
 
         {/* ── BOOKING HISTORY ── */}
         <section className={styles.historySection}>
