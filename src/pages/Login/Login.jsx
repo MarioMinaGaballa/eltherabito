@@ -1,51 +1,64 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaGoogle, FaFacebookF } from 'react-icons/fa';
-import { ROUTES } from '../../routes/paths';
-import AppHeader from '../../components/layout/AppHeader';
+import { FaMapPin, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaGoogle, FaFacebookF } from 'react-icons/fa';
 import styles from './Login.module.css';
+import authService from '../../services/authService';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const [email, setEmail]       = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [remember, setRemember] = useState(false);
-  const [errors, setErrors]     = useState({});
-  const [toast, setToast]       = useState(null);
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState(null);
 
-  function showToast(msg) {
-    setToast(msg);
-    setTimeout(() => setToast(null), 3000);
+  function showToast(msg, type = 'success') {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 4000);
   }
 
   function validate() {
     const e = {};
-    if (!email.trim())                                     e.email    = 'Email is required';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))   e.email    = 'Invalid email address';
-    if (!password)                                         e.password = 'Password is required';
-    else if (password.length < 6)                          e.password = 'At least 6 characters';
+    if (!email.trim()) e.email = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = 'Invalid email address';
+    if (!password) e.password = 'Password is required';
     return e;
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
 
-    showToast('✓ Logging in...');
-    // TODO: authService.login({ email, password, remember })
-    setTimeout(() => {
-      showToast('✓ Welcome back!');
-      setTimeout(() => navigate(ROUTES.patient.dashboard), 1000);
-    }, 1500);
+    setLoading(true);
+    try {
+      const data = await authService.login({ email, password });
+      // data = { firstName, lastName, email, token }
+      login(data, data.token);
+      showToast(`✓ Welcome back, ${data.firstName}!`);
+      setTimeout(() => navigate('/dashboard'), 1000);
+    } catch (err) {
+      showToast(err.message || 'Login failed. Please try again.', 'error');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <div className={styles.page}>
 
-      <AppHeader variant="auth" />
+      {/* ── HEADER ── */}
+      <header className={styles.header}>
+        <Link to="/" className={styles.logo}>
+          <FaMapPin className={styles.logoIcon} />
+          <span>Eltherabito</span>
+        </Link>
+      </header>
 
       {/* ── MAIN ── */}
       <div className={styles.container}>
@@ -94,7 +107,8 @@ export default function Login() {
                 <div className={styles.formGroup}>
                   <div className={styles.passHeader}>
                     <label className={styles.label}>Password</label>
-                    <button type="button" className={styles.forgotLink} onClick={() => showToast('📧 Password reset link sent!')}>
+                    <button type="button" className={styles.forgotLink}
+                      onClick={() => showToast('📧 Password reset link sent!')}>
                       Forgot password?
                     </button>
                   </div>
@@ -116,17 +130,15 @@ export default function Login() {
 
                 {/* Remember me */}
                 <div className={styles.checkRow}>
-                  <input
-                    type="checkbox"
-                    id="remember"
-                    className={styles.checkbox}
-                    checked={remember}
-                    onChange={e => setRemember(e.target.checked)}
-                  />
+                  <input type="checkbox" id="remember" className={styles.checkbox}
+                    checked={remember} onChange={e => setRemember(e.target.checked)} />
                   <label htmlFor="remember" className={styles.checkLabel}>Stay logged in for 30 days</label>
                 </div>
 
-                <button type="submit" className={styles.btnLogin}>Log in</button>
+                <button type="submit" className={styles.btnLogin} disabled={loading}>
+                  {loading ? 'Logging in...' : 'Log in'}
+                </button>
+
               </form>
 
               <p className={styles.signupText}>
@@ -160,7 +172,11 @@ export default function Login() {
       </footer>
 
       {/* Toast */}
-      {toast && <div className={styles.toast}>{toast}</div>}
+      {toast && (
+        <div className={`${styles.toast} ${toast.type === 'error' ? styles.toastErr : styles.toastOk}`}>
+          {toast.msg}
+        </div>
+      )}
 
     </div>
   );

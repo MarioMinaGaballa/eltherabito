@@ -8,11 +8,14 @@ import {
 } from 'react-icons/fa';
 import AppHeader from '../../components/layout/AppHeader';
 import styles from './Signup.module.css';
+import authService from '../../services/authService';
+import { useAuth } from '../../context/AuthContext';
 
 const PHONE_PREFIXES = ['+20', '+1', '+44', '+91'];
 
 export default function Register() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [form, setForm] = useState({
     firstName: '', lastName: '', email: '',
@@ -20,43 +23,53 @@ export default function Register() {
     age: '', gender: '', password: '', agreed: false,
   });
   const [showPass, setShowPass] = useState(false);
-  const [errors, setErrors]     = useState({});
-  const [toast, setToast]       = useState(null);
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState(null);
 
   function set(key, val) {
     setForm(p => ({ ...p, [key]: val }));
     setErrors(p => ({ ...p, [key]: '' }));
   }
 
-  function showToast(msg) {
-    setToast(msg);
-    setTimeout(() => setToast(null), 3000);
+  function showToast(msg, type = 'success') {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 4000);
   }
 
   function validate() {
     const e = {};
-    if (!form.firstName.trim())  e.firstName = 'Required';
-    if (!form.lastName.trim())   e.lastName  = 'Required';
-    if (!form.email.trim())      e.email     = 'Required';
+    if (!form.firstName.trim()) e.firstName = 'Required';
+    if (!form.lastName.trim()) e.lastName = 'Required';
+    if (!form.email.trim()) e.email = 'Required';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Invalid email';
-    if (!form.phone.trim())      e.phone     = 'Required';
-    if (!form.age)               e.age       = 'Required';
+    if (!form.phone.trim()) e.phone = 'Required';
+    if (!form.age) e.age = 'Required';
     else if (form.age < 13 || form.age > 120) e.age = 'Must be 13–120';
-    if (!form.gender)            e.gender    = 'Please select a gender';
-    if (!form.password)          e.password  = 'Required';
-    else if (form.password.length < 8) e.password = 'At least 8 characters';
-    if (!form.agreed)            e.agreed    = 'You must agree to continue';
+    if (!form.gender) e.gender = 'Please select a gender';
+    if (!form.password) e.password = 'Required';
+    else if (form.password.length < 6) e.password = 'At least 6 characters';
+    if (!form.agreed) e.agreed = 'You must agree to continue';
     return e;
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
-    showToast('✓ Creating your account...');
-    // TODO: authService.register(form)
-    console.log('Register payload:', form);
-    setTimeout(() => navigate(ROUTES.patient.dashboard), 1500);
+
+    setLoading(true);
+    try {
+      const data = await authService.register(form);
+      // data = { firstName, lastName, email, token }
+      login(data, data.token);
+      showToast(`✓ Welcome, ${data.firstName}!`);
+      setTimeout(() => navigate(ROUTES.patient.dashboard), 1000);
+    } catch (err) {
+      showToast(err.message || 'Registration failed. Please try again.', 'error');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -67,7 +80,6 @@ export default function Register() {
         <Link to="/login" className={styles.btnLoginLink}>Log in</Link>
       </AppHeader>
 
-      {/* ── MAIN ── */}
       <div className={styles.container}>
         <div className={styles.wrapper}>
           <div className={styles.formSection}>
@@ -76,7 +88,6 @@ export default function Register() {
               <h1 className={styles.title}>Create your account</h1>
               <p className={styles.subtitle}>Join a community dedicated to mental well-being</p>
 
-              {/* Role indicator */}
               <div className={styles.roleIndicator}>
                 <FaUser /> <span>Patient</span>
               </div>
@@ -89,13 +100,10 @@ export default function Register() {
                     <label className={styles.label}>First Name</label>
                     <div className={styles.inputWrap}>
                       <FaUser className={styles.inputIcon} />
-                      <input
-                        type="text"
+                      <input type="text"
                         className={`${styles.input} ${errors.firstName ? styles.inputErr : ''}`}
-                        placeholder="John"
-                        value={form.firstName}
-                        onChange={e => set('firstName', e.target.value)}
-                      />
+                        placeholder="John" value={form.firstName}
+                        onChange={e => set('firstName', e.target.value)} />
                     </div>
                     {errors.firstName && <p className={styles.err}>{errors.firstName}</p>}
                   </div>
@@ -104,13 +112,10 @@ export default function Register() {
                     <label className={styles.label}>Last Name</label>
                     <div className={styles.inputWrap}>
                       <FaUser className={styles.inputIcon} />
-                      <input
-                        type="text"
+                      <input type="text"
                         className={`${styles.input} ${errors.lastName ? styles.inputErr : ''}`}
-                        placeholder="Doe"
-                        value={form.lastName}
-                        onChange={e => set('lastName', e.target.value)}
-                      />
+                        placeholder="Doe" value={form.lastName}
+                        onChange={e => set('lastName', e.target.value)} />
                     </div>
                     {errors.lastName && <p className={styles.err}>{errors.lastName}</p>}
                   </div>
@@ -121,13 +126,10 @@ export default function Register() {
                   <label className={styles.label}>Email Address</label>
                   <div className={styles.inputWrap}>
                     <FaEnvelope className={styles.inputIcon} />
-                    <input
-                      type="email"
+                    <input type="email"
                       className={`${styles.input} ${errors.email ? styles.inputErr : ''}`}
-                      placeholder="john@example.com"
-                      value={form.email}
-                      onChange={e => set('email', e.target.value)}
-                    />
+                      placeholder="john@example.com" value={form.email}
+                      onChange={e => set('email', e.target.value)} />
                   </div>
                   {errors.email && <p className={styles.err}>{errors.email}</p>}
                 </div>
@@ -138,21 +140,14 @@ export default function Register() {
                   <div className={`${styles.phoneWrap} ${errors.phone ? styles.inputErr : ''}`}>
                     <div className={styles.phonePrefix}>
                       <FaGlobe className={styles.globeIcon} />
-                      <select
-                        className={styles.prefixSelect}
-                        value={form.phonePrefix}
-                        onChange={e => set('phonePrefix', e.target.value)}
-                      >
+                      <select className={styles.prefixSelect} value={form.phonePrefix}
+                        onChange={e => set('phonePrefix', e.target.value)}>
                         {PHONE_PREFIXES.map(p => <option key={p}>{p}</option>)}
                       </select>
                     </div>
-                    <input
-                      type="tel"
-                      className={styles.phoneInput}
-                      placeholder="(00) 123 4567"
-                      value={form.phone}
-                      onChange={e => set('phone', e.target.value)}
-                    />
+                    <input type="tel" className={styles.phoneInput}
+                      placeholder="(00) 123 4567" value={form.phone}
+                      onChange={e => set('phone', e.target.value)} />
                   </div>
                   {errors.phone && <p className={styles.err}>{errors.phone}</p>}
                 </div>
@@ -162,14 +157,10 @@ export default function Register() {
                   <label className={styles.label}>Age</label>
                   <div className={styles.inputWrap}>
                     <FaBirthdayCake className={styles.inputIcon} />
-                    <input
-                      type="number"
+                    <input type="number"
                       className={`${styles.input} ${errors.age ? styles.inputErr : ''}`}
-                      placeholder="Enter your age"
-                      min="13" max="120"
-                      value={form.age}
-                      onChange={e => set('age', e.target.value)}
-                    />
+                      placeholder="Enter your age" min="13" max="120"
+                      value={form.age} onChange={e => set('age', e.target.value)} />
                   </div>
                   {errors.age && <p className={styles.err}>{errors.age}</p>}
                 </div>
@@ -179,18 +170,11 @@ export default function Register() {
                   <label className={styles.label}>Gender</label>
                   <div className={styles.genderOptions}>
                     {['male', 'female'].map(g => (
-                      <label
-                        key={g}
-                        className={`${styles.genderOption} ${form.gender === g ? styles.genderSelected : ''}`}
-                      >
-                        <input
-                          type="radio"
-                          name="gender"
-                          value={g}
-                          checked={form.gender === g}
-                          onChange={() => set('gender', g)}
-                          className={styles.radioInput}
-                        />
+                      <label key={g}
+                        className={`${styles.genderOption} ${form.gender === g ? styles.genderSelected : ''}`}>
+                        <input type="radio" name="gender" value={g}
+                          checked={form.gender === g} onChange={() => set('gender', g)}
+                          className={styles.radioInput} />
                         <span>{g.charAt(0).toUpperCase() + g.slice(1)}</span>
                       </label>
                     ))}
@@ -203,44 +187,39 @@ export default function Register() {
                   <label className={styles.label}>Password</label>
                   <div className={styles.inputWrap}>
                     <FaLock className={styles.inputIcon} />
-                    <input
-                      type={showPass ? 'text' : 'password'}
+                    <input type={showPass ? 'text' : 'password'}
                       className={`${styles.input} ${errors.password ? styles.inputErr : ''}`}
-                      placeholder="Create a strong password"
-                      value={form.password}
-                      onChange={e => set('password', e.target.value)}
-                    />
+                      placeholder="Create a strong password" value={form.password}
+                      onChange={e => set('password', e.target.value)} />
                     <button type="button" className={styles.eyeBtn} onClick={() => setShowPass(v => !v)}>
                       {showPass ? <FaEyeSlash /> : <FaEye />}
                     </button>
                   </div>
-                  <p className={styles.hint}>Must be at least 8 characters with letters and numbers</p>
+                  <p className={styles.hint}>Must be at least 6 characters</p>
                   {errors.password && <p className={styles.err}>{errors.password}</p>}
                 </div>
 
                 {/* Terms */}
                 <div className={styles.checkRow}>
-                  <input
-                    type="checkbox"
-                    id="terms"
-                    className={styles.checkbox}
-                    checked={form.agreed}
-                    onChange={e => set('agreed', e.target.checked)}
-                  />
+                  <input type="checkbox" id="terms" className={styles.checkbox}
+                    checked={form.agreed} onChange={e => set('agreed', e.target.checked)} />
                   <label htmlFor="terms" className={styles.checkLabel}>
                     I agree to the <Link to="/terms">Terms of Service</Link> and <Link to="/privacy">Privacy Policy</Link>
                   </label>
                 </div>
                 {errors.agreed && <p className={styles.err}>{errors.agreed}</p>}
 
-                {/* Security badges */}
+                {/* Badges */}
                 <div className={styles.badges}>
                   <div className={styles.badge}><FaShieldAlt /> HIPAA COMPLIANT</div>
                   <div className={styles.badge}><FaLock /> END-TO-END ENCRYPTED</div>
                 </div>
 
-                <button type="submit" className={styles.btnRegister}>
-                  Create Account <FaArrowRight />
+                <button type="submit" className={styles.btnRegister} disabled={loading}>
+                  {loading
+                    ? 'Creating account...'
+                    : <><span>Create Account</span> <FaArrowRight /></>
+                  }
                 </button>
 
               </form>
@@ -254,13 +233,15 @@ export default function Register() {
         </div>
       </div>
 
-      {/* ── FOOTER ── */}
       <footer className={styles.footer}>
         <p>© 2026 Eltherabito Mental Health. All rights reserved.</p>
       </footer>
 
-      {/* Toast */}
-      {toast && <div className={styles.toast}>{toast}</div>}
+      {toast && (
+        <div className={`${styles.toast} ${toast.type === 'error' ? styles.toastErr : styles.toastOk}`}>
+          {toast.msg}
+        </div>
+      )}
 
     </div>
   );
