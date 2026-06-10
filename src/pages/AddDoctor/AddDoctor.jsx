@@ -5,6 +5,7 @@ import {
 } from 'react-icons/fa';
 import AppLayout from '../../components/layout/AppLayout';
 import { BRAND } from '../../components/layout/navConfig';
+import adminService from '../../services/adminService';
 import styles from './AddDoctor.module.css';
 
 const SPECIALTIES = [
@@ -26,6 +27,7 @@ export default function AddDoctor() {
   });
   const [showPass, setShowPass] = useState(false);
   const [errors, setErrors]     = useState({});
+  const [loading, setLoading]   = useState(false);
   const [toast, setToast]       = useState(null);
 
   function set(key, val) {
@@ -55,14 +57,21 @@ export default function AddDoctor() {
     return e;
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
-    // TODO: adminService.addDoctor(form)
-    console.log('Add doctor payload:', form);
-    showToast('✓ Doctor profile saved successfully!');
-    setTimeout(() => navigate('/admin'), 1500);
+
+    setLoading(true);
+    try {
+      await adminService.addDoctor(form);
+      showToast('✓ Doctor profile saved successfully!');
+      setTimeout(() => navigate('/admin'), 1500);
+    } catch (err) {
+      showToast(err.message || 'Failed to add doctor', 'error');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -250,8 +259,8 @@ export default function AddDoctor() {
               <button type="button" className={styles.btnCancel} onClick={() => navigate('/admin')}>
                 Cancel
               </button>
-              <button type="submit" className={styles.btnSave}>
-                <FaSave /> Save Professional Profile
+              <button type="submit" className={styles.btnSave} disabled={loading}>
+                {loading ? 'Saving...' : <><FaSave /> Save Professional Profile</>}
               </button>
             </div>
 

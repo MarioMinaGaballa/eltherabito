@@ -20,7 +20,7 @@ const authService = {
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      throw new Error(err.message || 'Registration failed');
+      throw new Error(err.message || 'Backend error: Registration failed');
     }
 
     return res.json(); // { firstName, lastName, email, token }
@@ -35,7 +35,7 @@ const authService = {
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      throw new Error(err.message || 'Invalid email or password');
+      throw new Error(err.message || 'Backend error: Invalid email or password');
     }
 
     return res.json(); // { firstName, lastName, email, token }
