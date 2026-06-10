@@ -7,16 +7,23 @@ import {
 import AppLayout from '../../components/layout/AppLayout';
 import { BRAND } from '../../components/layout/navConfig';
 import { ROUTES } from '../../routes/paths';
+import adminService from '../../services/adminService';
 import styles from './AdminDashboard.module.css';
 /* ── Data ── */
 
-const STATS = [
-  { id: 'users',    icon: <FaUsers />,         color: 'blue',   label: 'Total Users',    value: 14802 },
-  { id: 'doctors',  icon: <FaUserMd />,         color: 'indigo', label: 'Num Doctor',     value: 342   },
-  { id: 'bookings', icon: <FaCalendarCheck />,  color: 'green',  label: 'Total Bookings', value: 2540  },
+const STATS_CONFIG = [
+  { id: 'users',    icon: <FaUsers />,         color: 'blue',   label: 'Total Users',    key: 'totalUsers' },
+  { id: 'doctors',  icon: <FaUserMd />,         color: 'indigo', label: 'Num Doctor',     key: 'totalDoctors' },
+  { id: 'bookings', icon: <FaCalendarCheck />,  color: 'green',  label: 'Total Bookings', key: 'totalBookings' },
 ];
 
-const DOCTORS = [
+const FALLBACK_STATS = {
+  totalUsers: 14802,
+  totalDoctors: 342,
+  totalBookings: 2540,
+};
+
+const FALLBACK_DOCTORS = [
   { id: 1, name: 'Dr. Aris Thorne',     specialty: 'Clinical Psychologist', exp: '12 Years Experience', img: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=440&fit=crop&crop=face' },
   { id: 2, name: 'Dr. Marcus Vane',     specialty: 'Cognitive Therapist',   exp: '8 Years Experience',  img: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=440&fit=crop&crop=face' },
   { id: 3, name: 'Dr. Elena Rodriguez', specialty: 'Child & Adolescent',    exp: '15 Years Experience', img: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400&h=440&fit=crop&crop=face' },
@@ -71,8 +78,39 @@ function StatCard({ icon, color, label, value }) {
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [showAllDoctors, setShowAllDoctors] = useState(false);
+  const [stats, setStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [doctors, setDoctors] = useState([]);
 
   const { toasts, show } = useToast();
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const data = await adminService.getStats();
+        setStats(data);
+      } catch (err) {
+        console.error('Failed to fetch stats, using fallback:', err);
+        setStats(FALLBACK_STATS);
+      } finally {
+        setStatsLoading(false);
+      }
+    }
+    fetchStats();
+  }, []);
+
+  useEffect(() => {
+    async function fetchDoctors() {
+      try {
+        const data = await adminService.getDoctors();
+        setDoctors(data);
+      } catch (err) {
+        console.error('Failed to fetch doctors, using fallback:', err);
+        setDoctors(FALLBACK_DOCTORS);
+      }
+    }
+    fetchDoctors();
+  }, []);
 
   return (
     <AppLayout
@@ -90,7 +128,21 @@ export default function AdminDashboard() {
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Platform Reports</h2>
           <div className={styles.statsGrid}>
-            {STATS.map(s => <StatCard key={s.id} {...s} />)}
+            {statsLoading ? (
+              <div>Loading statistics...</div>
+            ) : stats ? (
+              STATS_CONFIG.map(config => (
+                <StatCard
+                  key={config.id}
+                  icon={config.icon}
+                  color={config.color}
+                  label={config.label}
+                  value={stats[config.key] || 0}
+                />
+              ))
+            ) : (
+              <div>Failed to load statistics</div>
+            )}
           </div>
         </section>
 
@@ -119,7 +171,7 @@ export default function AdminDashboard() {
           </div>
 
           <div className={styles.doctorsGrid}>
-            {DOCTORS.slice(0, showAllDoctors ? DOCTORS.length : 3).map(d => (
+            {doctors.slice(0, showAllDoctors ? doctors.length : 3).map(d => (
               <div key={d.id} className={styles.doctorCard}>
                 <img className={styles.doctorPhoto} src={d.img} alt={d.name} />
                 <div className={styles.doctorBody}>

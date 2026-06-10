@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import adminService from '../../services/adminService';
 import styles from './AdminViewUsers.module.css';
 
-// Sample patient data
-const patientsData = [
+// Sample patient data (fallback)
+const FALLBACK_PATIENTS = [
   {
     id: 1,
     initials: 'SJ',
@@ -344,9 +345,25 @@ const patientsData = [
 
 export default function AdminViewUsers() {
   const navigate = useNavigate();
-  const [patients, setPatients] = useState(patientsData);
+  const [patients, setPatients] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
+
+  useEffect(() => {
+    async function fetchPatients() {
+      try {
+        const data = await adminService.getPatients();
+        setPatients(data);
+      } catch (err) {
+        console.error('Failed to fetch patients, using fallback:', err);
+        setPatients(FALLBACK_PATIENTS);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPatients();
+  }, []);
 
   // Calculate pagination
   const totalPages = Math.ceil(patients.length / itemsPerPage);
@@ -368,19 +385,25 @@ export default function AdminViewUsers() {
   };
 
   // Handle delete patient
-  const handleDeletePatient = (patientId) => {
+  const handleDeletePatient = async (patientId) => {
     if (window.confirm('Are you sure you want to delete this patient?')) {
-      setPatients((prev) => {
-        const updated = prev.filter((p) => p.id !== patientId);
-        
-        // Adjust current page if necessary
-        const newTotalPages = Math.ceil(updated.length / itemsPerPage);
-        if (currentPage > newTotalPages && newTotalPages > 0) {
-          setCurrentPage(newTotalPages);
-        }
-        
-        return updated;
-      });
+      try {
+        await adminService.deletePatient(patientId);
+        setPatients((prev) => {
+          const updated = prev.filter((p) => p.id !== patientId);
+
+          // Adjust current page if necessary
+          const newTotalPages = Math.ceil(updated.length / itemsPerPage);
+          if (currentPage > newTotalPages && newTotalPages > 0) {
+            setCurrentPage(newTotalPages);
+          }
+
+          return updated;
+        });
+      } catch (err) {
+        console.error('Failed to delete patient:', err);
+        alert('Failed to delete patient. Please try again.');
+      }
     }
   };
 
@@ -405,17 +428,20 @@ export default function AdminViewUsers() {
 
         {/* Table Container */}
         <div className={styles.tableContainer}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th className={styles.colPatient}>PATIENT NAME</th>
-                <th className={styles.colEmail}>EMAIL ADDRESS</th>
-                <th className={styles.colPhone}>PHONE NUMBER</th>
-                <th className={styles.colActions}>ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedData.map((patient) => (
+          {loading ? (
+            <div style={{ padding: '40px', textAlign: 'center' }}>Loading patients...</div>
+          ) : (
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th className={styles.colPatient}>PATIENT NAME</th>
+                  <th className={styles.colEmail}>EMAIL ADDRESS</th>
+                  <th className={styles.colPhone}>PHONE NUMBER</th>
+                  <th className={styles.colActions}>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedData.map((patient) => (
                 <tr key={patient.id}>
                   {/* Patient Name Cell */}
                   <td>
@@ -454,6 +480,7 @@ export default function AdminViewUsers() {
               ))}
             </tbody>
           </table>
+          )}
         </div>
 
         {/* Pagination and Info */}
