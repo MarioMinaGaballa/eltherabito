@@ -17,20 +17,6 @@ const STATS_CONFIG = [
   { id: 'bookings', icon: <FaCalendarCheck />,  color: 'green',  label: 'Total Bookings', key: 'totalBookings' },
 ];
 
-const FALLBACK_STATS = {
-  totalUsers: 14802,
-  totalDoctors: 342,
-  totalBookings: 2540,
-};
-
-const FALLBACK_DOCTORS = [
-  { id: 1, name: 'Dr. Aris Thorne',     specialty: 'Clinical Psychologist', exp: '12 Years Experience', img: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=440&fit=crop&crop=face' },
-  { id: 2, name: 'Dr. Marcus Vane',     specialty: 'Cognitive Therapist',   exp: '8 Years Experience',  img: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=440&fit=crop&crop=face' },
-  { id: 3, name: 'Dr. Elena Rodriguez', specialty: 'Child & Adolescent',    exp: '15 Years Experience', img: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400&h=440&fit=crop&crop=face' },
-  { id: 4, name: 'Dr. James Wilson',    specialty: 'Psychiatrist',          exp: '20 Years Experience', img: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400&h=440&fit=crop&crop=face' },
-  { id: 5, name: 'Dr. Sarah Chen',      specialty: 'Family Therapist',      exp: '10 Years Experience', img: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=400&h=440&fit=crop&crop=face' },
-  { id: 6, name: 'Dr. Michael Brown',   specialty: 'Addiction Specialist',  exp: '14 Years Experience', img: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&h=440&fit=crop&crop=face' },
-];
 
 /* ── Counter hook ── */
 function useCounter(target, duration = 1200) {
@@ -90,8 +76,8 @@ export default function AdminDashboard() {
         const data = await adminService.getStats();
         setStats(data);
       } catch (err) {
-        console.error('Failed to fetch stats, using fallback:', err);
-        setStats(FALLBACK_STATS);
+        console.error('Failed to fetch stats:', err);
+        setStats(null);
       } finally {
         setStatsLoading(false);
       }
@@ -103,10 +89,17 @@ export default function AdminDashboard() {
     async function fetchDoctors() {
       try {
         const data = await adminService.getDoctors();
-        setDoctors(data);
+        const mappedDoctors = data.map(d => ({
+          id: d.id,
+          name: d.fullName,
+          specialty: d.specialty,
+          exp: `${d.yearsOfExp} years`,
+          img: d.profilePictureUrl || 'https://randomuser.me/api/portraits/lego/1.jpg',
+        }));
+        setDoctors(mappedDoctors);
       } catch (err) {
-        console.error('Failed to fetch doctors, using fallback:', err);
-        setDoctors(FALLBACK_DOCTORS);
+        console.error('Failed to fetch doctors:', err);
+        setDoctors([]);
       }
     }
     fetchDoctors();
