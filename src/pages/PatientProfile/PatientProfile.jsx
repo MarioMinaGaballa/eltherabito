@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   FaEdit, FaCamera, FaPhone, FaVenusMars, FaEnvelope,
@@ -7,15 +7,9 @@ import {
 import { ROUTES } from '../../routes/paths';
 import { loadSavedContact } from '../../utils/profileStorage';
 import { loadPatientNotes, addPatientNote } from '../../utils/patientNotesStorage';
+import patientService from '../../services/patientService';
 import AppLayout from '../../components/layout/AppLayout';
 import styles from './PatientProfile.module.css';
-
-const PATIENT = {
-  name: 'Ahmed Ali',
-  gender: 'Male',
-  photo:
-    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=100&h=100',
-};
 
 function useNotification() {
   const [toast, setToast] = useState(null);
@@ -32,6 +26,22 @@ export default function PatientProfile() {
   const contact = loadSavedContact();
   const [notes, setNotes] = useState(() => loadPatientNotes());
   const [draftNote, setDraftNote] = useState('');
+  const [patient, setPatient] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        const data = await patientService.getProfile();
+        setPatient(data);
+      } catch (error) {
+        show(error.message, 'danger');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProfile();
+  }, []);
 
   const latestNote = notes.find((n) => n.latest) ?? notes[0];
 
@@ -52,6 +62,24 @@ export default function PatientProfile() {
       : toast?.type === 'warning'
         ? styles.notificationWarning
         : styles.notificationInfo;
+
+  if (loading) {
+    return (
+      <AppLayout variant="patient" showSidebar showHeader={false}>
+        <div className={styles.content}>
+          <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  const patientData = patient || {
+    fullName: 'Ahmed Ali',
+    gender: 'Male',
+    profilePictureUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=100&h=100',
+    email: contact.email,
+    phoneNumber: contact.mobile,
+  };
 
   return (
     <AppLayout
@@ -76,7 +104,7 @@ export default function PatientProfile() {
           <div className={styles.cardBody}>
             <div className={styles.profileRow}>
               <div className={styles.avatarWrap}>
-                <img src={PATIENT.photo} alt={PATIENT.name} className={styles.avatar} />
+                <img src={patientData.profilePictureUrl} alt={patientData.fullName} className={styles.avatar} />
                 <button
                   type="button"
                   className={styles.cameraBadge}
@@ -89,19 +117,19 @@ export default function PatientProfile() {
               </div>
 
               <div>
-                <h2 className={styles.patientName}>{PATIENT.name}</h2>
+                <h2 className={styles.patientName}>{patientData.fullName}</h2>
                 <div className={styles.badgesGrid}>
                   <div className={styles.infoBadge}>
                     <FaPhone className={styles.infoBadgeIcon} aria-hidden="true" />
-                    <span>{contact.mobile}</span>
+                    <span>{patientData.phoneNumber}</span>
                   </div>
                   <div className={styles.infoBadge}>
                     <FaVenusMars className={styles.infoBadgeIcon} aria-hidden="true" />
-                    <span>{PATIENT.gender}</span>
+                    <span>{patientData.gender}</span>
                   </div>
                   <div className={`${styles.infoBadge} ${styles.infoBadgeFull}`}>
                     <FaEnvelope className={styles.infoBadgeIcon} aria-hidden="true" />
-                    <span>{contact.email}</span>
+                    <span>{patientData.email}</span>
                   </div>
                 </div>
               </div>

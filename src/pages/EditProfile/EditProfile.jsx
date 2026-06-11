@@ -6,11 +6,10 @@ import {
 import { ROUTES } from '../../routes/paths';
 import AppLayout from '../../components/layout/AppLayout';
 import { BRAND } from '../../components/layout/navConfig';
+import patientService from '../../services/patientService';
 import styles from './EditProfile.module.css';
-import { PROFILE_STORAGE_KEY, loadSavedPhone } from '../../utils/profileStorage';
 
 const PROFILE_DRAFT_KEY = 'eltherabito-profile-draft';
-const DEFAULT_EMAIL = 'ahmed.ali@example.com';
 const DEFAULT_AVATAR =
   'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop';
 
@@ -28,10 +27,28 @@ export default function EditProfile() {
   const fileInputRef = useRef(null);
   const { message, show } = useNotification();
 
-  const [email] = useState(DEFAULT_EMAIL);
-  const [phone, setPhone] = useState(loadSavedPhone);
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [avatar, setAvatar] = useState(DEFAULT_AVATAR);
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [profilePictureFile, setProfilePictureFile] = useState(null);
+
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        const data = await patientService.getProfile();
+        setEmail(data.email);
+        setPhone(data.phoneNumber || '');
+        setAvatar(data.profilePictureUrl || DEFAULT_AVATAR);
+      } catch (error) {
+        show(error.message, 'danger');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProfile();
+  }, []);
 
   const saveDraft = useCallback((value) => {
     try {
@@ -42,7 +59,7 @@ export default function EditProfile() {
     } catch {
       /* ignore */
     }
-  }, [email]);
+  }, [email, phone]);
 
   const handleCancel = useCallback(() => {
     if (window.confirm('Are you sure you want to cancel? Any unsaved changes will be lost.')) {
@@ -50,34 +67,37 @@ export default function EditProfile() {
     }
   }, [navigate]);
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     if (!phone.trim()) {
       show('❌ Please enter a phone number');
       return;
     }
 
     setSaving(true);
-    const profileData = {
-      email,
-      phone: phone.trim(),
-      updatedAt: new Date().toISOString(),
-    };
-
     try {
-      localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profileData));
+      const formData = {
+        email,
+        phoneNumber: phone.trim(),
+        profilePicture: profilePictureFile,
+      };
+      const updatedData = await patientService.updateProfile(formData);
+      
+      setEmail(updatedData.email);
+      setPhone(updatedData.phoneNumber || '');
+      setAvatar(updatedData.profilePictureUrl || DEFAULT_AVATAR);
+      setProfilePictureFile(null);
+      
       localStorage.removeItem(PROFILE_DRAFT_KEY);
-    } catch {
-      show('❌ Could not save profile');
+      show('✓ Profile updated successfully!');
+      setTimeout(() => {
+        navigate(ROUTES.patient.profile);
+        setSaving(false);
+      }, 1500);
+    } catch (error) {
+      show(error.message, 'danger');
       setSaving(false);
-      return;
     }
-
-    show('✓ Profile updated successfully!');
-    setTimeout(() => {
-      navigate(ROUTES.patient.profile);
-      setSaving(false);
-    }, 1500);
-  }, [email, phone, navigate, show]);
+  }, [email, phone, profilePictureFile, navigate, show]);
 
   useEffect(() => {
     function onKeyDown(e) {
@@ -109,15 +129,27 @@ export default function EditProfile() {
       return;
     }
 
+    setProfilePictureFile(file);
+    
     const reader = new FileReader();
     reader.onload = () => {
       if (typeof reader.result === 'string') {
         setAvatar(reader.result);
-        show('📸 Profile picture updated');
+        show('📸 Profile picture selected');
       }
     };
     reader.readAsDataURL(file);
     e.target.value = '';
+  }
+
+  if (loading) {
+    return (
+      <AppLayout variant="patient" showSidebar showHeader={false}>
+        <div className={styles.content}>
+          <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>
+        </div>
+      </AppLayout>
+    );
   }
 
   return (
@@ -187,7 +219,13 @@ export default function EditProfile() {
               <label htmlFor="email" className={styles.formLabel}>Email Address</label>
               <div className={styles.formInputGroup}>
                 <FaEnvelope className={styles.inputIcon} aria-hidden="true" />
-                <input type="email" id="email" className={styles.formControl} value={email} readOnly />
+                <input
+                  type="email"
+                  id="email"
+                  className={styles.formControl}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
             </div>
 
