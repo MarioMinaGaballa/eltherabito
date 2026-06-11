@@ -237,6 +237,37 @@
 .btnProfile { background: var(--pref-accent, #2563eb); color: white; }
 .btnProfile:hover { background: #1d4ed8; }
 
+/* ── STATUS BADGE ── */
+.statusBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.statusDone {
+  background: #dcfce7;
+  color: #16a34a;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.statusCancelled {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.statusMissed {
+  background: #fef3c7;
+  color: #d97706;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 /* ── BREAK ROW ── */
 .breakRow {
   display: grid;

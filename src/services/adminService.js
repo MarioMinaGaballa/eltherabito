@@ -1,4 +1,4 @@
-const BASE_URL = '/api';
+const BASE_URL = 'https://localhost:7022/api';
 
 const adminService = {
   async getStats() {
@@ -37,12 +37,12 @@ const adminService = {
     const payload = {
       firstName: formData.firstName,
       lastName: formData.lastName,
-      gender: formData.gender === 'male' ? 0 : 1,
+      gender: formData.gender === 'male' ? 'Male' : 'Female',
       age: parseInt(formData.age),
       specialty: formData.specialty,
-      yearsOfExperience: parseInt(formData.experience),
+      yearsOfExperience: parseInt(formData.yearsOfExperience),
       email: formData.email,
-      phoneNumber: formData.phone,
+      phoneNumber: formData.phoneNumber,
       password: formData.password,
     };
 
@@ -89,6 +89,43 @@ const adminService = {
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.message || 'Backend error: Failed to fetch doctors');
+    }
+
+    return res.json();
+  },
+
+  async getAppointmentAgenda(doctorId) {
+    const res = await fetch(`${BASE_URL}/appointments/${doctorId}/Appointmentagenda`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Backend error: Failed to fetch appointment agenda');
+    }
+
+    return res.json();
+  },
+
+  async updateAppointmentStatus(appointmentId, status) {
+    const payload = {
+      appointmentStatus: status,
+    };
+
+    const res = await fetch(`${BASE_URL}/appointments/${appointmentId}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Backend error: Failed to update appointment status');
     }
 
     return res.json();

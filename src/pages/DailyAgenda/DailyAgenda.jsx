@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   FaCalendarAlt, FaUtensils, FaMoon, FaPlus,
@@ -6,18 +6,9 @@ import {
 } from 'react-icons/fa';
 import { ROUTES } from '../../routes/paths';
 import AppLayout from '../../components/layout/AppLayout';
+import adminService from '../../services/adminService';
+import { useAuth } from '../../context/AuthContext';
 import styles from './DailyAgenda.module.css';
-
-/* ── Data ── */
-const SESSIONS = [
-  { id: 1, time: '09:00', ampm: 'AM', duration: '50 min', name: 'Sarah Mitchell',  img: 'https://randomuser.me/api/portraits/women/44.jpg', status: null },
-  { id: 2, time: '10:30', ampm: 'AM', duration: '60 min', name: 'James Parker',    img: 'https://randomuser.me/api/portraits/men/32.jpg',   status: null },
-  { id: 3, time: '12:00', ampm: 'PM', duration: '50 min', name: 'Michael Ross',    img: 'https://randomuser.me/api/portraits/men/54.jpg',   status: null, isLast: true },
-  // after lunch
-  { id: 4, time: '02:00', ampm: 'PM', duration: '60 min', name: 'Elena Rodriguez', img: 'https://randomuser.me/api/portraits/women/56.jpg', status: null },
-  { id: 5, time: '04:30', ampm: 'PM', duration: '45 min', name: 'David Chang',     img: 'https://randomuser.me/api/portraits/men/76.jpg',   status: null },
-  { id: 6, time: '05:30', ampm: 'PM', duration: '60 min', name: 'Anna West',       img: 'https://randomuser.me/api/portraits/women/12.jpg', status: null },
-];
 
 const dateChip = new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
 
@@ -34,25 +25,115 @@ function useToast() {
 
 export default function DailyAgenda() {
   const navigate = useNavigate();
-  const [sessions, setSessions] = useState(SESSIONS);
+  const { user } = useAuth();
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { toasts, show } = useToast();
+
+  useEffect(() => {
+    async function fetchAppointments() {
+      try {
+        const doctorId = user?.id || user?.doctorId;
+        if (!doctorId) {
+          show('Doctor ID not found', 'danger');
+          return;
+        }
+        const data = await adminService.getAppointmentAgenda(doctorId);
+        const mappedSessions = data.map(apt => ({
+          id: apt.appointmentId,
+          time: formatTime(apt.startTime),
+          ampm: getAmPm(apt.startTime),
+          duration: calculateDuration(apt.startTime, apt.endTime),
+          name: apt.patientName,
+          img: apt.pictureUrl || 'https://randomuser.me/api/portraits/lego/1.jpg',
+          status: mapStatus(apt.status),
+          patientId: apt.patientId,
+        }));
+        setSessions(mappedSessions);
+      } catch (error) {
+        show(error.message, 'danger');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchAppointments();
+  }, [user]);
+
+  function formatTime(timeStr) {
+    const [hours, minutes] = timeStr.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    return `${displayHour.toString().padStart(2, '0')}:${minutes}`;
+  }
+
+  function getAmPm(timeStr) {
+    const [hours] = timeStr.split(':');
+    const hour = parseInt(hours);
+    return hour >= 12 ? 'PM' : 'AM';
+  }
+
+  function calculateDuration(startTime, endTime) {
+    const [startHours, startMins] = startTime.split(':').map(Number);
+    const [endHours, endMins] = endTime.split(':').map(Number);
+    const startTotal = startHours * 60 + startMins;
+    const endTotal = endHours * 60 + endMins;
+    const diff = endTotal - startTotal;
+    return `${diff} min`;
+  }
+
+  function mapStatus(status) {
+    const statusMap = {
+      0: null,      // Pending
+      1: 'done',    // Done
+      2: 'cancelled', // Cancelled
+      3: 'missed',   // Missed
+    };
+    return statusMap[status] || null;
+  }
+
+  function mapStatusToBackend(status) {
+    const statusMap = {
+      'done': 1,
+      'cancelled': 2,
+      'missed': 3,
+    };
+    return statusMap[status];
+  }
 
   function updateSession(id, patch) {
     setSessions(p => p.map(s => s.id === id ? { ...s, ...patch } : s));
   }
 
-  function handleCancel(s) {
+  async function handleCancel(s) {
     if (!window.confirm(`Cancel session with ${s.name}?`)) return;
-    updateSession(s.id, { status: 'cancelled' });
-    show(`Session with ${s.name} cancelled.`, 'warning');
+    try {
+      await adminService.updateAppointmentStatus(s.id, 2); // Cancelled = 2
+      updateSession(s.id, { status: 'cancelled' });
+      show(`Session with ${s.name} cancelled.`, 'warning');
+    } catch (error) {
+      show(error.message, 'danger');
+    }
   }
-  function handleMissed(s) {
-    updateSession(s.id, { status: 'missed' });
-    show(`${s.name} marked as missed.`, 'danger');
+
+  async function handleMissed(s) {
+    try {
+      await adminService.updateAppointmentStatus(s.id, 3); // Missed = 3
+      updateSession(s.id, { status: 'missed' });
+      show(`${s.name} marked as missed.`, 'danger');
+    } catch (error) {
+      show(error.message, 'danger');
+    }
   }
-  function handleDone(s) {
-    updateSession(s.id, { status: 'done' });
-    show(`Session with ${s.name} marked as done! ✓`, 'success');
+
+  async function handleDone(s) {
+    try {
+      await adminService.updateAppointmentStatus(s.id, 1); // Done = 1
+      updateSession(s.id, { status: 'done' });
+      show(`Session with ${s.name} marked as done! ✓`, 'success');
+    } catch (error) {
+      show(error.message, 'danger');
+    }
   }
   function handleProfile(session) {
     navigate(ROUTES.therapist.viewPatient, {
@@ -91,6 +172,19 @@ export default function DailyAgenda() {
       </button>
     </div>
   );
+
+  if (loading) {
+    return (
+      <AppLayout variant="therapist" showSidebar={false} headerSlot={therapistHeader}>
+        <div className={styles.wrapper}>
+          <div className={styles.pageHeader}>
+            <h1 className={styles.pageTitle}>Daily Agenda</h1>
+          </div>
+          <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout variant="therapist" showSidebar={false} headerSlot={therapistHeader}>
@@ -178,6 +272,7 @@ function SessionRow({ session: s, onCancel, onMissed, onDone, onProfile }) {
   const isCancelled = s.status === 'cancelled';
   const isMissed    = s.status === 'missed';
   const isDone      = s.status === 'done';
+  const isPending   = s.status === null; // Pending = 0 from backend
 
   return (
     <div className={`${styles.timeSlot} ${isCancelled ? styles.slotCancelled : ''}`}>
@@ -200,15 +295,26 @@ function SessionRow({ session: s, onCancel, onMissed, onDone, onProfile }) {
         </div>
 
         <div className={styles.sessionActions}>
-          <button className={`${styles.btnAction} ${styles.btnCancel}`} onClick={onCancel}>
-            <FaTimes /> Cancel
-          </button>
-          <button className={`${styles.btnAction} ${styles.btnMissed} ${isMissed ? styles.btnMissedActive : ''}`} onClick={onMissed}>
-            Missed
-          </button>
-          <button className={`${styles.btnAction} ${styles.btnDone} ${isDone ? styles.btnDoneActive : ''}`} onClick={onDone}>
-            <FaCheck /> Done
-          </button>
+          {isPending && (
+            <>
+              <button className={`${styles.btnAction} ${styles.btnCancel}`} onClick={onCancel}>
+                <FaTimes /> Cancel
+              </button>
+              <button className={`${styles.btnAction} ${styles.btnMissed}`} onClick={onMissed}>
+                Missed
+              </button>
+              <button className={`${styles.btnAction} ${styles.btnDone}`} onClick={onDone}>
+                <FaCheck /> Done
+              </button>
+            </>
+          )}
+          {!isPending && (
+            <div className={styles.statusBadge}>
+              {isDone && <span className={styles.statusDone}>Done</span>}
+              {isCancelled && <span className={styles.statusCancelled}>Cancelled</span>}
+              {isMissed && <span className={styles.statusMissed}>Missed</span>}
+            </div>
+          )}
           <button className={`${styles.btnAction} ${styles.btnProfile}`} onClick={onProfile}>
             <FaUser /> View Profile
           </button>
