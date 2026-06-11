@@ -40,9 +40,9 @@ const adminService = {
       gender: formData.gender === 'male' ? 'Male' : 'Female',
       age: parseInt(formData.age),
       specialty: formData.specialty,
-      yearsOfExperience: parseInt(formData.yearsOfExperience),
+      yearsOfExperience: parseInt(formData.experience),
       email: formData.email,
-      phoneNumber: formData.phoneNumber,
+      phoneNumber: formData.phone,
       password: formData.password,
     };
 

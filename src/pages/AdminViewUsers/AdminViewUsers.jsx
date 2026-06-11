@@ -15,7 +15,15 @@ export default function AdminViewUsers() {
     async function fetchPatients() {
       try {
         const data = await adminService.getPatients();
-        setPatients(data);
+        const mappedPatients = data.map(p => ({
+          id: p.id,
+          name: p.fullName,
+          email: p.email,
+          phone: p.phoneNumber,
+          avatar: p.profilePictureUrl,
+          initials: p.fullName.split(' ').map(n => n[0]).join('').toUpperCase(),
+        }));
+        setPatients(mappedPatients);
       } catch (err) {
         console.error('Failed to fetch patients:', err);
         setPatients([]);
