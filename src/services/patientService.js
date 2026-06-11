@@ -1,0 +1,44 @@
+const BASE_URL = 'https://localhost:7022/api';
+
+const patientService = {
+  async getProfile() {
+    const res = await fetch(`${BASE_URL}/Patient/profile`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Backend error: Failed to fetch patient profile');
+    }
+
+    return res.json();
+  },
+
+  async updateProfile(formData) {
+    const payload = new FormData();
+    payload.append('Email', formData.email);
+    if (formData.phoneNumber) {
+      payload.append('PhoneNumber', formData.phoneNumber);
+    }
+    if (formData.profilePicture) {
+      payload.append('ProfilePicture', formData.profilePicture);
+    }
+
+    const res = await fetch(`${BASE_URL}/Patient/profile`, {
+      method: 'PUT',
+      body: payload,
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Backend error: Failed to update patient profile');
+    }
+
+    return res.json();
+  },
+};
+
+export default patientService;
