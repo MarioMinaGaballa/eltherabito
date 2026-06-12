@@ -11,9 +11,10 @@ import {
 } from 'react-icons/fa';
 import { ROUTES } from '../../routes/paths';
 import { saveSelectedTherapist, getSelectedTherapist, saveBooking } from '../../utils/bookingStorage';
+import bookingService from '../../services/bookingService';
 import styles from './BookAppointment.module.css';
 
-const THERAPISTS = [
+const DEFAULT_THERAPISTS = [
   {
     id: 1,
     name: 'Dr. Elena Sterling',
@@ -56,7 +57,7 @@ const THERAPISTS = [
   },
 ];
 
-const TIME_SLOTS = ['09:00 AM', '10:30 AM', '01:00 PM', '02:30 PM', '04:00 PM', '05:30 PM'];
+const DEFAULT_TIME_SLOTS = ['09:00 AM', '10:30 AM', '01:00 PM', '02:30 PM', '04:00 PM', '05:30 PM'];
 const DAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
 function buildCalendarDays(year, month) {
@@ -96,6 +97,59 @@ export default function BookAppointment() {
   const [selectedDay, setSelectedDay] = useState(() => new Date().getDate());
   const [selectedTime, setSelectedTime] = useState('01:00 PM');
   const [booking, setBooking] = useState(false);
+  const [therapists, setTherapists] = useState(DEFAULT_THERAPISTS);
+  const [timeSlots, setTimeSlots] = useState(DEFAULT_TIME_SLOTS);
+  const [loading, setLoading] = useState(true);
+  const [selectedDoctorId, setSelectedDoctorId] = useState(null);
+
+  useEffect(() => {
+    async function fetchDoctors() {
+      try {
+        const data = await bookingService.getDoctors();
+        const mappedDoctors = data.map(d => ({
+          id: d.id,
+          name: `Dr. ${d.firstName} ${d.lastName}`,
+          specialty: d.specialty.toUpperCase(),
+          rating: 4.8,
+          experience: `${d.yearsOfExp} years exp.`,
+          description: d.bio || 'Experienced healthcare professional.',
+          price: d.sessionPrice,
+          img: d.profilePictureUrl || 'https://randomuser.me/api/portraits/lego/1.jpg',
+        }));
+        setTherapists(mappedDoctors);
+      } catch (error) {
+        show(error.message, 'danger');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchDoctors();
+  }, []);
+
+  useEffect(() => {
+    async function fetchSlots() {
+      if (!selectedDoctorId) return;
+      
+      const dateObj = new Date(year, month, selectedDay);
+      const dateStr = dateObj.toISOString().split('T')[0];
+      
+      try {
+        const data = await bookingService.getDoctorSlots(selectedDoctorId, dateStr);
+        const mappedSlots = data.map(slot => {
+          const [hours, minutes] = slot.startTime.split(':');
+          const hour = parseInt(hours);
+          const ampm = hour >= 12 ? 'PM' : 'AM';
+          const displayHour = hour % 12 || 12;
+          return `${displayHour.toString().padStart(2, '0')}:${minutes} ${ampm}`;
+        });
+        setTimeSlots(mappedSlots.length > 0 ? mappedSlots : DEFAULT_TIME_SLOTS);
+      } catch (error) {
+        show(error.message, 'danger');
+        setTimeSlots(DEFAULT_TIME_SLOTS);
+      }
+    }
+    fetchSlots();
+  }, [selectedDoctorId, year, month, selectedDay]);
 
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
@@ -104,13 +158,13 @@ export default function BookAppointment() {
 
   const filteredTherapists = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return THERAPISTS;
-    return THERAPISTS.filter(
+    if (!q) return therapists;
+    return therapists.filter(
       (t) =>
         t.name.toLowerCase().includes(q) ||
         t.specialty.toLowerCase().includes(q)
     );
-  }, [search]);
+  }, [search, therapists]);
 
   const bookingSummary = useMemo(() => {
     const monthShort = currentMonth.toLocaleString('default', { month: 'short' });
@@ -132,8 +186,9 @@ export default function BookAppointment() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTherapist, bookingSummary]);
 
-  function handleSelectTherapist(name) {
+  function handleSelectTherapist(name, doctorId) {
     setSelectedTherapist(name);
+    setSelectedDoctorId(doctorId);
     saveSelectedTherapist(name);
     show(`✓ ${name} selected!`);
   }
@@ -160,7 +215,7 @@ export default function BookAppointment() {
       return;
     }
 
-    const therapist = THERAPISTS.find((t) => t.name === selectedTherapist);
+    const therapist = therapists.find((t) => t.name === selectedTherapist);
     const dateObj = new Date(year, month, selectedDay);
     const dateLabel = dateObj.toLocaleDateString('en-US', {
       weekday: 'long',
@@ -185,6 +240,14 @@ export default function BookAppointment() {
 
     navigate(ROUTES.patient.bookingConfirm);
     setBooking(false);
+  }
+
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>
+      </div>
+    );
   }
 
   return (
@@ -274,7 +337,7 @@ export default function BookAppointment() {
                       className={`${styles.btnSelect} ${
                         selectedTherapist === t.name ? styles.btnSelectActive : ''
                       }`}
-                      onClick={() => handleSelectTherapist(t.name)}
+                      onClick={() => handleSelectTherapist(t.name, t.id)}
                     >
                       {selectedTherapist === t.name ? 'Selected' : 'Select'}
                     </button>
@@ -335,7 +398,7 @@ export default function BookAppointment() {
               <div className={styles.timeSlotsSection}>
                 <h3 className={styles.timeSlotsTitle}>AVAILABLE TIME SLOTS</h3>
                 <div className={styles.timeSlotsGrid}>
-                  {TIME_SLOTS.map((slot) => (
+                  {timeSlots.map((slot) => (
                     <button
                       key={slot}
                       type="button"
