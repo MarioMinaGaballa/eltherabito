@@ -94,11 +94,13 @@ const adminService = {
     return res.json();
   },
 
-  async getAppointmentAgenda(doctorId) {
-    const res = await fetch(`${BASE_URL}/appointments/${doctorId}/Appointmentagenda`, {
+  async getAppointmentAgenda(date) {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${BASE_URL}/appointments/Appointmentagenda?Date=${date}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
       },
     });
 

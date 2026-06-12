@@ -33,12 +33,8 @@ export default function DailyAgenda() {
   useEffect(() => {
     async function fetchAppointments() {
       try {
-        const doctorId = user?.id || user?.doctorId;
-        if (!doctorId) {
-          show('Doctor ID not found', 'danger');
-          return;
-        }
-        const data = await adminService.getAppointmentAgenda(doctorId);
+        const today = new Date().toISOString().split('T')[0];
+        const data = await adminService.getAppointmentAgenda(today);
         const mappedSessions = data.map(apt => ({
           id: apt.appointmentId,
           time: formatTime(apt.startTime),
@@ -57,7 +53,7 @@ export default function DailyAgenda() {
       }
     }
     fetchAppointments();
-  }, [user]);
+  }, []);
 
   function formatTime(timeStr) {
     const [hours, minutes] = timeStr.split(':');
