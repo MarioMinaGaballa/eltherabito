@@ -1,19 +1,14 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   FaCalendar, FaEdit, FaSignOutAlt, FaBirthdayCake,
   FaBriefcase, FaCreditCard, FaVenus, FaClock,
 } from 'react-icons/fa';
 import { ROUTES } from '../../routes/paths';
-import { getDisplaySchedule } from '../../utils/scheduleStorage';
-import {
-  loadTherapistProfile,
-  formatExperience,
-  formatSessionRate,
-} from '../../utils/therapistProfileStorage';
+import bookingService from '../../services/bookingService';
 import styles from './TherapistProfile.module.css';
 
-const THERAPIST = {
+const DEFAULT_THERAPIST = {
   name: 'Dr. Sarah Miller',
   age: '38 Years',
   gender: 'Female',
@@ -34,20 +29,80 @@ function useNotification() {
 export default function TherapistProfile() {
   const navigate = useNavigate();
   const { message, show } = useNotification();
-  const schedule = getDisplaySchedule();
-  const profile = loadTherapistProfile();
+
+  const [therapist, setTherapist] = useState(DEFAULT_THERAPIST);
+  const [profile, setProfile] = useState({
+    photo: 'https://randomuser.me/api/portraits/women/44.jpg',
+    specialization: 'Clinical Psychologist',
+    yearsExperience: 12,
+    sessionRate: 120,
+  });
+  const [schedule, setSchedule] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        const data = await bookingService.getDoctorProfile();
+        setTherapist({
+          name: data.fullName,
+          age: data.age ? `${data.age} Years` : 'N/A',
+          gender: data.gender,
+          about: data.bio || DEFAULT_THERAPIST.about,
+          tags: DEFAULT_THERAPIST.tags,
+        });
+        setProfile({
+          photo: data.profilePictureUrl ? `/images/doctors/${data.profilePictureUrl}` : 'https://randomuser.me/api/portraits/women/44.jpg',
+          specialization: data.specialty,
+          yearsExperience: data.yearsOfExp,
+          sessionRate: data.sessionPrice,
+        });
+      } catch (error) {
+        show(error.message, 'danger');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProfile();
+  }, []);
+
+  useEffect(() => {
+    async function fetchSchedules() {
+      try {
+        const data = await bookingService.getDoctorSchedules();
+        const mappedSchedule = data.map(s => ({
+          day: s.day,
+          startTime: s.startTime,
+          endTime: s.endTime,
+          id: s.id,
+        }));
+        setSchedule(mappedSchedule);
+      } catch (error) {
+        show(error.message, 'danger');
+      }
+    }
+    fetchSchedules();
+  }, []);
 
   const infoItems = [
-    { icon: FaBirthdayCake, label: 'Age', value: THERAPIST.age },
-    { icon: FaBriefcase, label: 'Experience', value: formatExperience(profile.yearsExperience) },
-    { icon: FaCreditCard, label: 'Session Rate', value: formatSessionRate(profile.sessionRate) },
-    { icon: FaVenus, label: 'Gender', value: THERAPIST.gender },
+    { icon: FaBirthdayCake, label: 'Age', value: therapist.age },
+    { icon: FaBriefcase, label: 'Experience', value: `${profile.yearsExperience} years` },
+    { icon: FaCreditCard, label: 'Session Rate', value: `$${profile.sessionRate}/hr` },
+    { icon: FaVenus, label: 'Gender', value: therapist.gender },
   ];
 
   function handleLogout() {
     if (window.confirm('Are you sure you want to log out?')) {
       navigate(ROUTES.login);
     }
+  }
+
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>
+      </div>
+    );
   }
 
   return (
@@ -82,10 +137,10 @@ export default function TherapistProfile() {
         <aside className={styles.sidebar}>
           <div className={styles.profileCard}>
             <div className={styles.profileImageSection}>
-              <img src={profile.photo} alt={THERAPIST.name} className={styles.profileImage} />
+              <img src={profile.photo} alt={therapist.name} className={styles.profileImage} />
             </div>
 
-            <h2 className={styles.therapistName}>{THERAPIST.name}</h2>
+            <h2 className={styles.therapistName}>{therapist.name}</h2>
             <p className={styles.therapistTitle}>{profile.specialization}</p>
 
             {infoItems.map(({ icon: Icon, label, value }) => (
@@ -103,9 +158,9 @@ export default function TherapistProfile() {
         <main className={styles.mainContent}>
           <section className={styles.section}>
             <h3 className={styles.sectionTitle}>About Me</h3>
-            <p className={styles.aboutText}>{THERAPIST.about}</p>
+            <p className={styles.aboutText}>{therapist.about}</p>
             <div className={styles.tagsContainer}>
-              {THERAPIST.tags.map((tag) => (
+              {therapist.tags.map((tag) => (
                 <span key={tag} className={styles.tag}>{tag}</span>
               ))}
             </div>
@@ -129,20 +184,18 @@ export default function TherapistProfile() {
             <div className={styles.scheduleTableWrapper}>
               <table className={styles.scheduleTable}>
                 <tbody>
-                  {schedule.map((row) => (
-                    <tr key={row.day}>
-                      <td className={styles.dayCell}>{row.day}</td>
-                      {row.closed ? (
-                        <td colSpan={6} className={styles.closedCell}>Closed</td>
-                      ) : row.slots.length === 0 ? (
-                        <td colSpan={6} className={styles.closedCell}>No slots</td>
-                      ) : (
-                        row.slots.map((slot) => (
-                          <td key={slot} className={styles.timeCell}>{slot}</td>
-                        ))
-                      )}
+                  {schedule.length === 0 ? (
+                    <tr>
+                      <td colSpan={2} className={styles.closedCell}>No schedule set</td>
                     </tr>
-                  ))}
+                  ) : (
+                    schedule.map((row) => (
+                      <tr key={row.id}>
+                        <td className={styles.dayCell}>{row.day}</td>
+                        <td className={styles.timeCell}>{row.startTime} - {row.endTime}</td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

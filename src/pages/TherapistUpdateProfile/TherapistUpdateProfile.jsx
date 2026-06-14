@@ -1,11 +1,10 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaCloudUploadAlt, FaSpinner } from 'react-icons/fa';
 import { ROUTES } from '../../routes/paths';
+import bookingService from '../../services/bookingService';
 import {
   SPECIALIZATIONS,
-  loadTherapistProfile,
-  saveTherapistProfile,
 } from '../../utils/therapistProfileStorage';
 import styles from './TherapistUpdateProfile.module.css';
 
@@ -25,13 +24,31 @@ export default function TherapistUpdateProfile() {
   const fileInputRef = useRef(null);
   const { toast, show } = useNotification();
 
-  const initial = loadTherapistProfile();
-  const [photo, setPhoto] = useState(initial.photo);
-  const [specialization, setSpecialization] = useState(initial.specialization);
-  const [yearsExperience, setYearsExperience] = useState(initial.yearsExperience);
-  const [sessionRate, setSessionRate] = useState(initial.sessionRate);
+  const [photo, setPhoto] = useState('https://randomuser.me/api/portraits/women/44.jpg');
+  const [specialization, setSpecialization] = useState('Clinical Psychologist');
+  const [yearsExperience, setYearsExperience] = useState('12');
+  const [sessionRate, setSessionRate] = useState('120');
+  const [profilePictureFile, setProfilePictureFile] = useState(null);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        const data = await bookingService.getDoctorProfile();
+        setPhoto(data.profilePictureUrl ? `/images/doctors/${data.profilePictureUrl}` : 'https://randomuser.me/api/portraits/women/44.jpg');
+        setSpecialization(data.specialty || 'Clinical Psychologist');
+        setYearsExperience(data.yearsOfExp?.toString() || '12');
+        setSessionRate(data.sessionPrice?.toString() || '120');
+      } catch (error) {
+        show(error.message, 'danger');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProfile();
+  }, []);
 
   function markDirty() {
     setDirty(true);
@@ -70,6 +87,7 @@ export default function TherapistUpdateProfile() {
       return;
     }
 
+    setProfilePictureFile(file);
     const reader = new FileReader();
     reader.onload = () => {
       setPhoto(reader.result);
@@ -80,7 +98,7 @@ export default function TherapistUpdateProfile() {
     e.target.value = '';
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (!specialization || !yearsExperience || !sessionRate) {
       show('Please fill in all fields', 'warning');
       return;
@@ -91,18 +109,21 @@ export default function TherapistUpdateProfile() {
     }
 
     setSaving(true);
-    setTimeout(() => {
-      saveTherapistProfile({
-        photo,
-        specialization,
-        yearsExperience,
-        sessionRate,
+    try {
+      const data = await bookingService.updateDoctorProfile({
+        specialty: specialization,
+        yearsOfExp: parseInt(yearsExperience, 10),
+        sessionPrice: parseFloat(sessionRate.replace(/[^0-9.]/g, '')),
+        profilePicture: profilePictureFile,
       });
       setSaving(false);
       setDirty(false);
       show('Profile updated successfully!', 'success');
       setTimeout(() => navigate(ROUTES.therapist.profile), 800);
-    }, 1500);
+    } catch (error) {
+      setSaving(false);
+      show(error.message, 'danger');
+    }
   }
 
   function handleCancel() {
@@ -116,6 +137,14 @@ export default function TherapistUpdateProfile() {
       : toast?.type === 'warning'
         ? styles.notificationWarning
         : styles.notificationInfo;
+
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.page}>
