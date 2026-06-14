@@ -6,8 +6,9 @@ import {
 } from 'react-icons/fa';
 import { ROUTES } from '../../routes/paths';
 import {
-  SCHEDULE_DAYS, loadSchedule, saveSchedule,
+  SCHEDULE_DAYS,
 } from '../../utils/scheduleStorage';
+import bookingService from '../../services/bookingService';
 import styles from './EditSchedule.module.css';
 
 function sanitizeHours(value) {
@@ -28,18 +29,59 @@ function sanitizeMinutes(value) {
 
 export default function EditSchedule() {
   const navigate = useNavigate();
-  const [schedule, setSchedule] = useState(() => loadSchedule());
+  const [schedule, setSchedule] = useState(() => {
+    const initial = {};
+    SCHEDULE_DAYS.forEach(d => {
+      initial[d.id] = { active: true, slots: [] };
+    });
+    return initial;
+  });
   const [activeDay, setActiveDay] = useState('monday');
   const [showInput, setShowInput] = useState(false);
   const [hours, setHours] = useState('');
   const [minutes, setMinutes] = useState('');
   const [period, setPeriod] = useState('AM');
   const [alert, setAlert] = useState(null);
+  const [loading, setLoading] = useState(true);
   const minutesRef = useRef(null);
   const hoursRef = useRef(null);
 
   const activeDayMeta = SCHEDULE_DAYS.find((d) => d.id === activeDay);
   const dayData = schedule[activeDay];
+
+  const dayOfWeekMap = {
+    sunday: 0,
+    monday: 1,
+    tuesday: 2,
+    wednesday: 3,
+    thursday: 4,
+    friday: 5,
+    saturday: 6,
+  };
+
+  useEffect(() => {
+    async function fetchSchedules() {
+      try {
+        const data = await bookingService.getDoctorSchedules();
+        const mappedSchedule = {};
+        SCHEDULE_DAYS.forEach(d => {
+          mappedSchedule[d.id] = { active: true, slots: [] };
+        });
+        data.forEach(s => {
+          const dayId = Object.keys(dayOfWeekMap).find(key => dayOfWeekMap[key] === s.day);
+          if (dayId && mappedSchedule[dayId]) {
+            mappedSchedule[dayId].slots.push(`${s.startTime} - ${s.endTime}`);
+          }
+        });
+        setSchedule(mappedSchedule);
+      } catch (error) {
+        showSuccess('Failed to load schedule');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchSchedules();
+  }, []);
 
   function showError(msg) {
     setAlert({ type: 'error', text: msg });
@@ -52,7 +94,7 @@ export default function EditSchedule() {
   }
 
   const persistSchedule = useCallback((data) => {
-    saveSchedule(data);
+    // saveSchedule(data);
   }, []);
 
   useEffect(() => {
@@ -87,7 +129,7 @@ export default function EditSchedule() {
     setTimeout(() => hoursRef.current?.focus(), 100);
   }
 
-  function confirmSlot() {
+  async function confirmSlot() {
     const h = hours.trim();
     const m = minutes.trim();
     if (!h || !m) {
@@ -98,32 +140,68 @@ export default function EditSchedule() {
       showError('Please enter time as HH:MM');
       return;
     }
-    const timeSlot = `${h}:${m} ${period}`;
-    setSchedule((prev) => ({
-      ...prev,
-      [activeDay]: {
-        ...prev[activeDay],
-        slots: [...prev[activeDay].slots, timeSlot],
-      },
-    }));
-    closeInput();
-    showSuccess('Time slot added successfully');
+
+    try {
+      // Convert 12-hour format to 24-hour format
+      let hour24 = parseInt(h, 10);
+      if (period === 'PM' && hour24 !== 12) hour24 += 12;
+      if (period === 'AM' && hour24 === 12) hour24 = 0;
+
+      const startTime = `${hour24.toString().padStart(2, '0')}:${m}`;
+      const endTime = `${(hour24 + 1).toString().padStart(2, '0')}:${m}`;
+
+      await bookingService.addScheduleSlot(dayOfWeekMap[activeDay], startTime, endTime);
+      
+      const timeSlot = `${h}:${m} ${period}`;
+      setSchedule((prev) => ({
+        ...prev,
+        [activeDay]: {
+          ...prev[activeDay],
+          slots: [...prev[activeDay].slots, timeSlot],
+        },
+      }));
+      closeInput();
+      showSuccess('Time slot added successfully');
+    } catch (error) {
+      showError('Failed to add time slot');
+    }
   }
 
-  function deleteSlot(slot) {
+  async function deleteSlot(slot) {
     if (!window.confirm('Delete this time slot?')) return;
-    setSchedule((prev) => ({
-      ...prev,
-      [activeDay]: {
-        ...prev[activeDay],
-        slots: prev[activeDay].slots.filter((s) => s !== slot),
-      },
-    }));
-    showSuccess('Time slot removed');
+    try {
+      // Extract slotId from slot string if available, otherwise just remove locally
+      const slotId = slot.id; // Assuming backend returns id
+      if (slotId) {
+        await bookingService.deleteScheduleSlot(slotId);
+      }
+      setSchedule((prev) => ({
+        ...prev,
+        [activeDay]: {
+          ...prev[activeDay],
+          slots: prev[activeDay].slots.filter((s) => s !== slot),
+        },
+      }));
+      showSuccess('Time slot removed');
+    } catch (error) {
+      showError('Failed to delete time slot');
+    }
+  }
+
+  async function handleDayToggle(dayId, isActive) {
+    try {
+      await bookingService.changeDayStatus(dayOfWeekMap[dayId], isActive);
+      setSchedule((prev) => ({
+        ...prev,
+        [dayId]: { ...prev[dayId], active: isActive },
+      }));
+      showSuccess(`${dayId.charAt(0).toUpperCase() + dayId.slice(1)} ${isActive ? 'activated' : 'deactivated'}`);
+    } catch (error) {
+      showError('Failed to change day status');
+    }
   }
 
   function handleSave() {
-    saveSchedule(schedule);
     showSuccess('Changes saved successfully');
     setTimeout(() => {
       window.alert('Your schedule has been saved successfully!');
@@ -135,6 +213,14 @@ export default function EditSchedule() {
     if (window.confirm('Leave without saving changes?')) {
       navigate(ROUTES.therapist.profile);
     }
+  }
+
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>
+      </div>
+    );
   }
 
   function handleDayKeyDown(e, index) {
@@ -240,10 +326,7 @@ export default function EditSchedule() {
                   id={`${activeDay}-toggle`}
                   className={styles.toggleInput}
                   checked={dayData.active}
-                  onChange={(e) => setSchedule((prev) => ({
-                    ...prev,
-                    [activeDay]: { ...prev[activeDay], active: e.target.checked },
-                  }))}
+                  onChange={(e) => handleDayToggle(activeDay, e.target.checked)}
                 />
                 <label htmlFor={`${activeDay}-toggle`} className={styles.toggleSlider} />
               </div>
