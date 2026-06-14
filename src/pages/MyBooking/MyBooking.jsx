@@ -7,35 +7,37 @@ import {
 } from 'react-icons/fa';
 import { ROUTES } from '../../routes/paths';
 import { getBooking } from '../../utils/bookingStorage';
+import bookingService from '../../services/bookingService';
 import styles from './MyBooking.module.css';
-
-/* ── Data ── */
-const UPCOMING = {
-  label:    'PSYCHOLOGIST',
-  name:     'Dr. Elena Sterling',
-  time:     '10:00 AM - 11:00 AM',
-  location: 'Online Video Call',
-  img:      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop',
-};
-
-const HISTORY = [
-  { id: 1, doctor: 'Dr. Elena Sterling',  specialty: 'Psychologist',   date: 'Tuesday, Oct 10, 2023' },
-  { id: 2, doctor: 'Dr. Marcus Thorne',   specialty: 'Dermatologist',  date: 'Thursday, Sep 28, 2023' },
-];
 
 const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 
 export default function MyBookings() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [toast, setToast]       = useState(null);
-  const [booking, setBooking]   = useState(null);
+  const [toast, setToast] = useState(null);
+  const [booking, setBooking] = useState(null);
+  const [appointments, setAppointments] = useState({ upcomingAppointments: [], previousAppointments: [] });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const savedBooking = getBooking();
     if (savedBooking) {
       setBooking(savedBooking);
     }
+
+    async function fetchAppointments() {
+      try {
+        const data = await bookingService.getAppointments();
+        setAppointments(data);
+      } catch (error) {
+        console.error('Failed to fetch appointments:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchAppointments();
   }, []);
 
   function showToast(msg) {
@@ -90,85 +92,85 @@ export default function MyBookings() {
           <div>
             <h1 className={styles.pageTitle}>{today}</h1>
             <p className={styles.pageSubtitle}>
-              {booking ? '1 session scheduled' : 'No sessions scheduled'}
+              {loading ? 'Loading...' : `${appointments.upcomingAppointments.length} session(s) scheduled`}
             </p>
           </div>
         </div>
 
-        {/* ── UPCOMING SESSION ── */}
-        {booking ? (
+        {/* ── UPCOMING SESSIONS ── */}
+        {loading ? (
+          <div className={styles.loading}>Loading appointments...</div>
+        ) : appointments.upcomingAppointments.length > 0 ? (
           <section className={styles.upcomingSection}>
-            <div className={styles.sessionCard}>
+            {appointments.upcomingAppointments.map((apt) => (
+              <div key={apt.id} className={styles.sessionCard}>
+                {/* Doctor image */}
+                <div className={styles.sessionImage}>
+                  <img 
+                    src={apt.doctorPictureUrl || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop'} 
+                    alt={apt.doctorName} 
+                    className={styles.doctorImg} 
+                  />
+                </div>
 
-              {/* Doctor image */}
-              <div className={styles.sessionImage}>
-                <img src={booking.img} alt={booking.therapist} className={styles.doctorImg} />
-              </div>
-
-              {/* Session details */}
-              <div className={styles.sessionDetails}>
-                <div className={styles.sessionHeader}>
-                  <div>
-                    <p className={styles.sessionLabel}>{booking.specialty}</p>
-                    <h2 className={styles.doctorName}>{booking.therapist}</h2>
-                  </div>
-
-                {/* Menu button */}
-                <div className={styles.menuWrap}>
-                  <button className={styles.menuBtn} onClick={() => setMenuOpen(v => !v)}>
-                    <FaEllipsisH />
-                  </button>
-                  {menuOpen && (
-                    <div className={styles.menuDropdown}>
-                      <button onClick={() => handleMenuAction('reschedule')}>
-                        <FaCalendar /> Reschedule
-                      </button>
-                      <button onClick={() => handleMenuAction('cancel')}>
-                        <FaTimes /> Cancel Session
-                      </button>
-                      <button onClick={() => handleMenuAction('contact')}>
-                        <FaPhone /> Contact Doctor
-                      </button>
+                {/* Session details */}
+                <div className={styles.sessionDetails}>
+                  <div className={styles.sessionHeader}>
+                    <div>
+                      <p className={styles.sessionLabel}>{apt.specialty}</p>
+                      <h2 className={styles.doctorName}>{apt.doctorName}</h2>
                     </div>
-                  )}
-                </div>
-              </div>
 
-              <div className={styles.sessionInfo}>
-                <div className={styles.infoItem}>
-                  <FaClock className={styles.infoIcon} />
-                  <div>
-                    <p className={styles.infoLabel}>SESSION TIME</p>
-                    <p className={styles.infoValue}>{booking.dateTime}</p>
+                    {/* Menu button */}
+                    <div className={styles.menuWrap}>
+                      <button className={styles.menuBtn} onClick={() => setMenuOpen(v => !v)}>
+                        <FaEllipsisH />
+                      </button>
+                      {menuOpen && (
+                        <div className={styles.menuDropdown}>
+                          <button onClick={() => handleMenuAction('reschedule')}>
+                            <FaCalendar /> Reschedule
+                          </button>
+                          <button onClick={() => handleMenuAction('cancel')}>
+                            <FaTimes /> Cancel Session
+                          </button>
+                          <button onClick={() => handleMenuAction('contact')}>
+                            <FaPhone /> Contact Doctor
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className={styles.sessionInfo}>
+                    <div className={styles.infoItem}>
+                      <FaClock className={styles.infoIcon} />
+                      <div>
+                        <p className={styles.infoLabel}>SESSION TIME</p>
+                        <p className={styles.infoValue}>{apt.startTime} - {apt.endTime}</p>
+                      </div>
+                    </div>
+                    <div className={styles.infoItem}>
+                      <FaVideo className={styles.infoIcon} />
+                      <div>
+                        <p className={styles.infoLabel}>DATE</p>
+                        <p className={styles.infoValue}>{new Date(apt.appointmentDate).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div className={styles.infoItem}>
-                  <FaVideo className={styles.infoIcon} />
-                  <div>
-                    <p className={styles.infoLabel}>CLINIC LOCATION</p>
-                    <p className={styles.infoValue}>Online Video Call</p>
-                  </div>
-                </div>
               </div>
-            </div>
+            ))}
 
-          </div>
-
-          {/* No other appointments */}
-          <div className={styles.noAppointments}>
-            <FaCalendarCheck className={styles.noAppIcon} />
-            <p>No other appointments for this day.</p>
-          </div>
-
-          {/* Book another */}
-          <button
-            type="button"
-            className={styles.bookAnotherLink}
-            onClick={() => navigate(ROUTES.patient.booking)}
-          >
-            <FaPlus /> Book another session
-          </button>
-        </section>
+            {/* Book another */}
+            <button
+              type="button"
+              className={styles.bookAnotherLink}
+              onClick={() => navigate(ROUTES.patient.booking)}
+            >
+              <FaPlus /> Book another session
+            </button>
+          </section>
         ) : (
           <section className={styles.upcomingSection}>
             <div className={styles.noAppointments}>
@@ -189,21 +191,27 @@ export default function MyBookings() {
         <section className={styles.historySection}>
           <h2 className={styles.sectionTitle}>Booking History</h2>
 
-          {HISTORY.map((h, i) => (
-            <div
-              key={h.id}
-              className={styles.historyItem}
-              style={{ animationDelay: `${i * 0.1}s` }}
-              onClick={() => showToast(`📋 ${h.doctor} - Session details`)}
-            >
-              <div className={styles.historyIcon}><FaUserMd /></div>
-              <div className={styles.historyContent}>
-                <p className={styles.historyDoctor}>{h.doctor}</p>
-                <p className={styles.historyDate}>{h.specialty} • {h.date}</p>
+          {appointments.previousAppointments.length > 0 ? (
+            appointments.previousAppointments.map((apt, i) => (
+              <div
+                key={apt.id}
+                className={styles.historyItem}
+                style={{ animationDelay: `${i * 0.1}s` }}
+                onClick={() => showToast(`📋 ${apt.doctorName} - Session details`)}
+              >
+                <div className={styles.historyIcon}><FaUserMd /></div>
+                <div className={styles.historyContent}>
+                  <p className={styles.historyDoctor}>{apt.doctorName}</p>
+                  <p className={styles.historyDate}>{apt.specialty} • {new Date(apt.appointmentDate).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                </div>
+                <span className={styles.statusBadge}>COMPLETED</span>
               </div>
-              <span className={styles.statusBadge}>COMPLETED</span>
+            ))
+          ) : (
+            <div className={styles.noAppointments}>
+              <p>No booking history available.</p>
             </div>
-          ))}
+          )}
         </section>
 
       </main>

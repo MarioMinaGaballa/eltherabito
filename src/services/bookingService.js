@@ -195,6 +195,24 @@ const bookingService = {
 
     return res.json();
   },
+
+  async getAppointments() {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${BASE_URL}/appointments/BooKing`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Backend error: Failed to fetch appointments');
+    }
+
+    return res.json();
+  },
 };
 
 export default bookingService;
