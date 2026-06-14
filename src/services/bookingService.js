@@ -94,6 +94,73 @@ const bookingService = {
 
     return res.json();
   },
+
+  async deleteScheduleSlot(slotId) {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${BASE_URL}/DoctorSchedule/${slotId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Backend error: Failed to delete schedule slot');
+    }
+
+    return res.json();
+  },
+
+  async changeDayStatus(dayOfWeek, isActive) {
+    const token = localStorage.getItem('token');
+    const payload = {
+      dayOfWeek,
+      isActive,
+    };
+
+    const res = await fetch(`${BASE_URL}/DoctorSchedule/schedule/day-status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Backend error: Failed to change day status');
+    }
+
+    return res.json();
+  },
+
+  async addScheduleSlot(dayOfWeek, startTime, endTime) {
+    const token = localStorage.getItem('token');
+    const payload = {
+      dayOfWeek,
+      startTime,
+      endTime,
+    };
+
+    const res = await fetch(`${BASE_URL}/DoctorSchedule/AddSlot`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Backend error: Failed to add schedule slot');
+    }
+
+    return res.json();
+  },
 };
 
 export default bookingService;
