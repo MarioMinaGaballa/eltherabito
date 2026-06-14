@@ -10,6 +10,7 @@ import {
 } from '../../utils/bookingStorage';
 import { ROUTES } from '../../routes/paths';
 import { loadSavedContact } from '../../utils/profileStorage';
+import bookingService from '../../services/bookingService';
 import styles from './ConfirmSession.module.css';
 
 function formatSpecialty(specialty) {
@@ -66,7 +67,7 @@ function ConfirmSessionForm({ booking }) {
     navigate(ROUTES.patient.booking);
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
     if (!firstName.trim() || !lastName.trim() || !phone.trim() || !email.trim()) {
@@ -82,29 +83,44 @@ function ConfirmSessionForm({ booking }) {
     setSubmitting(true);
     show('✓ Confirming your booking...');
 
-    const confirmation = {
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      phone: phone.trim(),
-      email: email.trim(),
-      doctorName,
-      specialty: booking.specialty,
-      date: dateDisplay,
-      time: timeDisplay,
-      price: priceDisplay,
-      img: booking.img,
-      confirmedAt: new Date().toISOString(),
-    };
+    try {
+      const appointmentData = {
+        doctorId: booking.doctorId,
+        doctorScheduleId: booking.doctorScheduleId,
+        appointmentDate: booking.appointmentDate,
+        firstPatientName: firstName.trim(),
+        lastPatientName: lastName.trim(),
+        phonePatient: phone.trim(),
+        emailPatient: email.trim(),
+      };
 
-    saveBookingConfirmation(confirmation);
+      await bookingService.bookAppointment(appointmentData);
 
-    setTimeout(() => {
+      const confirmation = {
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        phone: phone.trim(),
+        email: email.trim(),
+        doctorName,
+        specialty: booking.specialty,
+        date: dateDisplay,
+        time: timeDisplay,
+        price: priceDisplay,
+        img: booking.img,
+        confirmedAt: new Date().toISOString(),
+      };
+
+      saveBookingConfirmation(confirmation);
+
       show('✓ Booking confirmed successfully!');
       setTimeout(() => {
         navigate(ROUTES.patient.bookings);
-        setSubmitting(false);
       }, 1000);
-    }, 1500);
+    } catch (error) {
+      show(`❌ ${error.message}`);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (

@@ -45,7 +45,7 @@ export default function Register() {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Invalid email';
     if (!form.phone.trim()) e.phone = 'Required';
     if (!form.age) e.age = 'Required';
-    else if (form.age < 13 || form.age > 120) e.age = 'Must be 13–120';
+    else if (form.age < 18 || form.age > 65) e.age = 'Must be 18–65';
     if (!form.gender) e.gender = 'Please select a gender';
     if (!form.password) e.password = 'Required';
     else if (form.password.length < 6) e.password = 'At least 6 characters';
@@ -159,7 +159,7 @@ export default function Register() {
                     <FaBirthdayCake className={styles.inputIcon} />
                     <input type="number"
                       className={`${styles.input} ${errors.age ? styles.inputErr : ''}`}
-                      placeholder="Enter your age" min="13" max="120"
+                      placeholder="Enter your age" min="18" max="65"
                       value={form.age} onChange={e => set('age', e.target.value)} />
                   </div>
                   {errors.age && <p className={styles.err}>{errors.age}</p>}

@@ -161,6 +161,40 @@ const bookingService = {
 
     return res.json();
   },
+
+  async bookAppointment(bookingData) {
+    const res = await fetch(`${BASE_URL}/appointments/BookAppoinment`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(bookingData),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Backend error: Failed to book appointment');
+    }
+
+    return res.json();
+  },
+
+  async predictAssessment(assessmentData) {
+    const res = await fetch(`${BASE_URL}/Assessment/Predict`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(assessmentData),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Backend error: Failed to predict assessment');
+    }
+
+    return res.json();
+  },
 };
 
 export default bookingService;

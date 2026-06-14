@@ -6,6 +6,7 @@ import { ROUTES } from '../../routes/paths';
 import styles from './AssessmentResult.module.css';
 
 const ASSESSMENT_ANSWERS_KEY = 'assessmentAnswers';
+const ASSESSMENT_RESULT_KEY = 'assessmentResult';
 
 function safeLoadAnswers() {
   try {
@@ -15,6 +16,17 @@ function safeLoadAnswers() {
     return parsed && typeof parsed === 'object' ? parsed : {};
   } catch {
     return {};
+  }
+}
+
+function safeLoadResult() {
+  try {
+    const saved = localStorage.getItem(ASSESSMENT_RESULT_KEY);
+    if (!saved) return null;
+    const parsed = JSON.parse(saved);
+    return parsed && typeof parsed === 'object' ? parsed : null;
+  } catch {
+    return null;
   }
 }
 
@@ -56,9 +68,10 @@ export default function AssessmentResult() {
   const circleRef = useRef(null);
   const [toast, setToast] = useState(null);
 
-  const answers = useMemo(() => safeLoadAnswers(), []);
-  const targetPercent = useMemo(() => computePercent(answers), [answers]);
-  const recommendation = useMemo(() => recommendationFor(targetPercent), [targetPercent]);
+  const result = useMemo(() => safeLoadResult(), []);
+  const targetPercent = useMemo(() => Math.round((result?.confidence || 0) * 100), [result]);
+  const diagnosis = useMemo(() => result?.diagnosis || 'Unable to determine', [result]);
+  const disclaimer = useMemo(() => result?.disclaimer || 'This assessment is for guidance only and does not replace a consultation with medical professionals.', [result]);
 
   useEffect(() => {
     const circle = circleRef.current;
@@ -122,7 +135,7 @@ export default function AssessmentResult() {
                   <div ref={circleRef} className={styles.progressCircle}>
                     <div className={styles.progressValue}>
                       <p className={styles.percent}>{targetPercent}%</p>
-                      <span className={`${styles.extraSmall}`}>Depression Level</span>
+                      <span className={`${styles.extraSmall}`}>Confidence</span>
                     </div>
                   </div>
                 </div>
@@ -131,8 +144,18 @@ export default function AssessmentResult() {
                   <div className={styles.recommendationRow}>
                     <FaInfoCircle className={styles.infoIcon} aria-hidden="true" />
                     <div>
-                      <h6 className={styles.recTitle}>Recommendation</h6>
-                      <p className={styles.recText}>{recommendation}</p>
+                      <h6 className={styles.recTitle}>Diagnosis</h6>
+                      <p className={styles.recText}>{diagnosis}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.recommendationBox}>
+                  <div className={styles.recommendationRow}>
+                    <FaInfoCircle className={styles.infoIcon} aria-hidden="true" />
+                    <div>
+                      <h6 className={styles.recTitle}>Disclaimer</h6>
+                      <p className={styles.recText}>{disclaimer}</p>
                     </div>
                   </div>
                 </div>
