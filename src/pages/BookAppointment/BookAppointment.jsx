@@ -98,9 +98,10 @@ export default function BookAppointment() {
   const [selectedTime, setSelectedTime] = useState('01:00 PM');
   const [booking, setBooking] = useState(false);
   const [therapists, setTherapists] = useState(DEFAULT_THERAPISTS);
-  const [timeSlots, setTimeSlots] = useState(DEFAULT_TIME_SLOTS);
+  const [timeSlots, setTimeSlots] = useState(DEFAULT_TIME_SLOTS.map(slot => ({ id: null, displayTime: slot })));
   const [loading, setLoading] = useState(true);
   const [selectedDoctorId, setSelectedDoctorId] = useState(null);
+  const [selectedSlotId, setSelectedSlotId] = useState(null);
 
   useEffect(() => {
     async function fetchDoctors() {
@@ -140,12 +141,15 @@ export default function BookAppointment() {
           const hour = parseInt(hours);
           const ampm = hour >= 12 ? 'PM' : 'AM';
           const displayHour = hour % 12 || 12;
-          return `${displayHour.toString().padStart(2, '0')}:${minutes} ${ampm}`;
+          return {
+            id: slot.id,
+            displayTime: `${displayHour.toString().padStart(2, '0')}:${minutes} ${ampm}`
+          };
         });
-        setTimeSlots(mappedSlots.length > 0 ? mappedSlots : DEFAULT_TIME_SLOTS);
+        setTimeSlots(mappedSlots.length > 0 ? mappedSlots : DEFAULT_TIME_SLOTS.map(slot => ({ id: null, displayTime: slot })));
       } catch (error) {
         show(error.message, 'danger');
-        setTimeSlots(DEFAULT_TIME_SLOTS);
+        setTimeSlots(DEFAULT_TIME_SLOTS.map(slot => ({ id: null, displayTime: slot })));
       }
     }
     fetchSlots();
@@ -204,9 +208,10 @@ export default function BookAppointment() {
     show(`📅 Date selected: ${monthShort} ${day}`);
   }
 
-  function handleSelectTime(time) {
-    setSelectedTime(time);
-    show(`🕐 Time selected: ${time}`);
+  function handleSelectTime(slot) {
+    setSelectedTime(slot.displayTime);
+    setSelectedSlotId(slot.id);
+    show(`🕐 Time selected: ${slot.displayTime}`);
   }
 
   function handleBookNow() {
@@ -236,6 +241,9 @@ export default function BookAppointment() {
       timeRange: `${selectedTime} · 60 min session`,
       duration: '60 Mins',
       bookedAt: new Date().toISOString(),
+      doctorId: selectedDoctorId,
+      doctorScheduleId: selectedSlotId,
+      appointmentDate: dateStr,
     });
 
     navigate(ROUTES.patient.bookingConfirm);
@@ -400,14 +408,14 @@ export default function BookAppointment() {
                 <div className={styles.timeSlotsGrid}>
                   {timeSlots.map((slot) => (
                     <button
-                      key={slot}
+                      key={slot.id || slot.displayTime}
                       type="button"
                       className={`${styles.timeSlot} ${
-                        selectedTime === slot ? styles.timeSlotSelected : ''
+                        selectedTime === slot.displayTime ? styles.timeSlotSelected : ''
                       }`}
                       onClick={() => handleSelectTime(slot)}
                     >
-                      {slot}
+                      {slot.displayTime}
                     </button>
                   ))}
                 </div>

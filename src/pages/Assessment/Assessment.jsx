@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { FaTimes, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import AppLayout from '../../components/layout/AppLayout';
 import { ROUTES } from '../../routes/paths';
+import bookingService from '../../services/bookingService';
 import styles from './Assessment.module.css';
 
 const ASSESSMENT_ANSWERS_KEY = 'assessmentAnswers';
 const ASSESSMENT_TIME_KEY = 'assessmentTime';
+const ASSESSMENT_RESULT_KEY = 'assessmentResult';
 
 const QUESTIONS = [
   { id: 1, text: 'How often do you feel sad or emotionally low?', options: ['Seldom', 'Sometimes', 'Usually', 'Most Often'] },
@@ -39,6 +41,31 @@ function safeLoadAnswers() {
   }
 }
 
+function mapAnswersToApiFormat(answers) {
+  const options1_4 = ['Seldom', 'Sometimes', 'Usually', 'Most Often'];
+  const optionsYesNo = ['No', 'Yes'];
+  
+  return {
+    sadness: options1_4[answers['1']] || 'Seldom',
+    euphoric: options1_4[answers['2']] || 'Seldom',
+    exhausted: options1_4[answers['3']] || 'Seldom',
+    'Sleep dissorder': options1_4[answers['4']] || 'Seldom',
+    'Mood Swing': optionsYesNo[answers['5']] || 'No',
+    'Suicidal thoughts': optionsYesNo[answers['6']] || 'No',
+    Anorxia: optionsYesNo[answers['7']] || 'No',
+    'Authority Respect': optionsYesNo[answers['8']] || 'No',
+    'Try-Explanation': optionsYesNo[answers['9']] || 'No',
+    'Aggressive Response': optionsYesNo[answers['10']] || 'No',
+    'Ignore & Move-On': optionsYesNo[answers['11']] || 'No',
+    'Nervous Break-down': optionsYesNo[answers['12']] || 'No',
+    'Admit Mistakes': optionsYesNo[answers['13']] || 'No',
+    overthinking: optionsYesNo[answers['14']] || 'No',
+    'Sexual Activity': parseInt(answers['15']) + 1 || 1,
+    concentration: parseInt(answers['16']) + 1 || 1,
+    Optimisim: parseInt(answers['17']) + 1 || 1,
+  };
+}
+
 export default function Assessment() {
   const navigate = useNavigate();
   const total = QUESTIONS.length;
@@ -46,6 +73,7 @@ export default function Assessment() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState(() => safeLoadAnswers());
   const [toast, setToast] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const currentQuestion = QUESTIONS[currentIndex];
   const stepNum = currentIndex + 1;
@@ -79,18 +107,13 @@ export default function Assessment() {
       }
       if (e.key === 'ArrowRight' || e.key === 'Enter') {
         if (canGoNext) {
-          if (currentIndex === total - 1) {
-            setToast({ type: 'success', message: 'Assessment Complete! Redirecting...' });
-            window.setTimeout(() => navigate(ROUTES.patient.assessmentResult), 800);
-          } else {
-            setCurrentIndex((i) => Math.min(total - 1, i + 1));
-          }
+          nextQuestion();
         }
       }
     }
     document.addEventListener('keydown', handleKeyboard);
     return () => document.removeEventListener('keydown', handleKeyboard);
-  }, [canGoNext, currentIndex, navigate, total]);
+  }, [canGoNext, currentIndex, total]);
 
   useEffect(() => {
     if (!toast) return undefined;
@@ -110,14 +133,25 @@ export default function Assessment() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function nextQuestion() {
+  async function nextQuestion() {
     if (!canGoNext) {
       setToast({ type: 'warning', message: 'Please select an answer' });
       return;
     }
     if (currentIndex === total - 1) {
-      setToast({ type: 'success', message: 'Assessment Complete! Redirecting...' });
-      window.setTimeout(() => navigate(ROUTES.patient.assessmentResult), 800);
+      setLoading(true);
+      setToast({ type: 'info', message: 'Analyzing your responses...' });
+      try {
+        const apiData = mapAnswersToApiFormat(answers);
+        const result = await bookingService.predictAssessment(apiData);
+        localStorage.setItem(ASSESSMENT_RESULT_KEY, JSON.stringify(result));
+        setToast({ type: 'success', message: 'Assessment Complete! Redirecting...' });
+        window.setTimeout(() => navigate(ROUTES.patient.assessmentResult), 800);
+      } catch (error) {
+        setToast({ type: 'warning', message: error.message || 'Failed to analyze assessment' });
+      } finally {
+        setLoading(false);
+      }
       return;
     }
     setCurrentIndex((i) => Math.min(total - 1, i + 1));
@@ -189,11 +223,11 @@ export default function Assessment() {
             </div>
 
             <div className={styles.navFooter}>
-              <button type="button" className={styles.btnBack} onClick={previousQuestion} disabled={currentIndex === 0}>
+              <button type="button" className={styles.btnBack} onClick={previousQuestion} disabled={currentIndex === 0 || loading}>
                 <FaChevronLeft aria-hidden="true" /> Back
               </button>
-              <button type="button" className={styles.btnNext} onClick={nextQuestion} disabled={!canGoNext}>
-                {currentIndex === total - 1 ? 'Predict' : 'Next'} <FaChevronRight aria-hidden="true" />
+              <button type="button" className={styles.btnNext} onClick={nextQuestion} disabled={!canGoNext || loading}>
+                {loading ? 'Analyzing...' : currentIndex === total - 1 ? 'Predict' : 'Next'} <FaChevronRight aria-hidden="true" />
               </button>
             </div>
           </div>
