@@ -1,238 +1,186 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import {
-  FaPlus, FaCommentAlt, FaHistory,
-  FaFileAlt, FaSquare, FaCog, FaRobot, FaSignOutAlt,
-  FaInfoCircle, FaSmile, FaMicrophone, FaPaperclip, FaPaperPlane,
-} from 'react-icons/fa';
-import AppHeader from '../../components/layout/AppHeader';
-import { BRAND } from '../../components/layout/navConfig';
-import { ROUTES } from '../../routes/paths';
+import { useNavigate } from 'react-router-dom';
+import { FaShieldAlt, FaBook, FaCog, FaComments, FaSignOutAlt, FaArrowUp } from 'react-icons/fa';
 import styles from './Chat.module.css';
-
-const INITIAL_MESSAGES = [];
-
-const SUGGESTIONS = [
-  "I haven't taken a break yet",
-  "Can we talk about stress management?",
-  "How do I prioritize tasks?",
-];
-
-function getTime() {
-  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
+import aiService from '../../services/aiService';
 
 export default function Chat() {
   const navigate = useNavigate();
-  const [messages, setMessages]   = useState(INITIAL_MESSAGES);
-  const [input, setInput]         = useState('');
-  const [isTyping, setIsTyping]   = useState(false);
-  const [activeMenu, setActiveMenu] = useState('chat');
-  const containerRef              = useRef(null);
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+  const [showEmptyChat, setShowEmptyChat] = useState(true);
+  const chatContainerRef = useRef(null);
 
-  // scroll to bottom on new message
   useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
-  }, [messages, isTyping]);
-
-  function sendMessage(text) {
-    const msg = text.trim();
-    if (!msg) return;
-
-    // Add user message
-    setMessages((prev) => [...prev, { id: Date.now(), sender: 'user', text: msg, time: getTime() }]);
-    setInput('');
-
-    // Simulate AI typing then response
-    setTimeout(() => {
-      setIsTyping(true);
-      setTimeout(() => {
-        setIsTyping(false);
-        setMessages((prev) => [
-          ...prev,
-          { id: Date.now() + 1, sender: 'ai', text: "I understand. Let's talk more about that.", time: getTime() },
-        ]);
-      }, 1500);
-    }, 500);
-  }
+  }, [messages]);
 
   function handleKeyPress(e) {
-    if (e.key === 'Enter' && input.trim()) sendMessage(input);
-  }
-
-  function handleSuggestion(text) {
-    setInput(text.replace(/"/g, ''));
-  }
-
-  function handleMenuClick(item) {
-    if (item.id === 'resources') {
-      window.open('https://healthunlocked.com/', '_blank');
-    } else {
-      setActiveMenu(item.id);
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
     }
   }
 
-  const menuItems = [
-    { id: 'chat',     icon: <FaCommentAlt />, label: 'Current Chat' },
-    { id: 'history',  icon: <FaHistory />,    label: 'Chat History' },
-    { id: 'resources',icon: <FaFileAlt />,    label: 'Resources' },
-  ];
+  async function sendMessage() {
+    const message = input.trim();
+    
+    if (!message) return;
+    
+    // Add user message to chat
+    setMessages(prev => [...prev, { sender: 'user', content: message }]);
+    setShowEmptyChat(false);
+    
+    // Clear input
+    setInput('');
+    
+    try {
+      // Call AI recommendation API
+      const response = await aiService.getAIRecommendation(message);
+      
+      // Add bot response with answer and sources
+      setMessages(prev => [...prev, { 
+        sender: 'bot', 
+        content: response.answer,
+        sources: response.sources || []
+      }]);
+    } catch (error) {
+      // Handle error
+      setMessages(prev => [...prev, { 
+        sender: 'bot', 
+        content: 'Sorry, I encountered an error. Please try again later.',
+        sources: []
+      }]);
+      console.error('AI Recommendation error:', error);
+    }
+  }
 
-  const recentTopics = ['Managing Stress', 'Work-Life Balance'];
+  function handleBackToHome() {
+    if (confirm('Are you sure you want to go back to home?')) {
+      navigate('/patient/dashboard');
+    }
+  }
+
+  function handleSettings() {
+    navigate('/patient/settings');
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
 
   return (
-    <div className={styles.layout}>
-      <AppHeader
-        variant="patient"
-        onAvatarClick={() => navigate(ROUTES.patient.profile)}
-      />
-
-      <div className={styles.layoutBody}>
-        <aside className={styles.sidebar}>
-        <button type="button" className={styles.logo} onClick={() => navigate(ROUTES.patient.dashboard)}>
-          <FaRobot className={styles.logoIcon} />
-          <span>{BRAND.name}</span>
-        </button>
-
-        <button type="button" className={styles.newSessionBtn}>
-          <FaPlus /> New Session
-        </button>
-
-        <div className={styles.menuSection}>
-          <div className={styles.menuLabel}>Main Menu</div>
-          {menuItems.map((item) => (
-            <button
-              key={item.id}
-              className={`${styles.menuItem} ${activeMenu === item.id ? styles.menuItemActive : ''}`}
-              onClick={() => handleMenuClick(item)}
-            >
-              {item.icon} {item.label}
-            </button>
-          ))}
+    <div className={styles.chatWrapper}>
+      {/* Sidebar */}
+      <aside className={styles.sidebar}>
+        <div className={styles.sidebarHeader}>
+          <div className={styles.logo}>
+            <FaShieldAlt />
+            <span>Eltherabito</span>
+          </div>
         </div>
 
-        <div className={styles.menuSection}>
-          <div className={styles.menuLabel}>Recent Topics</div>
-          {recentTopics.map((topic) => (
-            <button key={topic} className={styles.menuItem}>
-              <FaSquare /> {topic}
-            </button>
-          ))}
-        </div>
+        <nav className={styles.sidebarNav}>
+          <div 
+            className={`${styles.navItem} ${styles.navItemActive}`}
+            onClick={() => window.open('https://healthunlocked.com/', '_blank')}
+            style={{ cursor: 'pointer' }}
+          >
+            <FaBook />
+            <span >Resources</span>
+          </div>
+        </nav>
 
         <div className={styles.sidebarFooter}>
-          <button className={styles.menuItem} onClick={() => navigate(ROUTES.patient.settings)}><FaCog /> Settings</button>
-          <div className={styles.userProfile}>
-            <div className={styles.avatar}>
-              <img src="https://i.pravatar.cc/150?u=alex" alt="User" />
-            </div>
-            <div className={styles.userInfo}>
-              <span>Alex Johnson</span>
-            </div>
-          </div>
+          <button className={styles.settingsBtn} onClick={handleSettings} title="Settings">
+            <FaCog />
+            <span>Settings</span>
+          </button>
         </div>
       </aside>
 
-      {/* ── MAIN ── */}
-      <main className={styles.main}>
-
+      {/* Main Chat Area */}
+      <main className={styles.chatMain}>
         {/* Header */}
-        <header className={styles.header}>
-          <div className={styles.headerInfo}>
-            <h2>Support Assistant</h2>
-            <div className={styles.status}>
-              <span className={styles.statusDot} />
-              Always available
+        <header className={styles.chatHeader}>
+          <div className={styles.headerLeft}>
+            <div className={styles.supportAssistant}>
+              <div className={styles.supportDot}></div>
+              <div>
+                <h1 className={styles.headerTitle}>Support Assistant</h1>
+                <p className={styles.headerSubtitle}>Always available</p>
+              </div>
             </div>
           </div>
-          <Link to={ROUTES.patient.dashboard} className={styles.endSessionBtn}>
-            <FaSignOutAlt /> End Session
-          </Link>
+          <div className={styles.headerRight}>
+            <button className={styles.headerBtn} onClick={() => navigate('/patient/dashboard')} title="Back to Home">
+              <FaSignOutAlt />
+              <span>Back to Home</span>
+            </button>
+          </div>
         </header>
 
-        {/* Chat area */}
-        <div className={styles.chatContainer} ref={containerRef}>
-
-          {/* Safety notice */}
-          <div className={styles.safetyNotice}>
-            <FaInfoCircle className={styles.safetyIcon} />
-            <div>
-              <strong>Safety Notice:</strong> Eltherabito is a 24/7 support tool designed for emotional support
-              and wellness guidance. It is not a clinical service and cannot provide medical diagnoses.
-              If you are in crisis or immediate danger, please contact professional emergency services immediately.
+        {/* Chat Container */}
+        <div className={styles.chatContainer} ref={chatContainerRef}>
+          {/* Empty Chat */}
+          {showEmptyChat && (
+            <div className={styles.emptyChat}>
+              <div className={styles.emptyIcon}>
+                <FaComments />
+              </div>
+              <p className={styles.emptyText}>Start a conversation</p>
             </div>
-          </div>
+          )}
 
           {/* Messages */}
-          {messages.map((msg) => (
-            <div key={msg.id} className={`${styles.message} ${msg.sender === 'user' ? styles.messageUser : styles.messageAi}`}>
-              <div className={`${styles.msgAvatar} ${msg.sender === 'user' ? styles.msgAvatarUser : ''}`}>
-                {msg.sender === 'ai'
-                  ? <FaRobot style={{ color: '#0055D4' }} />
-                  : <img src="https://i.pravatar.cc/150?u=alex" alt="User" />
-                }
-              </div>
-              <div className={styles.msgContent}>
-                <div className={styles.msgAuthor}>{msg.sender === 'ai' ? 'Eltherabito AI' : 'You'}</div>
-                <div className={`${styles.bubble} ${msg.sender === 'user' ? styles.bubbleUser : styles.bubbleAi}`}>
-                  {msg.text}
-                </div>
-                <div className={styles.msgTime}>{msg.time}</div>
+          {messages.map((msg, index) => (
+            <div key={index} className={`${styles.message} ${styles[`message${msg.sender.charAt(0).toUpperCase() + msg.sender.slice(1)}`]}`}>
+              <div className={styles.messageContent}>
+                <p>{msg.content}</p>
+                {msg.sources && msg.sources.length > 0 && (
+                  <div className={styles.sources}>
+                    <p className={styles.sourcesTitle}>Sources:</p>
+                    {msg.sources.map((source, sourceIndex) => (
+                      <div key={sourceIndex} className={styles.sourceItem}>
+                        <p className={styles.sourceConcern}>{source.concern}</p>
+                        <p className={styles.sourceTitle}>{source.title}</p>
+                        {source.suggestions && source.suggestions.length > 0 && (
+                          <div className={styles.sourceSuggestions}>
+                            {source.suggestions.map((suggestion, suggestionIndex) => (
+                              <span key={suggestionIndex} className={styles.suggestionTag}>{suggestion}</span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           ))}
-
-          {/* Typing indicator */}
-          {isTyping && (
-            <div className={styles.typingIndicator}>
-              <div className={styles.dots}>
-                <div className={styles.dot} />
-                <div className={styles.dot} />
-                <div className={styles.dot} />
-              </div>
-              <span>Eltherabito AI is typing...</span>
-            </div>
-          )}
         </div>
 
-        {/* Footer / input */}
-        <div className={styles.footer}>
-          <div className={styles.voiceMode}>Voice Mode Ready</div>
-
-          <div className={styles.suggestions}>
-            {SUGGESTIONS.map((s) => (
-              <button key={s} className={styles.pill} onClick={() => handleSuggestion(s)}>
-                "{s}"
-              </button>
-            ))}
-          </div>
-
+        {/* Chat Input */}
+        <footer className={styles.chatFooter}>
           <div className={styles.inputWrapper}>
-            <FaSmile className={styles.inputIcon} />
-            <FaMicrophone className={styles.inputIcon} />
             <input
               type="text"
+              className={styles.chatInput}
               placeholder="Type your message here..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              className={styles.input}
             />
-            <div className={styles.inputActions}>
-              <FaPaperclip className={styles.inputIcon} />
-              <button className={styles.sendBtn} onClick={() => sendMessage(input)}>
-                <FaPaperPlane />
-              </button>
-            </div>
+            <button className={styles.inputBtn} onClick={sendMessage} title="Send">
+              <FaArrowUp />
+            </button>
           </div>
-
-          <div className={styles.pressEnter}>Press Enter to send message</div>
-        </div>
-
+        </footer>
       </main>
-      </div>
     </div>
   );
 }
