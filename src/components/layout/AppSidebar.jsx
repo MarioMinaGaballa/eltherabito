@@ -1,13 +1,9 @@
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { BRAND, PATIENT_NAV, getPatientActiveNav } from './navConfig';
 import { ROUTES } from '../../routes/paths';
+import patientService from '../../services/patientService';
 import styles from './AppSidebar.module.css';
-
-const SIDEBAR_USER = {
-  name: 'Alex Johnson',
-  avatar:
-    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=100&h=100',
-};
 
 export default function AppSidebar({
   embedded = false,
@@ -17,6 +13,25 @@ export default function AppSidebar({
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const activeId = getPatientActiveNav(pathname);
+  const [user, setUser] = useState({
+    name: 'Loading...',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=100&h=100',
+  });
+
+  useEffect(() => {
+    async function fetchUserProfile() {
+      try {
+        const patientData = await patientService.getProfile();
+        setUser({
+          name: `${patientData.firstName} ${patientData.lastName}` || patientData.name || 'User',
+          avatar: patientData.profilePicture || 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=100&h=100',
+        });
+      } catch (error) {
+        console.error('Failed to fetch user profile:', error);
+      }
+    }
+    fetchUserProfile();
+  }, []);
 
   return (
     <aside
@@ -48,14 +63,14 @@ export default function AppSidebar({
           onClick={() => navigate(ROUTES.patient.profile)}
           aria-label="Open patient profile"
         >
-          <img className={styles.userAvatar} src={SIDEBAR_USER.avatar} alt={SIDEBAR_USER.name} />
+          <img className={styles.userAvatar} src={user.avatar} alt={user.name} />
         </button>
         <button
           type="button"
           className={styles.userNameBtn}
           onClick={() => navigate(ROUTES.patient.profile)}
         >
-          {SIDEBAR_USER.name}
+          {user.name}
         </button>
       </div>
     </aside>

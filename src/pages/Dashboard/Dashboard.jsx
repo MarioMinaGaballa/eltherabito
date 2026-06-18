@@ -75,6 +75,8 @@ export default function Dashboard() {
           patientService.getProfile(),
           bookingService.getDoctors(),
         ]);
+        console.log('Patient data from API:', patientData);
+        console.log('Doctors data from API:', doctorsData);
         setPatient(patientData);
         setDoctors(doctorsData.slice(0, 3));
       } catch (error) {
