@@ -1,7 +1,7 @@
 const BASE_URL = 'https://mentalhealth01.runasp.net/api';
 
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('eltherabito-token');
   return {
     'Content-Type': 'application/json',
     ...(token && { 'Authorization': `Bearer ${token}` }),
