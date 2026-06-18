@@ -76,7 +76,7 @@ export default function PatientProfile() {
   const patientData = patient || {
     fullName: 'Ahmed Ali',
     gender: 'Male',
-    profilePictureUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=100&h=100',
+    profilePictureUrl: patient?.profilePictureUrl ? `https://mentalhealth01.runasp.net/images/patients/${patient.profilePictureUrl}` : 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=100&h=100',
     email: contact.email,
     phoneNumber: contact.mobile,
   };
