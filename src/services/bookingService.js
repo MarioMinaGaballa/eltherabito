@@ -1,12 +1,18 @@
 const BASE_URL = 'https://mentalhealth01.runasp.net/api';
 
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` }),
+  };
+};
+
 const bookingService = {
   async getDoctors() {
     const res = await fetch(`${BASE_URL}/Doctors`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
     });
 
     if (!res.ok) {
@@ -20,9 +26,7 @@ const bookingService = {
   async getDoctorSlots(doctorId, date) {
     const res = await fetch(`${BASE_URL}/Doctors/${doctorId}/slots?date=${date}`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
     });
 
     if (!res.ok) {
@@ -34,13 +38,9 @@ const bookingService = {
   },
 
   async getDoctorProfile() {
-    const token = localStorage.getItem('token');
     const res = await fetch(`${BASE_URL}/Doctor/me`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
+      headers: getAuthHeaders(),
     });
 
     if (!res.ok) {
@@ -52,13 +52,9 @@ const bookingService = {
   },
 
   async getDoctorSchedules() {
-    const token = localStorage.getItem('token');
     const res = await fetch(`${BASE_URL}/Doctor/me/schedules`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
+      headers: getAuthHeaders(),
     });
 
     if (!res.ok) {
@@ -82,7 +78,7 @@ const bookingService = {
     const res = await fetch(`${BASE_URL}/Doctor/profile`, {
       method: 'PUT',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        ...(token && { 'Authorization': `Bearer ${token}` }),
       },
       body: payload,
     });
@@ -96,13 +92,9 @@ const bookingService = {
   },
 
   async deleteScheduleSlot(slotId) {
-    const token = localStorage.getItem('token');
     const res = await fetch(`${BASE_URL}/DoctorSchedule/${slotId}`, {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
+      headers: getAuthHeaders(),
     });
 
     if (!res.ok) {
@@ -114,7 +106,6 @@ const bookingService = {
   },
 
   async changeDayStatus(dayOfWeek, isActive) {
-    const token = localStorage.getItem('token');
     const payload = {
       dayOfWeek,
       isActive,
@@ -122,10 +113,7 @@ const bookingService = {
 
     const res = await fetch(`${BASE_URL}/DoctorSchedule/schedule/day-status`, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(payload),
     });
 
@@ -138,7 +126,6 @@ const bookingService = {
   },
 
   async addScheduleSlot(dayOfWeek, startTime, endTime) {
-    const token = localStorage.getItem('token');
     const payload = {
       dayOfWeek,
       startTime,
@@ -147,10 +134,7 @@ const bookingService = {
 
     const res = await fetch(`${BASE_URL}/DoctorSchedule/AddSlot`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(payload),
     });
 
@@ -165,9 +149,7 @@ const bookingService = {
   async bookAppointment(bookingData) {
     const res = await fetch(`${BASE_URL}/appointments/BookAppoinment`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(bookingData),
     });
 
@@ -182,9 +164,7 @@ const bookingService = {
   async predictAssessment(assessmentData) {
     const res = await fetch(`${BASE_URL}/Assessment/Predict`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(assessmentData),
     });
 
@@ -197,13 +177,9 @@ const bookingService = {
   },
 
   async getAppointments() {
-    const token = localStorage.getItem('token');
     const res = await fetch(`${BASE_URL}/appointments/BooKing`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
+      headers: getAuthHeaders(),
     });
 
     if (!res.ok) {

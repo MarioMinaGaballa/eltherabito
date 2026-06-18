@@ -1,12 +1,18 @@
 const BASE_URL = 'https://mentalhealth01.runasp.net/api';
 
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` }),
+  };
+};
+
 const adminService = {
   async getStats() {
     const res = await fetch(`${BASE_URL}/Admin/stats`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
     });
 
     if (!res.ok) {
@@ -20,9 +26,7 @@ const adminService = {
   async getPatients() {
     const res = await fetch(`${BASE_URL}/Admin/patients`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
     });
 
     if (!res.ok) {
@@ -48,9 +52,7 @@ const adminService = {
 
     const res = await fetch(`${BASE_URL}/Admin/doctors`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(payload),
     });
 
@@ -65,9 +67,7 @@ const adminService = {
   async deletePatient(id) {
     const res = await fetch(`${BASE_URL}/Admin/users/${id}`, {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
     });
 
     if (!res.ok) {
@@ -81,9 +81,7 @@ const adminService = {
   async getDoctors() {
     const res = await fetch(`${BASE_URL}/Admin/doctors`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
     });
 
     if (!res.ok) {
@@ -95,13 +93,9 @@ const adminService = {
   },
 
   async getAppointmentAgenda(date) {
-    const token = localStorage.getItem('token');
     const res = await fetch(`${BASE_URL}/appointments/Appointmentagenda?Date=${date}`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
+      headers: getAuthHeaders(),
     });
 
     if (!res.ok) {
@@ -119,9 +113,7 @@ const adminService = {
 
     const res = await fetch(`${BASE_URL}/appointments/${appointmentId}/status`, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(payload),
     });
 
