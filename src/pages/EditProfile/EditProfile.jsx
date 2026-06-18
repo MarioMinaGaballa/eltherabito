@@ -22,19 +22,17 @@ function useNotification() {
   return { message, show };
 }
 
-// ✅ يحوّل أي صيغة لرقم موبايل مصري لصيغة +20XXXXXXXXXX الصحيحة
 function formatEgyptianPhone(phone) {
   let cleaned = phone.replace(/[\s-]+/g, '');
-
-  // لو بادئ بـ 0020 أو +200 أو 200 يشيل الزيادة
-  cleaned = cleaned.replace(/^(\+?20)?0*(1[0125]\d{8})$/, '+20$2');
-
-  // لو بادئ بـ 0 محلي (01XXXXXXXXX) يحولها لـ +20
-  if (/^0?1[0125]\d{8}$/.test(cleaned)) {
-    cleaned = '+20' + cleaned.replace(/^0/, '');
-  }
-
+  
+  // يشيل +20 أو 0020 أو 20 من الأول ويستبدلها بـ 0
+  cleaned = cleaned.replace(/^(\+20|0020|20)/, '0');
+  
   return cleaned;
+}
+
+function isValidEgyptianPhone(phone) {
+  return /^01[0125]\d{8}$/.test(phone);
 }
 
 function isValidEgyptianPhone(phone) {
