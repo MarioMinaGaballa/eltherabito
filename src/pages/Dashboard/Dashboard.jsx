@@ -119,7 +119,7 @@ export default function Dashboard() {
         <div className={styles.pageContent}>
           <section className={styles.welcomeSection}>
             <div className={styles.welcomeText}>
-              <h1 className={styles.greeting}>Hello, {patient?.firstName || 'there'}</h1>
+              <h1 className={styles.greeting}>Hello, {patient?.fullName || 'there'}</h1>
               <p className={styles.subtitle}>Your journey to wellness continues today.</p>
             </div>
             <div className={styles.welcomeDate}>
@@ -309,13 +309,12 @@ export default function Dashboard() {
 
       {toast && (
         <div
-          className={`${styles.toast} ${
-            toast.type === 'success'
+          className={`${styles.toast} ${toast.type === 'success'
               ? styles.toastSuccess
               : toast.type === 'warning'
                 ? styles.toastWarning
                 : styles.toastInfo
-          }`}
+            }`}
           role="alert"
           aria-live="polite"
         >

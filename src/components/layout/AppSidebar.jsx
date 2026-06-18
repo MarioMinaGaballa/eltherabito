@@ -23,7 +23,7 @@ export default function AppSidebar({
       try {
         const patientData = await patientService.getProfile();
         setUser({
-          name: `${patientData.firstName} ${patientData.lastName}` || patientData.name || 'User',
+          name: patientData.fullName || 'User',
           avatar: patientData.profilePicture || 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=100&h=100',
         });
       } catch (error) {
