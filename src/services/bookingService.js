@@ -66,7 +66,6 @@ const bookingService = {
   },
 
   async updateDoctorProfile(formData) {
-  const token = localStorage.getItem('eltherabito-token');
     const payload = new FormData();
     payload.append('Specialty', formData.specialty);
     payload.append('YearsOfExp', formData.yearsOfExp);
@@ -77,9 +76,7 @@ const bookingService = {
 
     const res = await fetch(`${BASE_URL}/Doctor/profile`, {
       method: 'PUT',
-      headers: {
-        ...(token && { 'Authorization': `Bearer ${token}` }),
-      },
+      headers: getAuthHeaders(),
       body: payload,
     });
 
