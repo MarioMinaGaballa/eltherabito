@@ -22,6 +22,25 @@ function useNotification() {
   return { message, show };
 }
 
+// ✅ يحوّل أي صيغة لرقم موبايل مصري لصيغة +20XXXXXXXXXX الصحيحة
+function formatEgyptianPhone(phone) {
+  let cleaned = phone.replace(/[\s-]+/g, '');
+
+  // لو بادئ بـ 0020 أو +200 أو 200 يشيل الزيادة
+  cleaned = cleaned.replace(/^(\+?20)?0*(1[0125]\d{8})$/, '+20$2');
+
+  // لو بادئ بـ 0 محلي (01XXXXXXXXX) يحولها لـ +20
+  if (/^0?1[0125]\d{8}$/.test(cleaned)) {
+    cleaned = '+20' + cleaned.replace(/^0/, '');
+  }
+
+  return cleaned;
+}
+
+function isValidEgyptianPhone(phone) {
+  return /^\+201[0125]\d{8}$/.test(phone);
+}
+
 export default function EditProfile() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
@@ -68,8 +87,16 @@ export default function EditProfile() {
   }, [navigate]);
 
   const handleSave = useCallback(async () => {
-    if (!phone.trim()) {
+    const trimmedPhone = phone.trim();
+    if (!trimmedPhone) {
       show('❌ Please enter a phone number');
+      return;
+    }
+
+    // ✅ نظّف ونتحقق من صيغة الرقم المصري قبل الإرسال
+    const formattedPhone = formatEgyptianPhone(trimmedPhone);
+    if (!isValidEgyptianPhone(formattedPhone)) {
+      show('❌ Please enter a valid Egyptian mobile number (e.g. 01012345678)');
       return;
     }
 
@@ -77,7 +104,7 @@ export default function EditProfile() {
     try {
       const formData = {
         email,
-        phoneNumber: phone.trim(),
+        phoneNumber: formattedPhone,
         profilePicture: profilePictureFile,
       };
       const updatedData = await patientService.updateProfile(formData);
@@ -239,9 +266,12 @@ export default function EditProfile() {
                   className={styles.formControl}
                   value={phone}
                   onChange={handlePhoneChange}
+                  placeholder="01012345678"
                 />
               </div>
-              <p className={styles.formHint}>We&apos;ll use this for appointment reminders.</p>
+              <p className={styles.formHint}>
+                We&apos;ll use this for appointment reminders. Enter a valid Egyptian mobile number.
+              </p>
             </div>
           </div>
 
