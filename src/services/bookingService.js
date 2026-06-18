@@ -66,7 +66,7 @@ const bookingService = {
   },
 
   async updateDoctorProfile(formData) {
-    const token = localStorage.getItem('token');
+  const token = localStorage.getItem('eltherabito-token');
     const payload = new FormData();
     payload.append('Specialty', formData.specialty);
     payload.append('YearsOfExp', formData.yearsOfExp);
