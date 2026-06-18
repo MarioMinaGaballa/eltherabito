@@ -9,13 +9,14 @@ export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [showEmptyChat, setShowEmptyChat] = useState(true);
+  const [loading, setLoading] = useState(false); // ✅
   const chatContainerRef = useRef(null);
 
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, loading]);
 
   function handleKeyPress(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -26,51 +27,34 @@ export default function Chat() {
 
   async function sendMessage() {
     const message = input.trim();
-    
     if (!message) return;
-    
-    // Add user message to chat
+
     setMessages(prev => [...prev, { sender: 'user', content: message }]);
     setShowEmptyChat(false);
-    
-    // Clear input
     setInput('');
-    
+    setLoading(true); // ✅
+
     try {
-      // Call AI recommendation API
       const response = await aiService.getAIRecommendation(message);
-      
-      // Add bot response with answer and sources
-      setMessages(prev => [...prev, { 
-        sender: 'bot', 
+      setMessages(prev => [...prev, {
+        sender: 'bot',
         content: response.answer,
         sources: response.sources || []
       }]);
     } catch (error) {
-      // Handle error
-      setMessages(prev => [...prev, { 
-        sender: 'bot', 
+      setMessages(prev => [...prev, {
+        sender: 'bot',
         content: 'Sorry, I encountered an error. Please try again later.',
         sources: []
       }]);
       console.error('AI Recommendation error:', error);
-    }
-  }
-
-  function handleBackToHome() {
-    if (confirm('Are you sure you want to go back to home?')) {
-      navigate('/patient/dashboard');
+    } finally {
+      setLoading(false); // ✅
     }
   }
 
   function handleSettings() {
     navigate('/patient/settings');
-  }
-
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
   }
 
   return (
@@ -85,13 +69,13 @@ export default function Chat() {
         </div>
 
         <nav className={styles.sidebarNav}>
-          <div 
+          <div
             className={`${styles.navItem} ${styles.navItemActive}`}
             onClick={() => window.open('https://healthunlocked.com/', '_blank')}
             style={{ cursor: 'pointer' }}
           >
             <FaBook />
-            <span >Resources</span>
+            <span>Resources</span>
           </div>
         </nav>
 
@@ -138,7 +122,10 @@ export default function Chat() {
 
           {/* Messages */}
           {messages.map((msg, index) => (
-            <div key={index} className={`${styles.message} ${styles[`message${msg.sender.charAt(0).toUpperCase() + msg.sender.slice(1)}`]}`}>
+            <div
+              key={index}
+              className={`${styles.message} ${styles[`message${msg.sender.charAt(0).toUpperCase() + msg.sender.slice(1)}`]}`}
+            >
               <div className={styles.messageContent}>
                 <p>{msg.content}</p>
                 {msg.sources && msg.sources.length > 0 && (
@@ -151,7 +138,9 @@ export default function Chat() {
                         {source.suggestions && source.suggestions.length > 0 && (
                           <div className={styles.sourceSuggestions}>
                             {source.suggestions.map((suggestion, suggestionIndex) => (
-                              <span key={suggestionIndex} className={styles.suggestionTag}>{suggestion}</span>
+                              <span key={suggestionIndex} className={styles.suggestionTag}>
+                                {suggestion}
+                              </span>
                             ))}
                           </div>
                         )}
@@ -162,6 +151,17 @@ export default function Chat() {
               </div>
             </div>
           ))}
+
+          {/* ✅ Loading indicator */}
+          {loading && (
+            <div className={`${styles.message} ${styles.messageBot}`}>
+              <div className={styles.messageContent}>
+                <p className={styles.typingDots}>
+                  <span>.</span><span>.</span><span>.</span>
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Chat Input */}
@@ -174,8 +174,14 @@ export default function Chat() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
+              disabled={loading} // ✅ منع إرسال رسالة تانية أثناء الانتظار
             />
-            <button className={styles.inputBtn} onClick={sendMessage} title="Send">
+            <button
+              className={styles.inputBtn}
+              onClick={sendMessage}
+              title="Send"
+              disabled={loading} // ✅
+            >
               <FaArrowUp />
             </button>
           </div>
