@@ -9,6 +9,7 @@ const authService = {
       email:       formData.email,
       password:    formData.password,
       phoneNumber: formData.phonePrefix + formData.phone,
+      age        : formData.age,
       gender:      formData.gender === 'male' ? 0 : 1,
     };
 
