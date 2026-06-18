@@ -43,8 +43,7 @@ function safeLoadAnswers() {
 
 function mapAnswersToApiFormat(answers) {
   const options1_4 = ['Seldom', 'Sometimes', 'Usually', 'Most Often'];
-  const optionsYesNo = ['No', 'Yes'];
-  
+const optionsYesNo = ['NO', 'YES'];  
   return {
     sadness: options1_4[answers['1']] || 'Seldom',
     euphoric: options1_4[answers['2']] || 'Seldom',
