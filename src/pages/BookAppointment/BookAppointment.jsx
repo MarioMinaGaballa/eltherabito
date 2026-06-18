@@ -103,6 +103,12 @@ export default function BookAppointment() {
   const [selectedDoctorId, setSelectedDoctorId] = useState(null);
   const [selectedSlotId, setSelectedSlotId] = useState(null);
 
+  // ✅ عرّفهم هنا قبل أي useEffect يستخدمهم
+  const year = currentMonth.getFullYear();
+  const month = currentMonth.getMonth();
+  const monthLabel = currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' });
+  const calendarDays = useMemo(() => buildCalendarDays(year, month), [year, month]);
+
   useEffect(() => {
     async function fetchDoctors() {
       try {
@@ -115,7 +121,9 @@ export default function BookAppointment() {
           experience: `${d.yearsOfExp} years exp.`,
           description: d.bio || 'Experienced healthcare professional.',
           price: d.sessionPrice,
-          img: d.profilePictureUrl ? `https://mentalhealth01.runasp.net/api/images/doctors/${d.profilePictureUrl}` : 'https://randomuser.me/api/portraits/lego/1.jpg',
+          img: d.profilePictureUrl
+            ? `https://mentalhealth01.runasp.net/api/images/doctors/${d.profilePictureUrl}`
+            : 'https://randomuser.me/api/portraits/lego/1.jpg',
         }));
         setTherapists(mappedDoctors);
       } catch (error) {
@@ -130,10 +138,10 @@ export default function BookAppointment() {
   useEffect(() => {
     async function fetchSlots() {
       if (!selectedDoctorId) return;
-      
+
       const dateObj = new Date(year, month, selectedDay);
       const dateStr = dateObj.toISOString().split('T')[0];
-      
+
       try {
         const data = await bookingService.getDoctorSlots(selectedDoctorId, dateStr);
         const mappedSlots = data.map(slot => {
@@ -143,10 +151,14 @@ export default function BookAppointment() {
           const displayHour = hour % 12 || 12;
           return {
             id: slot.id,
-            displayTime: `${displayHour.toString().padStart(2, '0')}:${minutes} ${ampm}`
+            displayTime: `${displayHour.toString().padStart(2, '0')}:${minutes} ${ampm}`,
           };
         });
-        setTimeSlots(mappedSlots.length > 0 ? mappedSlots : DEFAULT_TIME_SLOTS.map(slot => ({ id: null, displayTime: slot })));
+        setTimeSlots(
+          mappedSlots.length > 0
+            ? mappedSlots
+            : DEFAULT_TIME_SLOTS.map(slot => ({ id: null, displayTime: slot }))
+        );
       } catch (error) {
         show(error.message, 'danger');
         setTimeSlots(DEFAULT_TIME_SLOTS.map(slot => ({ id: null, displayTime: slot })));
@@ -154,11 +166,6 @@ export default function BookAppointment() {
     }
     fetchSlots();
   }, [selectedDoctorId, year, month, selectedDay]);
-
-  const year = currentMonth.getFullYear();
-  const month = currentMonth.getMonth();
-  const monthLabel = currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' });
-  const calendarDays = useMemo(() => buildCalendarDays(year, month), [year, month]);
 
   const filteredTherapists = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -222,6 +229,7 @@ export default function BookAppointment() {
 
     const therapist = therapists.find((t) => t.name === selectedTherapist);
     const dateObj = new Date(year, month, selectedDay);
+    const dateStr = dateObj.toISOString().split('T')[0]; // ✅ معرفة هنا
     const dateLabel = dateObj.toLocaleDateString('en-US', {
       weekday: 'long',
       month: 'short',
@@ -243,7 +251,7 @@ export default function BookAppointment() {
       bookedAt: new Date().toISOString(),
       doctorId: selectedDoctorId,
       doctorScheduleId: selectedSlotId,
-      appointmentDate: dateStr,
+      appointmentDate: dateStr, // ✅ شغالة دلوقتي
     });
 
     navigate(ROUTES.patient.bookingConfirm);
