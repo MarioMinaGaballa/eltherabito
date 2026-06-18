@@ -1,12 +1,18 @@
 const BASE_URL = 'https://mentalhealth01.runasp.net/api';
 
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` }),
+  };
+};
+
 const patientService = {
   async getProfile() {
     const res = await fetch(`${BASE_URL}/Patient/profile`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
     });
 
     if (!res.ok) {
@@ -18,6 +24,7 @@ const patientService = {
   },
 
   async updateProfile(formData) {
+    const token = localStorage.getItem('token');
     const payload = new FormData();
     payload.append('Email', formData.email);
     if (formData.phoneNumber) {
@@ -29,6 +36,9 @@ const patientService = {
 
     const res = await fetch(`${BASE_URL}/Patient/profile`, {
       method: 'PUT',
+      headers: {
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+      },
       body: payload,
     });
 
