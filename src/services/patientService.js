@@ -1,4 +1,4 @@
-const BASE_URL = 'https://localhost:7022/api';
+const BASE_URL = 'http://mentalhealth01.runasp.net';
 
 const patientService = {
   async getProfile() {
