@@ -106,10 +106,10 @@ export default function MyBookings() {
               <div key={apt.id} className={styles.sessionCard}>
                 {/* Doctor image */}
                 <div className={styles.sessionImage}>
-                  <img 
-                    src={apt.doctorPictureUrl || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop'} 
-                    alt={apt.doctorName} 
-                    className={styles.doctorImg} 
+                  <img
+                    src={apt.doctorPictureUrl ? `https://mentalhealth01.runasp.net/api/images/doctors/${apt.doctorPictureUrl}` : 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop'}
+                    alt={apt.doctorName}
+                    className={styles.doctorImg}
                   />
                 </div>
 

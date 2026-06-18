@@ -9,6 +9,8 @@ import { BRAND } from '../../components/layout/navConfig';
 import { ROUTES } from '../../routes/paths';
 import adminService from '../../services/adminService';
 import styles from './AdminDashboard.module.css';
+
+const BASE_URL = 'https://mentalhealth01.runasp.net';
 /* ── Data ── */
 
 const STATS_CONFIG = [
@@ -67,6 +69,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [doctors, setDoctors] = useState([]);
+  const [patientsCount, setPatientsCount] = useState(0);
 
   const { toasts, show } = useToast();
 
@@ -94,7 +97,7 @@ export default function AdminDashboard() {
           name: d.fullName,
           specialty: d.specialty,
           exp: `${d.yearsOfExp} years`,
-          img: d.profilePictureUrl || 'https://randomuser.me/api/portraits/lego/1.jpg',
+          img: d.profilePictureUrl ? `${BASE_URL}/images/doctors/${d.profilePictureUrl}` : 'https://randomuser.me/api/portraits/lego/1.jpg',
         }));
         setDoctors(mappedDoctors);
       } catch (err) {
@@ -103,6 +106,19 @@ export default function AdminDashboard() {
       }
     }
     fetchDoctors();
+  }, []);
+
+  useEffect(() => {
+    async function fetchPatients() {
+      try {
+        const data = await adminService.getPatients();
+        setPatientsCount(data.length || 0);
+      } catch (err) {
+        console.error('Failed to fetch patients:', err);
+        setPatientsCount(0);
+      }
+    }
+    fetchPatients();
   }, []);
 
   return (
@@ -144,7 +160,7 @@ export default function AdminDashboard() {
           <div className={styles.dirHeader}>
             <h2 className={styles.sectionTitle}>User Directory</h2>
             <span className={styles.regBadge}>
-              Total registered patients: <strong>42</strong>
+              Total registered patients: <strong>{patientsCount}</strong>
             </span>
           </div>
           <div className={styles.dirCard}>

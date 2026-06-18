@@ -106,7 +106,7 @@ export default function TherapistPatientProfile() {
             <div className={styles.patientCard}>
               {/* Patient Image */}
               <div className={styles.patientImage}>
-                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop" alt="Ahmed Ali" className={styles.patientPhoto} />
+                <img src="https://mentalhealth01.runasp.net/images/patients/patient-placeholder.jpg" alt="Patient" className={styles.patientPhoto} />
                 <div className={styles.onlineIndicator}></div>
               </div>
 

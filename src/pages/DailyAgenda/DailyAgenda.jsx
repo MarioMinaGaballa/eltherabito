@@ -41,7 +41,7 @@ export default function DailyAgenda() {
           ampm: getAmPm(apt.startTime),
           duration: calculateDuration(apt.startTime, apt.endTime),
           name: apt.patientName,
-          img: apt.pictureUrl || 'https://randomuser.me/api/portraits/lego/1.jpg',
+          img: apt.pictureUrl ? `https://mentalhealth01.runasp.net/images/patients/${apt.pictureUrl}` : 'https://randomuser.me/api/portraits/lego/1.jpg',
           status: mapStatus(apt.status),
           patientId: apt.patientId,
         }));

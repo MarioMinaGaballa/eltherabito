@@ -30,6 +30,21 @@ export default function Login() {
     return e;
   }
 
+  function getRoleFromToken(token) {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      const payload = JSON.parse(jsonPayload);
+      return payload.role || payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || 'Patient';
+    } catch (e) {
+      console.error('Error decoding token:', e);
+      return 'Patient';
+    }
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     const errs = validate();
@@ -40,8 +55,17 @@ export default function Login() {
       const data = await authService.login({ email, password });
       // data = { firstName, lastName, email, token }
       login(data, data.token);
+      const role = getRoleFromToken(data.token);
       showToast(`✓ Welcome back, ${data.firstName}!`);
-      setTimeout(() => navigate('/dashboard'), 1000);
+
+      let redirectPath = '/dashboard';
+      if (role === 'Admin') {
+        redirectPath = '/admin';
+      } else if (role === 'Doctor') {
+        redirectPath = '/therapist/agenda';
+      }
+
+      setTimeout(() => navigate(redirectPath), 1000);
     } catch (err) {
       showToast(err.message || 'Login failed. Please try again.', 'error');
     } finally {

@@ -52,7 +52,7 @@ export default function TherapistProfile() {
           tags: DEFAULT_THERAPIST.tags,
         });
         setProfile({
-          photo: data.profilePictureUrl ? `/images/doctors/${data.profilePictureUrl}` : 'https://randomuser.me/api/portraits/women/44.jpg',
+          photo: data.profilePictureUrl ? `https://mentalhealth01.runasp.net/api/images/doctors/${data.profilePictureUrl}` : 'https://randomuser.me/api/portraits/women/44.jpg',
           specialization: data.specialty,
           yearsExperience: data.yearsOfExp,
           sessionRate: data.sessionPrice,
