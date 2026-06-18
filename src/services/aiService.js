@@ -1,4 +1,4 @@
-const BASE_URL = 'https://mentalhealth01.runasp.net';
+const BASE_URL = 'https://mentalhealth01.runasp.net/api';
 
 const aiService = {
   async getAIRecommendation(query) {
