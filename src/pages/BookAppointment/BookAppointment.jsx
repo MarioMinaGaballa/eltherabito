@@ -103,7 +103,6 @@ export default function BookAppointment() {
   const [selectedDoctorId, setSelectedDoctorId] = useState(null);
   const [selectedSlotId, setSelectedSlotId] = useState(null);
 
-  // ✅ عرّفهم هنا قبل أي useEffect يستخدمهم
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
   const monthLabel = currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' });
@@ -127,7 +126,7 @@ export default function BookAppointment() {
         }));
         setTherapists(mappedDoctors);
       } catch (error) {
-        show(error.message, 'danger');
+        show(error.message);
       } finally {
         setLoading(false);
       }
@@ -135,6 +134,7 @@ export default function BookAppointment() {
     fetchDoctors();
   }, []);
 
+  // ✅ إصلاح: أزلنا show من الـ dependencies
   useEffect(() => {
     async function fetchSlots() {
       if (!selectedDoctorId) return;
@@ -160,7 +160,7 @@ export default function BookAppointment() {
             : DEFAULT_TIME_SLOTS.map(slot => ({ id: null, displayTime: slot }))
         );
       } catch (error) {
-        show(error.message, 'danger');
+        // ✅ إصلاح: أزلنا show من هنا عشان مش في الـ dependencies
         setTimeSlots(DEFAULT_TIME_SLOTS.map(slot => ({ id: null, displayTime: slot })));
       }
     }
@@ -200,6 +200,8 @@ export default function BookAppointment() {
   function handleSelectTherapist(name, doctorId) {
     setSelectedTherapist(name);
     setSelectedDoctorId(doctorId);
+    setSelectedSlotId(null);
+    setSelectedTime('');
     saveSelectedTherapist(name);
     show(`✓ ${name} selected!`);
   }
@@ -211,6 +213,8 @@ export default function BookAppointment() {
   function handleSelectDay(day, inMonth) {
     if (!inMonth) return;
     setSelectedDay(day);
+    setSelectedSlotId(null);
+    setSelectedTime('');
     const monthShort = currentMonth.toLocaleString('default', { month: 'short' });
     show(`📅 Date selected: ${monthShort} ${day}`);
   }
@@ -221,15 +225,20 @@ export default function BookAppointment() {
     show(`🕐 Time selected: ${slot.displayTime}`);
   }
 
-  function handleBookNow() {
+  // ✅ إصلاح رئيسي: async + استدعاء الـ API قبل الـ navigate
+  async function handleBookNow() {
     if (!selectedTherapist) {
       show('❌ Please select a therapist');
+      return;
+    }
+    if (!selectedSlotId) {
+      show('❌ Please select a time slot');
       return;
     }
 
     const therapist = therapists.find((t) => t.name === selectedTherapist);
     const dateObj = new Date(year, month, selectedDay);
-    const dateStr = dateObj.toISOString().split('T')[0]; // ✅ معرفة هنا
+    const dateStr = dateObj.toISOString().split('T')[0];
     const dateLabel = dateObj.toLocaleDateString('en-US', {
       weekday: 'long',
       month: 'short',
@@ -238,24 +247,38 @@ export default function BookAppointment() {
     });
 
     setBooking(true);
-    saveBooking({
-      therapist: selectedTherapist,
-      specialty: therapist?.specialty ?? '',
-      price: therapist?.price ?? 0,
-      img: therapist?.img ?? '',
-      dateTime: bookingSummary,
-      dateLabel,
-      time: selectedTime,
-      timeRange: `${selectedTime} · 60 min session`,
-      duration: '60 Mins',
-      bookedAt: new Date().toISOString(),
-      doctorId: selectedDoctorId,
-      doctorScheduleId: selectedSlotId,
-      appointmentDate: dateStr, // ✅ شغالة دلوقتي
-    });
+    try {
+      // ✅ استدعاء الـ API أولاً
+      await bookingService.bookAppointment({
+        doctorId: selectedDoctorId,
+        doctorScheduleId: selectedSlotId,
+        appointmentDate: dateStr,
+      });
 
-    navigate(ROUTES.patient.bookingConfirm);
-    setBooking(false);
+      // ✅ لو نجح، احفظ locally وانتقل للصفحة التانية
+      saveBooking({
+        therapist: selectedTherapist,
+        specialty: therapist?.specialty ?? '',
+        price: therapist?.price ?? 0,
+        img: therapist?.img ?? '',
+        dateTime: bookingSummary,
+        dateLabel,
+        time: selectedTime,
+        timeRange: `${selectedTime} · 60 min session`,
+        duration: '60 Mins',
+        bookedAt: new Date().toISOString(),
+        doctorId: selectedDoctorId,
+        doctorScheduleId: selectedSlotId,
+        appointmentDate: dateStr,
+      });
+
+      navigate(ROUTES.patient.bookingConfirm);
+    } catch (error) {
+      // ✅ لو فشل، اعرض الـ error للمستخدم
+      show(`❌ ${error.message}`);
+    } finally {
+      setBooking(false);
+    }
   }
 
   if (loading) {
@@ -447,7 +470,7 @@ export default function BookAppointment() {
                 disabled={booking}
               >
                 <FaCalendarCheck aria-hidden="true" />
-                Book Now
+                {booking ? 'Booking...' : 'Book Now'}
               </button>
 
               <div className={styles.securityNotice}>
