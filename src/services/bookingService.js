@@ -1,4 +1,4 @@
-const BASE_URL = 'http://mentalhealth01.runasp.net/api';
+const BASE_URL = 'https://mentalhealth01.runasp.net/api';
 
 const bookingService = {
   async getDoctors() {
