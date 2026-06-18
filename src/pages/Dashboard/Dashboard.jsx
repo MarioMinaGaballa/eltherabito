@@ -18,6 +18,8 @@ import {
 } from 'react-icons/fa';
 import { ROUTES } from '../../routes/paths';
 import AppLayout from '../../components/layout/AppLayout';
+import patientService from '../../services/patientService';
+import bookingService from '../../services/bookingService';
 import styles from './Dashboard.module.css';
 
 const JOURNAL_STORAGE_KEY = 'eltherabito-patient-journal';
@@ -33,6 +35,9 @@ export default function Dashboard() {
     }
   });
   const [toast, setToast] = useState(null);
+  const [patient, setPatient] = useState(null);
+  const [doctors, setDoctors] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const today = useMemo(
     () =>
@@ -62,6 +67,24 @@ export default function Dashboard() {
     const t = window.setTimeout(() => setToast(null), 3000);
     return () => window.clearTimeout(t);
   }, [toast]);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [patientData, doctorsData] = await Promise.all([
+          patientService.getProfile(),
+          bookingService.getDoctors(),
+        ]);
+        setPatient(patientData);
+        setDoctors(doctorsData.slice(0, 3));
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
 
   return (
     <AppLayout variant="patient" showSidebar showHeader={false}>
@@ -94,7 +117,7 @@ export default function Dashboard() {
         <div className={styles.pageContent}>
           <section className={styles.welcomeSection}>
             <div className={styles.welcomeText}>
-              <h1 className={styles.greeting}>Hello, Alex.</h1>
+              <h1 className={styles.greeting}>Hello, {patient?.firstName || 'there'}</h1>
               <p className={styles.subtitle}>Your journey to wellness continues today.</p>
             </div>
             <div className={styles.welcomeDate}>
@@ -155,19 +178,16 @@ export default function Dashboard() {
                 <p>Connect with licensed professionals across multiple specialties.</p>
                 <div className={styles.doctorsPreview}>
                   <div className={styles.doctorsAvatars} aria-hidden="true">
-                    <img
-                      src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=40&h=40"
-                      alt=""
-                    />
-                    <img
-                      src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=40&h=40"
-                      alt=""
-                    />
-                    <img
-                      src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=40&h=40"
-                      alt=""
-                    />
-                    <span className={styles.doctorsMore}>+12</span>
+                    {doctors.slice(0, 3).map((doctor) => (
+                      <img
+                        key={doctor.id}
+                        src={doctor.profilePicture || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=40&h=40'}
+                        alt=""
+                      />
+                    ))}
+                    {doctors.length > 3 && (
+                      <span className={styles.doctorsMore}>+{doctors.length - 3}</span>
+                    )}
                   </div>
                 </div>
                 <div className={styles.cardButtonWrapper}>
