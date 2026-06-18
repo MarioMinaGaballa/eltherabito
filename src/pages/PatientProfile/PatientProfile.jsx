@@ -11,6 +11,9 @@ import patientService from '../../services/patientService';
 import AppLayout from '../../components/layout/AppLayout';
 import styles from './PatientProfile.module.css';
 
+const DEFAULT_AVATAR =
+  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=100&h=100';
+
 function useNotification() {
   const [toast, setToast] = useState(null);
   const show = useCallback((message, type = 'info') => {
@@ -18,6 +21,14 @@ function useNotification() {
     setTimeout(() => setToast(null), 3000);
   }, []);
   return { toast, show };
+}
+
+// ✅ يترجم قيمة gender الرقمية الجايه من الـ API لنص مفهوم
+function getGenderLabel(gender) {
+  if (gender === '0' || gender === 0) return 'Male';
+  if (gender === '1' || gender === 1) return 'Female';
+  if (typeof gender === 'string' && gender.trim()) return gender;
+  return 'Not specified';
 }
 
 export default function PatientProfile() {
@@ -73,13 +84,23 @@ export default function PatientProfile() {
     );
   }
 
-  const patientData = patient || {
-    fullName: 'Ahmed Ali',
-    gender: 'Male',
-    profilePictureUrl: patient?.profilePictureUrl ? `https://mentalhealth01.runasp.net/images/patients/${patient.profilePictureUrl}` : 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=100&h=100',
-    email: contact.email,
-    phoneNumber: contact.mobile,
-  };
+  // ✅ لو الداتا جايه من الـ API، نبني عليها صورة صحيحة ولابل gender مفهوم
+  // لو لسه null (فشل الطلب)، نستخدم fallback كامل
+  const patientData = patient
+    ? {
+        ...patient,
+        gender: getGenderLabel(patient.gender),
+        profilePictureUrl: patient.profilePictureUrl
+          ? `https://mentalhealth01.runasp.net/images/patients/${patient.profilePictureUrl}`
+          : DEFAULT_AVATAR,
+      }
+    : {
+        fullName: 'Ahmed Ali',
+        gender: 'Male',
+        profilePictureUrl: DEFAULT_AVATAR,
+        email: contact.email,
+        phoneNumber: contact.mobile,
+      };
 
   return (
     <AppLayout
