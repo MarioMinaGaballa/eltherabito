@@ -70,8 +70,9 @@ const bookingService = {
     payload.append('Specialty', formData.specialty);
     payload.append('YearsOfExp', formData.yearsOfExp);
     payload.append('SessionPrice', formData.sessionPrice);
-    payload.append('ProfilePicture', formData.profilePicture);
-    
+    if (formData.imageFile) {
+      payload.append('ProfilePicture', formData.imageFile);
+    }
 
     const res = await fetch(`${BASE_URL}/Doctor/profile`, {
       method: 'PUT',
