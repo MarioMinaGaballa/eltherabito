@@ -1,12 +1,18 @@
 const BASE_URL = 'https://mentalhealth01.runasp.net/api';
 
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('eltherabito-token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` }),
+  };
+};
+
 const aiService = {
   async getAIRecommendation(query) {
     const res = await fetch(`${BASE_URL}/AIRecommendation`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ query }),
     });
 

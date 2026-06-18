@@ -36,9 +36,7 @@ const patientService = {
 
     const res = await fetch(`${BASE_URL}/Patient/profile`, {
       method: 'PUT',
-      headers: {
-        ...(token && { 'Authorization': `Bearer ${token}` }),
-      },
+      headers: getAuthHeaders(),
       body: payload,
     });
 

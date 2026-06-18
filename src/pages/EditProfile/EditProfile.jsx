@@ -81,12 +81,12 @@ export default function EditProfile() {
         profilePicture: profilePictureFile,
       };
       const updatedData = await patientService.updateProfile(formData);
-      
+
       setEmail(updatedData.email);
       setPhone(updatedData.phoneNumber || '');
       setAvatar(updatedData.profilePictureUrl || DEFAULT_AVATAR);
       setProfilePictureFile(null);
-      
+
       localStorage.removeItem(PROFILE_DRAFT_KEY);
       show('✓ Profile updated successfully!');
       setTimeout(() => {
@@ -130,7 +130,7 @@ export default function EditProfile() {
     }
 
     setProfilePictureFile(file);
-    
+
     const reader = new FileReader();
     reader.onload = () => {
       if (typeof reader.result === 'string') {
@@ -277,7 +277,7 @@ export default function EditProfile() {
             <div className={styles.footerSection}>
               <img src={avatar} alt="" className={styles.footerAvatar} />
               <div>
-                <p className={styles.footerUserName}>Ahmed Ali</p>
+                <p className={styles.footerUserName}>{email}</p>
                 <p className={styles.footerUserRole}>Patient</p>
               </div>
             </div>
