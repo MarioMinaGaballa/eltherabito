@@ -8,9 +8,10 @@ import AppLayout from '../../components/layout/AppLayout';
 import { BRAND } from '../../components/layout/navConfig';
 import { ROUTES } from '../../routes/paths';
 import adminService from '../../services/adminService';
+import { imageUrl } from '../../utils/imageUrl';
 import styles from './AdminDashboard.module.css';
 
-const BASE_URL = 'https://mentalhealth01.runasp.net';
+const FALLBACK_DOCTOR_PHOTO = 'https://randomuser.me/api/portraits/lego/1.jpg';
 /* ── Data ── */
 
 const STATS_CONFIG = [
@@ -97,7 +98,7 @@ export default function AdminDashboard() {
           name: d.fullName,
           specialty: d.specialty,
           exp: `${d.yearsOfExp} years`,
-          img: d.profilePictureUrl ? `${BASE_URL}/images/doctors/${d.profilePictureUrl}` : 'https://randomuser.me/api/portraits/lego/1.jpg',
+          img: imageUrl(d.profilePictureUrl, 'doctors', FALLBACK_DOCTOR_PHOTO),
         }));
         setDoctors(mappedDoctors);
       } catch (err) {

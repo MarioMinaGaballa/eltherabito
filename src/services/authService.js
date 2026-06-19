@@ -1,4 +1,4 @@
-const BASE_URL = 'https://mentalhealth01.runasp.net/api';
+import { BASE_URL } from './apiConfig';
 
 const authService = {
 

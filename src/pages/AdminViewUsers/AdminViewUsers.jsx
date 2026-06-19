@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import adminService from '../../services/adminService';
+import { imageUrl } from '../../utils/imageUrl';
 import styles from './AdminViewUsers.module.css';
 
 
@@ -20,7 +21,7 @@ export default function AdminViewUsers() {
           name: p.fullName,
           email: p.email,
           phone: p.phoneNumber,
-          avatar: p.profilePictureUrl,
+          avatar: imageUrl(p.profilePictureUrl, 'patients'),
           initials: p.fullName.split(' ').map(n => n[0]).join('').toUpperCase(),
         }));
         setPatients(mappedPatients);

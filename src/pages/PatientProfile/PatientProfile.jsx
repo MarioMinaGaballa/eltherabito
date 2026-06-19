@@ -8,6 +8,7 @@ import { ROUTES } from '../../routes/paths';
 import { loadSavedContact } from '../../utils/profileStorage';
 import { loadPatientNotes, addPatientNote } from '../../utils/patientNotesStorage';
 import patientService from '../../services/patientService';
+import { imageUrl } from '../../utils/imageUrl';
 import AppLayout from '../../components/layout/AppLayout';
 import styles from './PatientProfile.module.css';
 
@@ -90,9 +91,7 @@ export default function PatientProfile() {
     ? {
         ...patient,
         gender: getGenderLabel(patient.gender),
-        profilePictureUrl: patient.profilePictureUrl
-          ? `https://mentalhealth01.runasp.net/images/patients/${patient.profilePictureUrl}`
-          : DEFAULT_AVATAR,
+        profilePictureUrl: imageUrl(patient.profilePictureUrl, 'patients', DEFAULT_AVATAR),
       }
     : {
         fullName: 'Ahmed Ali',

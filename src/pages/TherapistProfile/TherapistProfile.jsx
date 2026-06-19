@@ -6,7 +6,10 @@ import {
 } from 'react-icons/fa';
 import { ROUTES } from '../../routes/paths';
 import bookingService from '../../services/bookingService';
+import { imageUrl } from '../../utils/imageUrl';
 import styles from './TherapistProfile.module.css';
+
+const FALLBACK_PHOTO = 'https://randomuser.me/api/portraits/women/44.jpg';
 
 const DEFAULT_THERAPIST = {
   name: 'Dr. Sarah Miller',
@@ -52,7 +55,7 @@ export default function TherapistProfile() {
           tags: DEFAULT_THERAPIST.tags,
         });
         setProfile({
-          photo: data.profilePictureUrl ? `https://mentalhealth01.runasp.net/api/images/doctors/${data.profilePictureUrl}` : 'https://randomuser.me/api/portraits/women/44.jpg',
+          photo: imageUrl(data.profilePictureUrl, 'doctors', FALLBACK_PHOTO),
           specialization: data.specialty,
           yearsExperience: data.yearsOfExp,
           sessionRate: data.sessionPrice,

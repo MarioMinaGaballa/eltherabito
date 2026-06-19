@@ -3,10 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaCloudUploadAlt, FaSpinner } from 'react-icons/fa';
 import { ROUTES } from '../../routes/paths';
 import bookingService from '../../services/bookingService';
+import { imageUrl } from '../../utils/imageUrl';
 import {
   SPECIALIZATIONS,
 } from '../../utils/therapistProfileStorage';
 import styles from './TherapistUpdateProfile.module.css';
+
+const FALLBACK_PHOTO = 'https://randomuser.me/api/portraits/women/44.jpg';
 
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 
@@ -37,7 +40,7 @@ export default function TherapistUpdateProfile() {
     async function fetchProfile() {
       try {
         const data = await bookingService.getDoctorProfile();
-        setPhoto(data.profilePictureUrl ? `https://mentalhealth01.runasp.net/api/images/doctors/${data.profilePictureUrl}` : 'https://randomuser.me/api/portraits/women/44.jpg');
+        setPhoto(imageUrl(data.profilePictureUrl, 'doctors', FALLBACK_PHOTO));
         setSpecialization(data.specialty || 'Clinical Psychologist');
         setYearsExperience(data.yearsOfExp?.toString() || '12');
         setSessionRate(data.sessionPrice?.toString() || '120');

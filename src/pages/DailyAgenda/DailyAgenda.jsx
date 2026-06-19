@@ -8,7 +8,10 @@ import { ROUTES } from '../../routes/paths';
 import AppLayout from '../../components/layout/AppLayout';
 import adminService from '../../services/adminService';
 import { useAuth } from '../../context/AuthContext';
+import { imageUrl } from '../../utils/imageUrl';
 import styles from './DailyAgenda.module.css';
+
+const FALLBACK_PATIENT_PHOTO = 'https://randomuser.me/api/portraits/lego/1.jpg';
 
 const dateChip = new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
 
@@ -41,7 +44,7 @@ export default function DailyAgenda() {
           ampm: getAmPm(apt.startTime),
           duration: calculateDuration(apt.startTime, apt.endTime),
           name: apt.patientName,
-          img: apt.pictureUrl ? `https://mentalhealth01.runasp.net/images/patients/${apt.pictureUrl}` : 'https://randomuser.me/api/portraits/lego/1.jpg',
+          img: imageUrl(apt.pictureUrl, 'patients', FALLBACK_PATIENT_PHOTO),
           status: mapStatus(apt.status),
           patientId: apt.patientId,
         }));

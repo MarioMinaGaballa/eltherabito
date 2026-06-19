@@ -12,6 +12,7 @@ import {
 import { ROUTES } from '../../routes/paths';
 import { saveSelectedTherapist, getSelectedTherapist, saveBooking } from '../../utils/bookingStorage';
 import bookingService from '../../services/bookingService';
+import { imageUrl } from '../../utils/imageUrl';
 import styles from './BookAppointment.module.css';
 
 const DEFAULT_THERAPISTS = [
@@ -120,9 +121,7 @@ export default function BookAppointment() {
           experience: `${d.yearsOfExp} years exp.`,
           description: d.bio || 'Experienced healthcare professional.',
           price: d.sessionPrice,
-          img: d.profilePictureUrl
-            ? `https://mentalhealth01.runasp.net/api/images/doctors/${d.profilePictureUrl}`
-            : 'https://randomuser.me/api/portraits/lego/1.jpg',
+          img: imageUrl(d.profilePictureUrl, 'doctors', 'https://randomuser.me/api/portraits/lego/1.jpg'),
         }));
         setTherapists(mappedDoctors);
       } catch (error) {
