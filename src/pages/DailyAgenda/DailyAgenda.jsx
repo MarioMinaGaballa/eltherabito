@@ -65,7 +65,9 @@ export default function DailyAgenda() {
   useEffect(() => {
     async function fetchAppointments() {
       try {
-        const today = new Date().toISOString().split('T')[0];
+        // Local date (not UTC) — toISOString would roll back a day before 2am in Egypt.
+        const now = new Date();
+        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         const data = await adminService.getAppointmentAgenda(today);
         const mappedSessions = data.map(apt => ({
           id: apt.appointmentId,

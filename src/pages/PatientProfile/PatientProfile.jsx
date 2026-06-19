@@ -94,8 +94,8 @@ export default function PatientProfile() {
         profilePictureUrl: imageUrl(patient.profilePictureUrl, 'patients', DEFAULT_AVATAR),
       }
     : {
-        fullName: 'Ahmed Ali',
-        gender: 'Male',
+        fullName: 'Your Profile',
+        gender: 'Not specified',
         profilePictureUrl: DEFAULT_AVATAR,
         email: contact.email,
         phoneNumber: contact.mobile,

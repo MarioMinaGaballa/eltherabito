@@ -1,15 +1,7 @@
 export const PATIENT_NOTES_STORAGE_KEY = 'eltherabito-patient-personal-notes';
 
-const DEFAULT_NOTES = [
-  {
-    id: '1',
-    date: 'Oct 15, 2023',
-    author: 'Dr. Sarah',
-    text:
-      'Ahmed reported feeling much better lately. The anxiety levels have decreased significantly since the last session. We discussed the new coping mechanisms, and he seems to be applying them effectively in his daily routine, especially during work hours. Sleep quality has also improved.',
-    latest: true,
-  },
-];
+// Personal notes are a local-only journal; start empty (no seeded mock note).
+const DEFAULT_NOTES = [];
 
 export function loadPatientNotes() {
   try {
