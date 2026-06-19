@@ -112,6 +112,9 @@ export default function BookAppointment() {
     async function fetchDoctors() {
       try {
         const data = await bookingService.getDoctors();
+        console.log('Doctors data from API:', data);
+        console.log('First doctor data:', data[0]);
+        console.log('First doctor profilePictureUrl:', data[0]?.profilePictureUrl);
         const mappedDoctors = data.map(d => ({
           id: d.id,
           name: `Dr. ${d.firstName} ${d.lastName}`,
