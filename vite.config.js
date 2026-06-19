@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://localhost:7022',
+        target: 'https://mentalhealth01.runasp.net',
         changeOrigin: true,
         secure: false,
       }

@@ -1,1 +1,5 @@
+# Proxy API calls to the backend (same-origin → no CORS). Must come first.
+/api/*  https://mentalhealth01.runasp.net/api/:splat  200
+
+# SPA fallback for client-side routing.
 /*    /index.html   200

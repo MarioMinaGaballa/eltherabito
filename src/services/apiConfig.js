@@ -4,11 +4,15 @@
  * key, and auth headers stay consistent across the app.
  */
 
-/** Server origin (no /api) — used for static assets like /images/... */
+/** Server origin (no /api) — used for static assets like /images/...
+ *  Images load cross-origin via <img> tags, which are not subject to CORS. */
 export const ORIGIN = 'https://mentalhealth01.runasp.net';
 
-/** API base — used for all /api/... endpoints. */
-export const BASE_URL = `${ORIGIN}/api`;
+/** API base — RELATIVE so fetch/XHR calls are same-origin and get proxied
+ *  to the backend (Netlify `_redirects` in prod, Vite `server.proxy` in dev).
+ *  This sidesteps the backend CORS allow-list, which only permits the
+ *  production domain. */
+export const BASE_URL = '/api';
 
 /** localStorage key where AuthContext stores the bearer token. */
 export const TOKEN_KEY = 'eltherabito-token';
