@@ -138,6 +138,7 @@ export default function DailyAgenda() {
     navigate(ROUTES.therapist.viewPatient, {
       state: {
         sessionId: session.id,
+        patientId: session.patientId,
         name: session.name,
         photo: session.img,
       },

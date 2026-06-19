@@ -165,6 +165,20 @@ const bookingService = {
     return res.json();
   },
 
+  async getPatientProfile(patientId) {
+    const res = await fetch(`${BASE_URL}/appointments/viewprofile/${patientId}`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Backend error: Failed to fetch patient profile');
+    }
+
+    return res.json();
+  },
+
   async getAppointments() {
     const res = await fetch(`${BASE_URL}/appointments/BooKing`, {
       method: 'GET',
