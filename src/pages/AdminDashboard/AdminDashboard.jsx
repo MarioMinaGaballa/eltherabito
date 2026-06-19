@@ -94,7 +94,8 @@ export default function AdminDashboard() {
         const data = await adminService.getDoctors();
         const mappedDoctors = data.map(d => ({
           id: d.id,
-          name: d.fullName,
+          // /Doctors returns firstName/lastName (no fullName); support both shapes.
+          name: d.fullName || `${d.firstName ?? ''} ${d.lastName ?? ''}`.trim(),
           specialty: d.specialty,
           exp: `${d.yearsOfExp} years`,
           img: imageUrl(d.profilePictureUrl, 'doctors', FALLBACK_DOCTOR_PHOTO),
