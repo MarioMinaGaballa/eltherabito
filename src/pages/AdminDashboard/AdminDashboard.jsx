@@ -6,11 +6,11 @@ import {
 } from 'react-icons/fa';
 import AppLayout from '../../components/layout/AppLayout';
 import { BRAND } from '../../components/layout/navConfig';
-import { ROUTES } from '../../routes/paths';
 import adminService from '../../services/adminService';
+import { imageUrl } from '../../utils/imageUrl';
 import styles from './AdminDashboard.module.css';
 
-const BASE_URL = 'https://mentalhealth01.runasp.net';
+const FALLBACK_DOCTOR_PHOTO = 'https://randomuser.me/api/portraits/lego/1.jpg';
 /* ── Data ── */
 
 const STATS_CONFIG = [
@@ -94,10 +94,11 @@ export default function AdminDashboard() {
         const data = await adminService.getDoctors();
         const mappedDoctors = data.map(d => ({
           id: d.id,
-          name: d.fullName,
+          // /Doctors returns firstName/lastName (no fullName); support both shapes.
+          name: d.fullName || `${d.firstName ?? ''} ${d.lastName ?? ''}`.trim(),
           specialty: d.specialty,
           exp: `${d.yearsOfExp} years`,
-          img: d.profilePictureUrl ? `${BASE_URL}/images/doctors/${d.profilePictureUrl}` : 'https://randomuser.me/api/portraits/lego/1.jpg',
+          img: imageUrl(d.profilePictureUrl, 'doctors', FALLBACK_DOCTOR_PHOTO),
         }));
         setDoctors(mappedDoctors);
       } catch (err) {

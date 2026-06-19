@@ -6,8 +6,8 @@ import {
   FaCalendar, FaPhone, FaTimes,
 } from 'react-icons/fa';
 import { ROUTES } from '../../routes/paths';
-import { getBooking } from '../../utils/bookingStorage';
 import bookingService from '../../services/bookingService';
+import { imageUrl } from '../../utils/imageUrl';
 import styles from './MyBooking.module.css';
 
 const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
@@ -16,16 +16,10 @@ export default function MyBookings() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState(null);
-  const [booking, setBooking] = useState(null);
   const [appointments, setAppointments] = useState({ upcomingAppointments: [], previousAppointments: [] });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const savedBooking = getBooking();
-    if (savedBooking) {
-      setBooking(savedBooking);
-    }
-
     async function fetchAppointments() {
       try {
         const data = await bookingService.getAppointments();
@@ -107,7 +101,7 @@ export default function MyBookings() {
                 {/* Doctor image */}
                 <div className={styles.sessionImage}>
                   <img
-                    src={apt.doctorPictureUrl ? `https://mentalhealth01.runasp.net/api/images/doctors/${apt.doctorPictureUrl}` : 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop'}
+                    src={imageUrl(apt.doctorPictureUrl, 'doctors', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop')}
                     alt={apt.doctorName}
                     className={styles.doctorImg}
                   />

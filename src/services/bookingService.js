@@ -1,12 +1,4 @@
-const BASE_URL = 'https://mentalhealth01.runasp.net/api';
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('eltherabito-token');
-  return {
-    'Content-Type': 'application/json',
-    ...(token && { 'Authorization': `Bearer ${token}` }),
-  };
-};
+import { BASE_URL, getAuthHeaders } from './apiConfig';
 
 const bookingService = {
   async getDoctors() {
@@ -66,7 +58,6 @@ const bookingService = {
   },
 
   async updateDoctorProfile(formData) {
-    const token = localStorage.getItem('token');
     const payload = new FormData();
     payload.append('Specialty', formData.specialty);
     payload.append('YearsOfExp', formData.yearsOfExp);
@@ -77,7 +68,7 @@ const bookingService = {
 
     const res = await fetch(`${BASE_URL}/Doctor/profile`, {
       method: 'PUT',
-     headers: getAuthHeaders(),
+      headers: getAuthHeaders({ json: false }),
       body: payload,
     });
 
@@ -169,6 +160,20 @@ const bookingService = {
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.message || 'Backend error: Failed to predict assessment');
+    }
+
+    return res.json();
+  },
+
+  async getPatientProfile(patientId) {
+    const res = await fetch(`${BASE_URL}/appointments/viewprofile/${patientId}`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Backend error: Failed to fetch patient profile');
     }
 
     return res.json();

@@ -20,7 +20,6 @@ import AssessmentResult from "./pages/AssessmentResult/AssessmentResult";
 import TherapistProfile from "./pages/TherapistProfile/TherapistProfile";
 import EditSchedule from "./pages/EditSchedule/EditSchedule";
 import TherapistUpdateProfile from "./pages/TherapistUpdateProfile/TherapistUpdateProfile";
-import TherapistPatientView from "./pages/TherapistPatientView/TherapistPatientView";
 import TherapistPatientProfile from "./pages/TherapistPatientProfile/TherapistPatientProfile";
 import { ROUTES, LEGACY_REDIRECTS, shouldHideNavbar } from "./routes/paths";
 import { initDisplayPreferences } from "./utils/displayPreferencesStorage";

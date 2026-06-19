@@ -7,10 +7,43 @@ import {
 import { ROUTES } from '../../routes/paths';
 import AppLayout from '../../components/layout/AppLayout';
 import adminService from '../../services/adminService';
-import { useAuth } from '../../context/AuthContext';
+import { imageUrl } from '../../utils/imageUrl';
 import styles from './DailyAgenda.module.css';
 
+const FALLBACK_PATIENT_PHOTO = 'https://randomuser.me/api/portraits/lego/1.jpg';
+
 const dateChip = new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+
+/* ── Pure time/status helpers ── */
+function formatTime(timeStr) {
+  const [hours, minutes] = timeStr.split(':');
+  const hour = parseInt(hours);
+  const displayHour = hour % 12 || 12;
+  return `${displayHour.toString().padStart(2, '0')}:${minutes}`;
+}
+
+function getAmPm(timeStr) {
+  const [hours] = timeStr.split(':');
+  const hour = parseInt(hours);
+  return hour >= 12 ? 'PM' : 'AM';
+}
+
+function calculateDuration(startTime, endTime) {
+  const [startHours, startMins] = startTime.split(':').map(Number);
+  const [endHours, endMins] = endTime.split(':').map(Number);
+  const diff = (endHours * 60 + endMins) - (startHours * 60 + startMins);
+  return `${diff} min`;
+}
+
+function mapStatus(status) {
+  const statusMap = {
+    0: null,        // Pending
+    1: 'done',      // Done
+    2: 'cancelled', // Cancelled
+    3: 'missed',    // Missed
+  };
+  return statusMap[status] || null;
+}
 
 /* ── Toast ── */
 function useToast() {
@@ -25,7 +58,6 @@ function useToast() {
 
 export default function DailyAgenda() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const { toasts, show } = useToast();
@@ -33,7 +65,9 @@ export default function DailyAgenda() {
   useEffect(() => {
     async function fetchAppointments() {
       try {
-        const today = new Date().toISOString().split('T')[0];
+        // Local date (not UTC) — toISOString would roll back a day before 2am in Egypt.
+        const now = new Date();
+        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         const data = await adminService.getAppointmentAgenda(today);
         const mappedSessions = data.map(apt => ({
           id: apt.appointmentId,
@@ -41,7 +75,7 @@ export default function DailyAgenda() {
           ampm: getAmPm(apt.startTime),
           duration: calculateDuration(apt.startTime, apt.endTime),
           name: apt.patientName,
-          img: apt.pictureUrl ? `https://mentalhealth01.runasp.net/images/patients/${apt.pictureUrl}` : 'https://randomuser.me/api/portraits/lego/1.jpg',
+          img: imageUrl(apt.pictureUrl, 'patients', FALLBACK_PATIENT_PHOTO),
           status: mapStatus(apt.status),
           patientId: apt.patientId,
         }));
@@ -54,48 +88,6 @@ export default function DailyAgenda() {
     }
     fetchAppointments();
   }, []);
-
-  function formatTime(timeStr) {
-    const [hours, minutes] = timeStr.split(':');
-    const hour = parseInt(hours);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour % 12 || 12;
-    return `${displayHour.toString().padStart(2, '0')}:${minutes}`;
-  }
-
-  function getAmPm(timeStr) {
-    const [hours] = timeStr.split(':');
-    const hour = parseInt(hours);
-    return hour >= 12 ? 'PM' : 'AM';
-  }
-
-  function calculateDuration(startTime, endTime) {
-    const [startHours, startMins] = startTime.split(':').map(Number);
-    const [endHours, endMins] = endTime.split(':').map(Number);
-    const startTotal = startHours * 60 + startMins;
-    const endTotal = endHours * 60 + endMins;
-    const diff = endTotal - startTotal;
-    return `${diff} min`;
-  }
-
-  function mapStatus(status) {
-    const statusMap = {
-      0: null,      // Pending
-      1: 'done',    // Done
-      2: 'cancelled', // Cancelled
-      3: 'missed',   // Missed
-    };
-    return statusMap[status] || null;
-  }
-
-  function mapStatusToBackend(status) {
-    const statusMap = {
-      'done': 1,
-      'cancelled': 2,
-      'missed': 3,
-    };
-    return statusMap[status];
-  }
 
   function updateSession(id, patch) {
     setSessions(p => p.map(s => s.id === id ? { ...s, ...patch } : s));
@@ -135,6 +127,7 @@ export default function DailyAgenda() {
     navigate(ROUTES.therapist.viewPatient, {
       state: {
         sessionId: session.id,
+        patientId: session.patientId,
         name: session.name,
         photo: session.img,
       },

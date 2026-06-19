@@ -12,7 +12,16 @@ import {
 import { ROUTES } from '../../routes/paths';
 import { saveSelectedTherapist, getSelectedTherapist, saveBooking } from '../../utils/bookingStorage';
 import bookingService from '../../services/bookingService';
+import { imageUrl } from '../../utils/imageUrl';
 import styles from './BookAppointment.module.css';
+
+/** Format a local Y/M/D as "yyyy-MM-dd" without UTC conversion (avoids
+ *  an off-by-one date for users in timezones east of UTC). */
+function toDateOnly(year, month, day) {
+  const mm = String(month + 1).padStart(2, '0');
+  const dd = String(day).padStart(2, '0');
+  return `${year}-${mm}-${dd}`;
+}
 
 const DEFAULT_THERAPISTS = [
   {
@@ -120,9 +129,7 @@ export default function BookAppointment() {
           experience: `${d.yearsOfExp} years exp.`,
           description: d.bio || 'Experienced healthcare professional.',
           price: d.sessionPrice,
-          img: d.profilePictureUrl
-            ? `https://mentalhealth01.runasp.net/api/images/doctors/${d.profilePictureUrl}`
-            : 'https://randomuser.me/api/portraits/lego/1.jpg',
+          img: imageUrl(d.profilePictureUrl, 'doctors', 'https://randomuser.me/api/portraits/lego/1.jpg'),
         }));
         setTherapists(mappedDoctors);
       } catch (error) {
@@ -139,8 +146,7 @@ export default function BookAppointment() {
     async function fetchSlots() {
       if (!selectedDoctorId) return;
 
-      const dateObj = new Date(year, month, selectedDay);
-      const dateStr = dateObj.toISOString().split('T')[0];
+      const dateStr = toDateOnly(year, month, selectedDay);
 
       try {
         const data = await bookingService.getDoctorSlots(selectedDoctorId, dateStr);
@@ -159,8 +165,7 @@ export default function BookAppointment() {
             ? mappedSlots
             : DEFAULT_TIME_SLOTS.map(slot => ({ id: null, displayTime: slot }))
         );
-      } catch (error) {
-        // ✅ إصلاح: أزلنا show من هنا عشان مش في الـ dependencies
+      } catch {
         setTimeSlots(DEFAULT_TIME_SLOTS.map(slot => ({ id: null, displayTime: slot })));
       }
     }
@@ -238,7 +243,7 @@ export default function BookAppointment() {
 
     const therapist = therapists.find((t) => t.name === selectedTherapist);
     const dateObj = new Date(year, month, selectedDay);
-    const dateStr = dateObj.toISOString().split('T')[0];
+    const dateStr = toDateOnly(year, month, selectedDay);
     const dateLabel = dateObj.toLocaleDateString('en-US', {
       weekday: 'long',
       month: 'short',
@@ -246,16 +251,12 @@ export default function BookAppointment() {
       year: 'numeric',
     });
 
+    // Save the selection and move to confirmation. The real booking
+    // call (which needs the patient's name/phone/email) happens in
+    // ConfirmSession — booking here would fail required-field validation
+    // and double-book on success.
     setBooking(true);
     try {
-      // ✅ استدعاء الـ API أولاً
-      await bookingService.bookAppointment({
-        doctorId: selectedDoctorId,
-        doctorScheduleId: selectedSlotId,
-        appointmentDate: dateStr,
-      });
-
-      // ✅ لو نجح، احفظ locally وانتقل للصفحة التانية
       saveBooking({
         therapist: selectedTherapist,
         specialty: therapist?.specialty ?? '',
@@ -273,9 +274,6 @@ export default function BookAppointment() {
       });
 
       navigate(ROUTES.patient.bookingConfirm);
-    } catch (error) {
-      // ✅ لو فشل، اعرض الـ error للمستخدم
-      show(`❌ ${error.message}`);
     } finally {
       setBooking(false);
     }

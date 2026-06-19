@@ -1,71 +1,108 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, Navigate } from 'react-router-dom';
+import { ROUTES } from '../../routes/paths';
+import bookingService from '../../services/bookingService';
+import { imageUrl } from '../../utils/imageUrl';
 import styles from './TherapistPatientProfile.module.css';
 
+const FALLBACK_PATIENT_PHOTO = 'https://randomuser.me/api/portraits/lego/1.jpg';
+
+const STATUS_LABELS = {
+  0: 'Pending',
+  1: 'Completed',
+  2: 'Cancelled',
+  3: 'Missed',
+};
+
+function statusLabel(status) {
+  return STATUS_LABELS[status] ?? 'Scheduled';
+}
+
+/** "2026-06-14" -> "Jun 14, 2026" */
+function formatDate(isoDate) {
+  if (!isoDate) return '';
+  const d = new Date(isoDate);
+  if (Number.isNaN(d.getTime())) return isoDate;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+/** "10:00:00" / "10:00" -> "10:00 AM" */
+function formatTime(timeStr) {
+  if (!timeStr) return '';
+  const [hRaw, mRaw] = timeStr.split(':');
+  const hour = parseInt(hRaw, 10);
+  if (Number.isNaN(hour)) return timeStr;
+  const minutes = (mRaw ?? '00').padStart(2, '0');
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour % 12 || 12;
+  return `${displayHour}:${minutes} ${ampm}`;
+}
+
+function weekday(isoDate) {
+  if (!isoDate) return '';
+  const d = new Date(isoDate);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('en-US', { weekday: 'long' });
+}
+
+function dayNumber(isoDate) {
+  if (!isoDate) return '--';
+  const d = new Date(isoDate);
+  if (Number.isNaN(d.getTime())) return '--';
+  return d.getDate();
+}
+
+function monthShort(isoDate) {
+  if (!isoDate) return '';
+  const d = new Date(isoDate);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('en-US', { month: 'short' });
+}
+
 export default function TherapistPatientProfile() {
+  const location = useLocation();
+  const patientId = location.state?.patientId;
+
+  // No patient id in navigation state — send back to the agenda.
+  if (patientId === undefined || patientId === null) {
+    return <Navigate to={ROUTES.therapist.agenda} replace />;
+  }
+
+  return <PatientProfileContent patientId={patientId} navState={location.state} />;
+}
+
+function PatientProfileContent({ patientId, navState }) {
   const navigate = useNavigate();
-  const [notification, setNotification] = useState(null);
-  const [historyCards, setHistoryCards] = useState([
-    { id: 1, date: 'Oct 17, 2023', time: '10:00 AM • Completed' },
-    { id: 2, date: 'Oct 10, 2023', time: '2:00 PM • Completed' },
-    { id: 3, date: 'Oct 3, 2023', time: '11:30 AM • Completed' },
-    { id: 4, date: 'Sep 28, 2023', time: '2:00 PM • Completed' },
-  ]);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Show notification
-  const showNotification = (message, duration = 3000) => {
-    setNotification(message);
-    setTimeout(() => {
-      setNotification(null);
-    }, duration);
-  };
-
-  // Logo click handler
-  const handleLogoClick = () => {
-    navigate('/therapist/agenda');
-  };
-
-  // Icon button handlers
-  const handleIconBtnClick = (icon) => {
-    if (icon === 'bell') {
-      showNotification('🔔 No new notifications');
-    } else if (icon === 'cog') {
-      showNotification('⚙️ Settings page coming soon');
-    }
-  };
-
-  // Profile button handler
-  const handleProfileBtnClick = () => {
-    showNotification('👤 Profile settings');
-  };
-
-  // History card click handler
-  const handleHistoryCardClick = (date, time) => {
-    showNotification(`📋 Session on ${date} - ${time}`);
-  };
-
-  // View All link handler
-  const handleViewAllClick = (e) => {
-    e.preventDefault();
-    showNotification('📅 Loading all booking history...');
-  };
-
-  // Keyboard shortcuts
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.ctrlKey && e.key === 'p') {
-        e.preventDefault();
-        showNotification('👤 Profile page');
+    let active = true;
+    async function fetchProfile() {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await bookingService.getPatientProfile(patientId);
+        if (active) setProfile(data);
+      } catch (err) {
+        if (active) setError(err.message || 'Failed to load patient profile');
+      } finally {
+        if (active) setLoading(false);
       }
-      if (e.ctrlKey && e.key === 'h') {
-        e.preventDefault();
-        showNotification('📅 Booking history');
-      }
-    };
+    }
+    fetchProfile();
+    return () => { active = false; };
+  }, [patientId]);
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  const handleLogoClick = () => navigate(ROUTES.therapist.agenda);
+
+  const history = profile?.previousbookinghistory ?? [];
+  const nextSession = profile?.nextSession ?? null;
+  const patientName = profile?.patientName ?? navState?.name ?? 'Patient';
+  const photo = profile?.pictureUrl
+    ? imageUrl(profile.pictureUrl, 'patients', FALLBACK_PATIENT_PHOTO)
+    : (navState?.photo || FALLBACK_PATIENT_PHOTO);
 
   return (
     <div className={styles.page}>
@@ -76,14 +113,8 @@ export default function TherapistPatientProfile() {
             <span className={styles.logoText}>Eltherabito</span>
           </button>
           <div className={styles.headerActions}>
-            <button className={styles.iconBtn} onClick={() => handleIconBtnClick('bell')}>
-              <i className="fas fa-bell"></i>
-            </button>
-            <button className={styles.iconBtn} onClick={() => handleIconBtnClick('cog')}>
-              <i className="fas fa-cog"></i>
-            </button>
-            <button className={styles.profileBtn} onClick={handleProfileBtnClick}>
-              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop" alt="Profile" className={styles.profileImg} />
+            <button className={styles.iconBtn} onClick={handleLogoClick} aria-label="Back to agenda">
+              <i className="fas fa-arrow-left"></i>
             </button>
           </div>
         </div>
@@ -93,97 +124,125 @@ export default function TherapistPatientProfile() {
       <main className={styles.mainContainer}>
         {/* Breadcrumb */}
         <div className={styles.breadcrumbSection}>
-          <span className={styles.breadcrumbText}>Patients</span>
+          <button
+            type="button"
+            className={styles.breadcrumbText}
+            onClick={handleLogoClick}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+          >
+            Patients
+          </button>
           <span className={styles.breadcrumbSeparator}>•</span>
-          <span className={styles.breadcrumbCurrent}>Ahmed Ali</span>
+          <span className={styles.breadcrumbCurrent}>{patientName}</span>
         </div>
 
-        {/* Profile Section */}
-        <div className={styles.profileSection}>
-          {/* Left Side - Patient Info */}
-          <div className={styles.patientInfo}>
-            {/* Patient Card */}
-            <div className={styles.patientCard}>
-              {/* Patient Image */}
-              <div className={styles.patientImage}>
-                <img src="https://mentalhealth01.runasp.net/images/patients/patient-placeholder.jpg" alt="Patient" className={styles.patientPhoto} />
-                <div className={styles.onlineIndicator}></div>
-              </div>
+        {loading && (
+          <div className={styles.profileSection}>
+            <p style={{ padding: '2rem', color: '#64748b' }}>Loading patient profile…</p>
+          </div>
+        )}
 
-              {/* Patient Details */}
-              <div className={styles.patientDetails}>
-                <h1 className={styles.patientName}>Ahmed Ali</h1>
-                <p className={styles.previousSessions}>
-                  <i className="fas fa-history"></i>
-                  <span>PREVIOUS SESSIONS: 4</span>
-                </p>
+        {!loading && error && (
+          <div className={styles.profileSection}>
+            <div style={{ padding: '2rem' }}>
+              <p style={{ color: '#dc2626', marginBottom: '1rem' }}>{error}</p>
+              <button
+                type="button"
+                className={styles.viewAllLink}
+                onClick={() => navigate(ROUTES.therapist.agenda)}
+              >
+                Back to agenda
+              </button>
+            </div>
+          </div>
+        )}
 
-                {/* Contact Info */}
-                <div className={styles.contactInfo}>
-                  <div className={styles.contactItem}>
-                    <p className={styles.contactLabel}>MOBILE NUMBER</p>
-                    <p className={styles.contactValue}>+20 10 1234 5678</p>
-                  </div>
+        {!loading && !error && profile && (
+          <div className={styles.profileSection}>
+            {/* Left Side - Patient Info */}
+            <div className={styles.patientInfo}>
+              {/* Patient Card */}
+              <div className={styles.patientCard}>
+                <div className={styles.patientImage}>
+                  <img src={photo} alt={patientName} className={styles.patientPhoto} />
+                  <div className={styles.onlineIndicator}></div>
+                </div>
 
-                  <div className={styles.contactItem}>
-                    <p className={styles.contactLabel}>EMAIL ADDRESS</p>
-                    <p className={styles.contactValue}>ahmed.ali@example.com</p>
+                <div className={styles.patientDetails}>
+                  <h1 className={styles.patientName}>{patientName}</h1>
+                  <p className={styles.previousSessions}>
+                    <i className="fas fa-history"></i>
+                    <span>PREVIOUS SESSIONS: {history.length}</span>
+                  </p>
+
+                  <div className={styles.contactInfo}>
+                    <div className={styles.contactItem}>
+                      <p className={styles.contactLabel}>MOBILE NUMBER</p>
+                      <p className={styles.contactValue}>{profile.patientPhone || '—'}</p>
+                    </div>
+
+                    <div className={styles.contactItem}>
+                      <p className={styles.contactLabel}>EMAIL ADDRESS</p>
+                      <p className={styles.contactValue}>{profile.patientEmail || '—'}</p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Previous Booking History */}
-            <div className={styles.bookingHistorySection}>
-              <div className={styles.sectionHeader}>
-                <i className="fas fa-calendar"></i>
-                <h2>Previous Booking History</h2>
-                <button className={styles.viewAllLink} onClick={handleViewAllClick}>
-                  View All
-                </button>
-              </div>
+              {/* Previous Booking History */}
+              <div className={styles.bookingHistorySection}>
+                <div className={styles.sectionHeader}>
+                  <i className="fas fa-calendar"></i>
+                  <h2>Previous Booking History</h2>
+                </div>
 
-              {/* History Grid */}
-              <div className={styles.historyGrid}>
-                {historyCards.map((card, index) => (
-                  <div
-                    key={card.id}
-                    className={styles.historyCard}
-                    onClick={() => handleHistoryCardClick(card.date, card.time)}
-                    style={{ animationDelay: `${index * 0.1}s` }}
-                  >
-                    <div className={styles.historyIcon}>
-                      <i className="fas fa-check-circle"></i>
-                    </div>
-                    <p className={styles.historyDate}>{card.date}</p>
-                    <p className={styles.historyTime}>{card.time}</p>
+                {history.length === 0 ? (
+                  <p style={{ color: '#64748b', padding: '0.5rem 0' }}>No previous sessions.</p>
+                ) : (
+                  <div className={styles.historyGrid}>
+                    {history.map((card, index) => (
+                      <div
+                        key={index}
+                        className={styles.historyCard}
+                        style={{ animationDelay: `${index * 0.1}s` }}
+                      >
+                        <div className={styles.historyIcon}>
+                          <i className="fas fa-check-circle"></i>
+                        </div>
+                        <p className={styles.historyDate}>{formatDate(card.appointmentDate)}</p>
+                        <p className={styles.historyTime}>
+                          {formatTime(card.startTime)} • {statusLabel(card.status)}
+                        </p>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
             </div>
+
+            {/* Right Side - Next Session */}
+            <aside className={styles.nextSessionSidebar}>
+              <div className={styles.nextSessionCard}>
+                <p className={styles.sessionLabel}>NEXT SESSION</p>
+                {nextSession ? (
+                  <>
+                    <div className={styles.sessionDate}>
+                      <span className={styles.dateDay}>{dayNumber(nextSession.appointmentDate)}</span>
+                      <span className={styles.dateMonth}>{monthShort(nextSession.appointmentDate)}</span>
+                    </div>
+                    <p className={styles.sessionTime}>
+                      {weekday(nextSession.appointmentDate)}, {formatTime(nextSession.startTime)}
+                    </p>
+                    <p className={styles.sessionType}>{statusLabel(nextSession.status)}</p>
+                  </>
+                ) : (
+                  <p className={styles.sessionTime}>No upcoming session</p>
+                )}
+              </div>
+            </aside>
           </div>
-
-          {/* Right Side - Next Session */}
-          <aside className={styles.nextSessionSidebar}>
-            <div className={styles.nextSessionCard}>
-              <p className={styles.sessionLabel}>NEXT SESSION</p>
-              <div className={styles.sessionDate}>
-                <span className={styles.dateDay}>24</span>
-                <span className={styles.dateMonth}>Oct</span>
-              </div>
-              <p className={styles.sessionTime}>Thursday, 4:00 PM</p>
-              <p className={styles.sessionType}>Video Consultation</p>
-            </div>
-          </aside>
-        </div>
+        )}
       </main>
-
-      {/* Notification */}
-      {notification && (
-        <div className={styles.notification} role="alert" aria-live="polite">
-          {notification}
-        </div>
-      )}
     </div>
   );
 }

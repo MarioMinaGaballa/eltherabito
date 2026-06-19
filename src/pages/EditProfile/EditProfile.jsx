@@ -7,6 +7,7 @@ import { ROUTES } from '../../routes/paths';
 import AppLayout from '../../components/layout/AppLayout';
 import { BRAND } from '../../components/layout/navConfig';
 import patientService from '../../services/patientService';
+import { imageUrl } from '../../utils/imageUrl';
 import styles from './EditProfile.module.css';
 
 const PROFILE_DRAFT_KEY = 'eltherabito-profile-draft';
@@ -59,7 +60,7 @@ export default function EditProfile() {
         const data = await patientService.getProfile();
         setEmail(data.email);
         setPhone(data.phoneNumber || '');
-        setAvatar(data.profilePictureUrl || DEFAULT_AVATAR);
+        setAvatar(imageUrl(data.profilePictureUrl, 'patients', DEFAULT_AVATAR));
       } catch (error) {
         show(error.message, 'danger');
       } finally {
@@ -111,7 +112,7 @@ export default function EditProfile() {
 
       setEmail(updatedData.email);
       setPhone(updatedData.phoneNumber || '');
-      setAvatar(updatedData.profilePictureUrl || DEFAULT_AVATAR);
+      setAvatar(imageUrl(updatedData.profilePictureUrl, 'patients', DEFAULT_AVATAR));
       setProfilePictureFile(null);
 
       localStorage.removeItem(PROFILE_DRAFT_KEY);
