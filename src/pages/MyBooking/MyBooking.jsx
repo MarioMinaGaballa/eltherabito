@@ -6,7 +6,6 @@ import {
   FaCalendar, FaPhone, FaTimes,
 } from 'react-icons/fa';
 import { ROUTES } from '../../routes/paths';
-import { getBooking } from '../../utils/bookingStorage';
 import bookingService from '../../services/bookingService';
 import { imageUrl } from '../../utils/imageUrl';
 import styles from './MyBooking.module.css';
@@ -17,16 +16,10 @@ export default function MyBookings() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState(null);
-  const [booking, setBooking] = useState(null);
   const [appointments, setAppointments] = useState({ upcomingAppointments: [], previousAppointments: [] });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const savedBooking = getBooking();
-    if (savedBooking) {
-      setBooking(savedBooking);
-    }
-
     async function fetchAppointments() {
       try {
         const data = await bookingService.getAppointments();

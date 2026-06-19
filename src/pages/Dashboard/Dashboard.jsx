@@ -37,7 +37,6 @@ export default function Dashboard() {
   const [toast, setToast] = useState(null);
   const [patient, setPatient] = useState(null);
   const [doctors, setDoctors] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   const today = useMemo(
     () =>
@@ -75,14 +74,10 @@ export default function Dashboard() {
           patientService.getProfile(),
           bookingService.getDoctors(),
         ]);
-        console.log('Patient data from API:', patientData);
-        console.log('Doctors data from API:', doctorsData);
         setPatient(patientData);
         setDoctors(doctorsData.slice(0, 3));
       } catch (error) {
         console.error('Failed to fetch data:', error);
-      } finally {
-        setLoading(false);
       }
     }
     fetchData();

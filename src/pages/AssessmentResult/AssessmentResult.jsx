@@ -5,19 +5,7 @@ import AppLayout from '../../components/layout/AppLayout';
 import { ROUTES } from '../../routes/paths';
 import styles from './AssessmentResult.module.css';
 
-const ASSESSMENT_ANSWERS_KEY = 'assessmentAnswers';
 const ASSESSMENT_RESULT_KEY = 'assessmentResult';
-
-function safeLoadAnswers() {
-  try {
-    const saved = localStorage.getItem(ASSESSMENT_ANSWERS_KEY);
-    if (!saved) return {};
-    const parsed = JSON.parse(saved);
-    return parsed && typeof parsed === 'object' ? parsed : {};
-  } catch {
-    return {};
-  }
-}
 
 function safeLoadResult() {
   try {
@@ -28,39 +16,6 @@ function safeLoadResult() {
   } catch {
     return null;
   }
-}
-
-function computePercent(answers) {
-  const entries = Object.entries(answers);
-  if (!entries.length) return 0;
-
-  // Simple, deterministic heuristic until API/ML is wired:
-  // normalize each answer to 0..1 then average.
-  let sum = 0;
-  let count = 0;
-
-  for (const [, idx] of entries) {
-    const n = typeof idx === 'number' ? idx : Number(idx);
-    if (Number.isNaN(n)) continue;
-    // Most questions are 0..3 or 0..1 or 0..8
-    // We clamp to 0..8 and normalize by 8 to avoid depending on options length.
-    const clamped = Math.max(0, Math.min(8, n));
-    sum += clamped / 8;
-    count += 1;
-  }
-
-  if (!count) return 0;
-  return Math.round((sum / count) * 100);
-}
-
-function recommendationFor(percent) {
-  if (percent >= 67) {
-    return 'Your responses indicate moderate to severe symptoms. We strongly recommend booking a session with one of our specialists to discuss these results and get the appropriate support.';
-  }
-  if (percent >= 34) {
-    return 'Your responses indicate mild to moderate symptoms. Consider booking a session to talk through your results and explore helpful coping strategies.';
-  }
-  return 'Your responses indicate low symptom severity. Keep monitoring how you feel, and consider supportive resources if anything changes.';
 }
 
 export default function AssessmentResult() {

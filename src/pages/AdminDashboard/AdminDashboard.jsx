@@ -6,7 +6,6 @@ import {
 } from 'react-icons/fa';
 import AppLayout from '../../components/layout/AppLayout';
 import { BRAND } from '../../components/layout/navConfig';
-import { ROUTES } from '../../routes/paths';
 import adminService from '../../services/adminService';
 import { imageUrl } from '../../utils/imageUrl';
 import styles from './AdminDashboard.module.css';
