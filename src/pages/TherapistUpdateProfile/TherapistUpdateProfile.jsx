@@ -113,7 +113,7 @@ export default function TherapistUpdateProfile() {
 
     setSaving(true);
     try {
-      const data = await bookingService.updateDoctorProfile({
+      await bookingService.updateDoctorProfile({
         specialty: specialization,
         yearsOfExp: parseInt(yearsExperience, 10),
         sessionPrice: parseFloat(sessionRate.replace(/[^0-9.]/g, '')),

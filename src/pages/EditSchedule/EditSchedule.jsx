@@ -59,6 +59,18 @@ export default function EditSchedule() {
     saturday: 6,
   };
 
+  // The schedules API may return `day` as a name ("Monday") or a number (1).
+  // Resolve either form to our local day id ("monday").
+  function resolveDayId(apiDay) {
+    if (apiDay === null || apiDay === undefined) return null;
+    if (typeof apiDay === 'number' || /^\d+$/.test(String(apiDay))) {
+      const num = Number(apiDay);
+      return Object.keys(dayOfWeekMap).find((key) => dayOfWeekMap[key] === num) ?? null;
+    }
+    const name = String(apiDay).toLowerCase();
+    return name in dayOfWeekMap ? name : null;
+  }
+
   useEffect(() => {
     async function fetchSchedules() {
       try {
@@ -68,13 +80,13 @@ export default function EditSchedule() {
           mappedSchedule[d.id] = { active: true, slots: [] };
         });
         data.forEach(s => {
-          const dayId = Object.keys(dayOfWeekMap).find(key => dayOfWeekMap[key] === s.day);
+          const dayId = resolveDayId(s.day);
           if (dayId && mappedSchedule[dayId]) {
-            mappedSchedule[dayId].slots.push(`${s.startTime} - ${s.endTime}`);
+            mappedSchedule[dayId].slots.push({ id: s.id, label: `${s.startTime} - ${s.endTime}` });
           }
         });
         setSchedule(mappedSchedule);
-      } catch (error) {
+      } catch {
         showSuccess('Failed to load schedule');
       } finally {
         setLoading(false);
@@ -93,8 +105,8 @@ export default function EditSchedule() {
     setTimeout(() => setAlert(null), 3000);
   }
 
-  const persistSchedule = useCallback((data) => {
-    // saveSchedule(data);
+  const persistSchedule = useCallback(() => {
+    // Reserved for future server-side persistence on unload.
   }, []);
 
   useEffect(() => {
@@ -150,19 +162,19 @@ export default function EditSchedule() {
       const startTime = `${hour24.toString().padStart(2, '0')}:${m}`;
       const endTime = `${(hour24 + 1).toString().padStart(2, '0')}:${m}`;
 
-      await bookingService.addScheduleSlot(dayOfWeekMap[activeDay], startTime, endTime);
-      
-      const timeSlot = `${h}:${m} ${period}`;
+      const created = await bookingService.addScheduleSlot(dayOfWeekMap[activeDay], startTime, endTime);
+
+      const newSlot = { id: created?.id, label: `${startTime} - ${endTime}` };
       setSchedule((prev) => ({
         ...prev,
         [activeDay]: {
           ...prev[activeDay],
-          slots: [...prev[activeDay].slots, timeSlot],
+          slots: [...prev[activeDay].slots, newSlot],
         },
       }));
       closeInput();
       showSuccess('Time slot added successfully');
-    } catch (error) {
+    } catch {
       showError('Failed to add time slot');
     }
   }
@@ -170,10 +182,8 @@ export default function EditSchedule() {
   async function deleteSlot(slot) {
     if (!window.confirm('Delete this time slot?')) return;
     try {
-      // Extract slotId from slot string if available, otherwise just remove locally
-      const slotId = slot.id; // Assuming backend returns id
-      if (slotId) {
-        await bookingService.deleteScheduleSlot(slotId);
+      if (slot.id != null) {
+        await bookingService.deleteScheduleSlot(slot.id);
       }
       setSchedule((prev) => ({
         ...prev,
@@ -183,7 +193,7 @@ export default function EditSchedule() {
         },
       }));
       showSuccess('Time slot removed');
-    } catch (error) {
+    } catch {
       showError('Failed to delete time slot');
     }
   }
@@ -196,7 +206,7 @@ export default function EditSchedule() {
         [dayId]: { ...prev[dayId], active: isActive },
       }));
       showSuccess(`${dayId.charAt(0).toUpperCase() + dayId.slice(1)} ${isActive ? 'activated' : 'deactivated'}`);
-    } catch (error) {
+    } catch {
       showError('Failed to change day status');
     }
   }
@@ -335,10 +345,10 @@ export default function EditSchedule() {
 
           <div className={styles.slotsList}>
             {dayData.slots.map((slot, index) => (
-              <div key={`${slot}-${index}`} className={styles.timeSlot}>
+              <div key={slot.id ?? `${slot.label}-${index}`} className={styles.timeSlot}>
                 <div className={styles.timeSlotLeft}>
                   <FaClock className={styles.slotIcon} aria-hidden="true" />
-                  <span className={styles.timeText}>{slot}</span>
+                  <span className={styles.timeText}>{slot.label}</span>
                 </div>
                 <button
                   type="button"

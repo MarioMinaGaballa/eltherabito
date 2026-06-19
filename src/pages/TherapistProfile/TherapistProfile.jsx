@@ -11,6 +11,16 @@ import styles from './TherapistProfile.module.css';
 
 const FALLBACK_PHOTO = 'https://randomuser.me/api/portraits/women/44.jpg';
 
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+/** Display a schedule day whether the API returns a name or a 0-6 number. */
+function dayName(apiDay) {
+  if (typeof apiDay === 'number' || /^\d+$/.test(String(apiDay))) {
+    return DAY_NAMES[Number(apiDay)] ?? String(apiDay);
+  }
+  return apiDay;
+}
+
 const DEFAULT_THERAPIST = {
   name: 'Dr. Sarah Miller',
   age: '38 Years',
@@ -74,7 +84,7 @@ export default function TherapistProfile() {
       try {
         const data = await bookingService.getDoctorSchedules();
         const mappedSchedule = data.map(s => ({
-          day: s.day,
+          day: dayName(s.day),
           startTime: s.startTime,
           endTime: s.endTime,
           id: s.id,
